@@ -751,19 +751,71 @@ if not exists (select 1 from sys.schemas where [name] = 'Clinical')
 	 exec('CREATE SCHEMA [Clinical]');
 go
 
-/* Output JSON */
+/* Output JSON 'model' - nowhere near */
 select 
-	Account.[Name] as AccountName,
-	Account.SalesforceId,
-	Account.AccountType,
-	Account.Archetype,
-	PrimarySubscription.[Name] as PrimarySubscription,
-	PrimarySubscription.ActivationDate,
-	IdentitySource.[Name] as IdentityStore,
-	Subscription.[Name] as Subscription,
-	Subscription.[Enabled] as SubscriptionEnabled
-from Client.Account Account
-	left outer join Client.PrimarySubscription PrimarySubscription on PrimarySubscription.AccountId = Account.AccountId	
-	left outer join Client.IdentitySource IdentitySource on PrimarySubscription.PrimarySubscriptionId = IdentitySource.PrimarySubscriptionId
-	left outer join Client.Subscription Subscription on Subscription.PrimarySubscriptionId = Subscription.SubscriptionId
-for json auto
+	a.[Name] as [Account.Name],
+	a.SalesforceId as [Account.SalesforceId],
+	t.[Name] as [Account.AccountType],
+	ps.[Name] as [Account.PrimarySubscription.Name],
+	ps.ActivationDate as [Account.PrimarySubscription.ActivationDate],
+	i.[Name] as [Account.PrimarySubscription.IdentityStore],
+	s.[Name] as [Account.PrimarySubscription.Subscription.Name],
+	s.[Enabled] as [Account.PrimarySubscription.Subscription.Enabled]
+from Client.Subscription s
+	inner join Client.PrimarySubscription ps on ps.PrimarySubscriptionId = s.PrimarySubscriptionId
+	inner join Client.IdentitySource i on ps.PrimarySubscriptionId = i.PrimarySubscriptionId
+	inner join Client.Account a on ps.AccountId = a.AccountId
+	inner join Client.AccountType t on a.AccountType = t.AccountTypeId				
+for json path, root('Subscriptions');
+
+/* Output JSON 'model' - getting closer */
+select 
+	a.[Name] as [Account.Name],
+	a.SalesforceId as [Account.SalesforceId],
+	t.[Name] as [Account.AccountType],
+	ps.[Name] as [Account.PrimarySubscription.Name],
+	ps.ActivationDate as [Account.PrimarySubscription.ActivationDate],
+	i.[Name] as [Account.PrimarySubscription.IdentityStore],
+	(
+		select 
+			s.[Name] as [Subscription.Name],
+			s.[Enabled] as [Subscription.Enabled]
+		from Client.Subscription s
+		where s.PrimarySubscriptionId = ps.PrimarySubscriptionId
+		for json path
+	) as [Account.PrimarySubscription.Subscriptions]
+from Client.PrimarySubscription ps
+	inner join Client.IdentitySource i on ps.PrimarySubscriptionId = i.PrimarySubscriptionId
+	inner join Client.Account a on ps.AccountId = a.AccountId
+	inner join Client.AccountType t on a.AccountType = t.AccountTypeId
+group by a.[Name], a.SalesforceId, t.[Name], ps.PrimarySubscriptionId, ps.[Name], ps.ActivationDate, i.[Name]
+for json path, root('Accounts');
+
+/* Output JSON 'model' - got it */
+select 
+	a.[Name] as [Account.Name],
+	a.SalesforceId as [Account.SalesforceId],
+	t.[Name] as [Account.AccountType],
+	(
+		select 
+			ps.[Name] as [Name],
+			ps.ActivationDate as [ActivationDate],
+			i.[Name] as [IdentityStore],
+			(
+				select 
+					s.[Name] as [Name],
+					s.[Enabled] as [Enabled]
+				from Client.Subscription s
+				where s.PrimarySubscriptionId = ps.PrimarySubscriptionId
+				for json path
+			) as [Subscriptions]
+		from Client.PrimarySubscription ps
+			inner join Client.IdentitySource i on ps.PrimarySubscriptionId = i.PrimarySubscriptionId
+		where ps.AccountId = a.AccountId
+		group by ps.PrimarySubscriptionId, ps.[Name], ps.ActivationDate, i.[Name]
+		for json path
+	) as [Account.PrimarySubscriptions]
+from Client.Account a
+	inner join Client.AccountType t on a.AccountType = t.AccountTypeId
+group by a.AccountId, a.[Name], a.SalesforceId, t.[Name]
+for json path, root('Accounts');
