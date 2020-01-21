@@ -751,6 +751,7 @@ if not exists (select 1 from sys.schemas where [name] = 'Clinical')
 	 exec('CREATE SCHEMA [Clinical]');
 go
 
+/* How do the model can be represented as a document? */
 /* Output JSON 'model' - nowhere near */
 select 
 	a.[Name] as [Account.Name],
