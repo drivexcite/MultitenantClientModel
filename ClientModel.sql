@@ -622,12 +622,8 @@ begin
 
 		-- Subscription Paths
 		-- Saint Agnes Network
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@saCaliforniaSubscriptionId, @saCaliforniaSubscriptionId);
 		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@samcCaliforniaSubscriptionId, @samcCaliforniaSubscriptionId);
 		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@sahcCaliforniaSubscriptionId, @sahcCaliforniaSubscriptionId);
-
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@saCaliforniaSubscriptionId, @samcCaliforniaSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@saCaliforniaSubscriptionId, @sahcCaliforniaSubscriptionId);		
 
 		-- Trinity Health of New England
 		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@trinityNewEnglandSubscriptionId, @trinityNewEnglandSubscriptionId);
@@ -652,14 +648,8 @@ begin
 		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@sjhNewYorkSubscriptionId, @sjhNewYorkSubscriptionId);
 		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@spNewYorkSubscriptionId, @spNewYorkSubscriptionId);
 
-		-- Data Links
-		-- Saint Agnes Customization
-		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@saCaliforniaSubscriptionId, @samcCaliforniaSubscriptionId, 1);
-		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@saCaliforniaSubscriptionId, @sahcCaliforniaSubscriptionId, 1);
-
+		-- Data Links		
 		-- Saint Agnes Activity
-		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@samcCaliforniaSubscriptionId, @saCaliforniaSubscriptionId, 2);
-		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@sahcCaliforniaSubscriptionId, @saCaliforniaSubscriptionId, 2);
 		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@sahcCaliforniaSubscriptionId, @samcCaliforniaSubscriptionId, 2);
 		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@samcCaliforniaSubscriptionId, @sahcCaliforniaSubscriptionId, 2);
 	
