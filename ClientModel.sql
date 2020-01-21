@@ -751,3 +751,19 @@ if not exists (select 1 from sys.schemas where [name] = 'Clinical')
 	 exec('CREATE SCHEMA [Clinical]');
 go
 
+/* Output JSON */
+select 
+	Account.[Name] as AccountName,
+	Account.SalesforceId,
+	Account.AccountType,
+	Account.Archetype,
+	PrimarySubscription.[Name] as PrimarySubscription,
+	PrimarySubscription.ActivationDate,
+	IdentitySource.[Name] as IdentityStore,
+	Subscription.[Name] as Subscription,
+	Subscription.[Enabled] as SubscriptionEnabled
+from Client.Account Account
+	left outer join Client.PrimarySubscription PrimarySubscription on PrimarySubscription.AccountId = Account.AccountId	
+	left outer join Client.IdentitySource IdentitySource on PrimarySubscription.PrimarySubscriptionId = IdentitySource.PrimarySubscriptionId
+	left outer join Client.Subscription Subscription on Subscription.PrimarySubscriptionId = Subscription.SubscriptionId
+for json auto
