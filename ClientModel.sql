@@ -50,6 +50,34 @@ begin
 end
 go
 
+if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'SubscriptionType' and TABLE_SCHEMA = 'Client')
+begin
+	create table Client.SubscriptionType 
+	(
+		SubscriptionTypeId tinyint not null,			
+		[Name] varchar(120) not null,		
+		CreatedDate datetime2(2) not null constraint DF_SubscriptionType_CreatedDate default getutcdate(),
+		CreatedBy nvarchar(128) not null constraint DF_SubscriptionType_CreatedBy default system_user,
+		constraint PK_SubscriptionType primary key clustered (SubscriptionTypeId)
+	);
+
+	create index UQ_SubscriptionType_Name on Client.SubscriptionType([Name]);
+end
+go
+
+if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'IdentityProvider' and TABLE_SCHEMA = 'Client')
+begin
+	create table Client.IdentityProvider 
+	(
+		IdentityProviderId int not null,
+		[Name] varchar(120) not null,
+		CreatedDate datetime2(2) not null constraint DF_IdentityProvider_CreatedDate default getutcdate(),
+		CreatedBy nvarchar(128) not null constraint DF_IdentityProvider_CreatedBy default system_user,
+		constraint PK_IdentityProvider primary key clustered (IdentityProviderId)
+	);
+end
+go
+
 if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Subscription' and TABLE_SCHEMA = 'Client')
 begin
 	create table Client.Subscription 
@@ -58,50 +86,37 @@ begin
 		AccountId int not null,
 		[Name] varchar(120) not null,
 		[OrganizationalUnit] nvarchar(120),
+		SubscriptionType tinyint not null,
 		ActivationDate datetime2(2) not null,
 		[Enabled] bit not null constraint DF_Subscription_Enabled default 1,
 		CreatedDate datetime2(2) not null constraint DF_Subscription_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_Subscription_CreatedBy default system_user,
 		constraint PK_Subscription primary key clustered (SubscriptionId),
-		constraint FK_Subscription_Account foreign key (AccountId) references Client.Account(AccountId)
+		constraint FK_Subscription_Account foreign key (AccountId) references Client.Account(AccountId),
+		constraint FK_Subscription_SubscriptionType foreign key (SubscriptionType) references Client.SubscriptionType(SubscriptionTypeId)
 	);
 
-	create index IX_Subscription_Account on Client.Account(AccountId);
+	create index IX_Subscription_Account on Client.Subscription(AccountId);
+	create index IX_Subscription_SubscriptionType on Client.Subscription(SubscriptionType);
 end
 go
 
-if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'SubscriptionPath' and TABLE_SCHEMA = 'Client')
+if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'IdentityProviderMapping' and TABLE_SCHEMA = 'Client')
 begin
-	create table Client.SubscriptionPath 
+	create table Client.IdentityProviderMapping 
 	(
-		AncestorSubscriptionId int not null,
-		DescendantSubscriptionId int not null,
-		CreatedDate datetime2(2) not null constraint DF_SubscriptionPath_CreatedDate default getutcdate(),
-		CreatedBy nvarchar(128) not null constraint DF_SubscriptionPath_CreatedBy default system_user,
-		constraint PK_SubscriptionPath primary key clustered (AncestorSubscriptionId, DescendantSubscriptionId),
-		constraint FK_SubscriptionPath_AncestorSubscription foreign key (AncestorSubscriptionId) references Client.Subscription(SubscriptionId),
-		constraint FK_SubscriptionPath_DescendantSubscription foreign key (DescendantSubscriptionId) references Client.Subscription(SubscriptionId)
+		SubscriptionId int not null,
+		IdentityProviderId int not null,
+		[Enabled] bit not null constraint DF_IdentityProviderMapping_Enabled default 1,
+		CreatedDate datetime2(2) not null constraint DF_IdentityProviderMapping_CreatedDate default getutcdate(),
+		CreatedBy nvarchar(128) not null constraint DF_IdentityProviderMapping_CreatedBy default system_user,
+		constraint PK_IdentityProviderMapping primary key clustered (SubscriptionId, IdentityProviderId),
+		constraint FK_IdentityProviderMapping_Subscription foreign key (SubscriptionId) references Client.Subscription(SubscriptionId),
+		constraint FK_IdentityProviderMapping_IdentityProvider foreign key (IdentityProviderId) references Client.IdentityProvider(IdentityProviderId),
 	);
 
-	create index IX_SubscriptionPath_AncestorSubscription on Client.SubscriptionPath(AncestorSubscriptionId);
-	create index IX_SubscriptionPath_DescendantSubscription on Client.SubscriptionPath(DescendantSubscriptionId);
-end
-go
-
-if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'IdentitySource' and TABLE_SCHEMA = 'Client')
-begin
-	create table Client.IdentitySource 
-	(
-		IdentitySourceId int not null,
-		[Name] varchar(120) not null,
-		PrimarySubscriptionId int not null,
-		CreatedDate datetime2(2) not null constraint DF_IdentitySource_CreatedDate default getutcdate(),
-		CreatedBy nvarchar(128) not null constraint DF_IdentitySource_CreatedBy default system_user,
-		constraint PK_IdentitySource primary key clustered (IdentitySourceId),
-		constraint FK_IdentitySource_PrimarySubscription foreign key (PrimarySubscriptionId) references Client.PrimarySubscription(PrimarySubscriptionId)
-	);
-
-	create index IX_IdentitySource_PrimarySubscription on Client.IdentitySource(PrimarySubscriptionId);
+	create index IX_IdentityProviderMapping_Subscription on Client.IdentityProviderMapping(SubscriptionId);
+	create index IX_IdentityProviderMapping_IdentityProvider on Client.IdentityProviderMapping(IdentityProviderId);
 end
 go
 
@@ -143,9 +158,10 @@ if(@removeAllTables = 1)
 begin	
 	drop table Client.DataLink;	
 	drop table Client.DataLinkType;	
-	drop table Client.IdentitySource;
-	drop table Client.SubscriptionPath;
+	drop table Client.IdentityProviderMapping;
+	drop table Client.IdentityProvider;
 	drop table Client.Subscription;
+	drop table Client.SubscriptionType;
 	drop table Client.Account;
 	drop table Client.Archetype;
 	drop table Client.AccountType;
@@ -163,18 +179,17 @@ begin
 	create sequence Client.SubscriptionId as int start with 1 increment by 1 no cycle;
 end
 
-if not exists (select 1 from sys.sequences where [name] = 'IdentitySourceId')
+if not exists (select 1 from sys.sequences where [name] = 'IdentityProviderId')
 begin
-	create sequence Client.IdentitySourceId as int start with 1 increment by 1 no cycle;
+	create sequence Client.IdentityProviderId as int start with 1 increment by 1 no cycle;
 end
 
 declare @removeAllSequences bit = 0;
 if(@removeAllSequences = 1)
 begin	
 	drop sequence Client.AccountId;		
-	drop sequence Client.PrimarySubscriptionId;	
 	drop sequence Client.SubscriptionId;	
-	drop sequence Client.IdentitySourceId;
+	drop sequence Client.IdentityProviderId;
 end;
 go
 
@@ -195,6 +210,10 @@ begin
 	insert into Client.Archetype(ArchetypeId, [Name]) values (4, 'Hybrid');
 	insert into Client.Archetype(ArchetypeId, [Name]) values (5, 'Enterprise');
 
+	-- Subscription Type
+	insert into Client.SubscriptionType(SubscriptionTypeId, [Name]) values (1, 'Open');
+	insert into Client.SubscriptionType(SubscriptionTypeId, [Name]) values (2, 'Closed');	
+
 	-- DataLink
 	insert into Client.DataLinkType(DataLinkTypeId, [Name]) values (1, 'Customization');
 	insert into Client.DataLinkType(DataLinkTypeId, [Name]) values (2, 'Activity');	
@@ -209,30 +228,23 @@ begin
 		begin transaction
 
 		-- Acount
-		declare @accountId int;
-		select @accountId = next value for Client.AccountId;
-		
+		declare @accountId int = next value for Client.AccountId;		
 		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'Health Dialog', 'SF00001', 1 /* Client */, 1 /* Basic */);
 
-		-- Primary Subscription
-		declare @primarySubscriptionId int;
-		select @primarySubscriptionId = next value for Client.PrimarySubscriptionId;
-
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@primarySubscriptionId, @accountId, 'Health Dialog', 'Main', getutcdate());
-
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @primarySubscriptionId, 'Healthwise Managed Directory');
+		declare @identityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@identityProviderId, 'Healthwise Managed Directory');
 
-		-- Secondary Subscriptions
-		declare @hdProductionSubscriptionId int;
-		select @hdProductionSubscriptionId = next value for Client.SubscriptionId;
+		-- Subscriptions
+		declare @hdProductionSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@hdProductionSubscriptionId, @accountId, 'Health Dialog', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@hdProductionSubscriptionId, @primarySubscriptionId, 'Production');
+		declare @hdTestSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@hdTestSubscriptionId, @accountId, 'Health Dialog', 'Test', 1, getutcdate());
 
-		declare @hdTestSubscriptionId int;
-		select @hdTestSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@hdTestSubscriptionId, @primarySubscriptionId, 'Test');
+		-- IdentityProvider Mappings
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@hdProductionSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@hdTestSubscriptionId, @identityProviderId);
 
 		-- Data Links
 		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@hdTestSubscriptionId, @hdProductionSubscriptionId, 1);
@@ -254,40 +266,31 @@ begin
 		begin transaction
 
 		-- Acount
-		declare @accountId int;
-		select @accountId = next value for Client.AccountId;
-		
+		declare @accountId int = next value for Client.AccountId;		
 		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'Iora', 'SF00002', 1 /* Client */, 2 /* Segregated */);
 
-		-- Primary Subscription
-		declare @primarySubscriptionId int;
-		select @primarySubscriptionId = next value for Client.PrimarySubscriptionId;
-
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@primarySubscriptionId, @accountId, 'Iora Health', 'Main', getutcdate());
-
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @primarySubscriptionId, 'Iora IdP');
+		declare @identityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@identityProviderId, 'Iora IdP');
 
-		-- Secondary Subscriptions
-		declare @ioraPrimaryCareSubscriptionId int;
-		select @ioraPrimaryCareSubscriptionId = next value for Client.SubscriptionId;
+		-- Subscriptions
+		declare @ioraPrimaryCareSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ioraPrimaryCareSubscriptionId, @accountId, 'Primary Care', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@ioraPrimaryCareSubscriptionId, @primarySubscriptionId, 'Primary Care');
+		declare @ioraPrimaryCareStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ioraPrimaryCareStagingSubscriptionId, @accountId, 'Primary Care', 'Staging', 1, getutcdate());
 
-		declare @ioraPrimaryCareStagingSubscriptionId int;
-		select @ioraPrimaryCareStagingSubscriptionId = next value for Client.SubscriptionId;
+		declare @ioraBehavioralSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ioraBehavioralSubscriptionId, @accountId, 'Behavioral Health', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@ioraPrimaryCareStagingSubscriptionId, @primarySubscriptionId, 'Primary Care - Staging');
+		declare @ioraBehavioralStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ioraBehavioralStagingSubscriptionId, @accountId, 'Behavioral Health', 'Staging', 1, getutcdate());
 
-		declare @ioraBehavioralSubscriptionId int;
-		select @ioraBehavioralSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@ioraBehavioralSubscriptionId, @primarySubscriptionId, 'Behavioral Health');
-
-		declare @ioraBehavioralStagingSubscriptionId int;
-		select @ioraBehavioralStagingSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@ioraBehavioralStagingSubscriptionId, @primarySubscriptionId, 'Behavioral Health - Staging');
+		-- IdentityProvider Mappings
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@ioraPrimaryCareSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@ioraPrimaryCareStagingSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@ioraBehavioralSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@ioraBehavioralStagingSubscriptionId, @identityProviderId);
 
 		-- Data Links
 		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@ioraBehavioralStagingSubscriptionId, @ioraPrimaryCareStagingSubscriptionId, 1);
@@ -316,73 +319,52 @@ begin
 		begin transaction
 
 		-- Acount
-		declare @accountId int;
-		select @accountId = next value for Client.AccountId;
-		
+		declare @accountId int = next value for Client.AccountId;		
 		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'EClinicalWorks', 'SF00003', 1 /* Client */, 3 /* Var */);
 
-		-- Primary Subscription 1
-		declare @primarySubscription1Id int;
-		select @primarySubscription1Id = next value for Client.PrimarySubscriptionId;
-
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@primarySubscription1Id, @accountId, 'ECW', 'Open Door Medical Center', getutcdate());
-
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @primarySubscription1Id, 'Open Door IdP');
+		declare @openDoorIdentityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@openDoorIdentityProviderId, 'Open Door IdP');
 
-		-- Primary Subscription 2
-		declare @primarySubscription2Id int;
-		select @primarySubscription2Id = next value for Client.PrimarySubscriptionId;
+		declare @primaryCareIdentityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@primaryCareIdentityProviderId, 'Prime Care IdP');
 
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@primarySubscription2Id, @accountId, 'ECW', 'Prime Care Family Practice', getutcdate());
+		declare @arkansasIdentityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@arkansasIdentityProviderId, 'AKHH IdP');
 
-		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @primarySubscription2Id, 'Prime Care IdP');
+		-- Subscriptions
+		declare @openDoorProductionSubscriptionId int  = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@openDoorProductionSubscriptionId, @accountId, 'Open Door', 'Production', 1, getutcdate());
 
-		-- Primary Subscription 3
-		declare @primarySubscription3Id int;
-		select @primarySubscription3Id = next value for Client.PrimarySubscriptionId;
+		declare @openDoorStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@openDoorStagingSubscriptionId, @accountId, 'Open Door', 'Staging', 1, getutcdate());		
 
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@primarySubscription3Id, @accountId, 'ECW', 'Arkansas Heart Hospital', getutcdate());
+		declare @primaryCareProductionSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@primaryCareProductionSubscriptionId, @accountId, 'Primary Care', 'Production', 1, getutcdate());
 
-		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @primarySubscription3Id, 'AKHH IdP');
+		declare @primaryCareStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@primaryCareStagingSubscriptionId, @accountId, 'Primary Care', 'Staging', 1, getutcdate());
 
-		-- Secondary Subscriptions
-		declare @secondarySubscriprion1Id int;
-		select @secondarySubscriprion1Id = next value for Client.SubscriptionId;
+		declare @arkansasProductionSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@arkansasProductionSubscriptionId, @accountId, 'Arkansas Heart', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@secondarySubscriprion1Id, @primarySubscription1Id, 'Open Door');
+		declare @arkansasStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@arkansasStagingSubscriptionId, @accountId, 'Arkansas Heart', 'Staging', 1, getutcdate());
 
-		declare @secondaryStagingSubscriprion1Id int;
-		select @secondaryStagingSubscriprion1Id = next value for Client.SubscriptionId;
+		-- IdentityProvider Mappings
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@openDoorProductionSubscriptionId, @openDoorIdentityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@openDoorStagingSubscriptionId, @openDoorIdentityProviderId);
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@secondaryStagingSubscriprion1Id, @primarySubscription1Id, 'Open Door - Staging');		
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@primaryCareProductionSubscriptionId, @primaryCareIdentityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@primaryCareStagingSubscriptionId, @primaryCareIdentityProviderId);
 
-		declare @secondarySubscriprion2Id int;
-		select @secondarySubscriprion2Id = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@secondarySubscriprion2Id, @primarySubscription2Id, 'Primary Care');
-
-		declare @secondaryStagingSubscriprion2Id int;
-		select @secondaryStagingSubscriprion2Id = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@secondaryStagingSubscriprion2Id, @primarySubscription2Id, 'Primary Care - Staging');
-
-		declare @secondarySubscriprion3Id int;
-		select @secondarySubscriprion3Id = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@secondarySubscriprion3Id, @primarySubscription3Id, 'Arkansas Heart');
-
-		declare @secondaryStagingSubscriprion3Id int;
-		select @secondaryStagingSubscriprion3Id = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@secondaryStagingSubscriprion3Id, @primarySubscription3Id, 'Arkansas Heart - Staging');
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@arkansasProductionSubscriptionId, @arkansasIdentityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@arkansasStagingSubscriptionId, @arkansasIdentityProviderId);
 
 		-- Data Links
-		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@secondaryStagingSubscriprion1Id, @secondarySubscriprion1Id, 1);
-		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@secondaryStagingSubscriprion2Id, @secondarySubscriprion2Id, 1);
-		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@secondaryStagingSubscriprion3Id, @secondarySubscriprion3Id, 1);
+		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@openDoorStagingSubscriptionId, @openDoorProductionSubscriptionId, 1);
+		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@primaryCareStagingSubscriptionId, @primaryCareProductionSubscriptionId, 1);
+		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@arkansasStagingSubscriptionId, @arkansasProductionSubscriptionId, 1);
 
 		commit;
 	end try
@@ -408,71 +390,71 @@ begin
 
 		-- Primary Subscription 1
 		declare @lumerisPrimarySubscriptionId int;
-		select @lumerisPrimarySubscriptionId = next value for Client.PrimarySubscriptionId;
+		select @lumerisPrimarySubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@lumerisPrimarySubscriptionId, @accountId, 'Lumeris', 'Main', getutcdate());
+		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@lumerisPrimarySubscriptionId, @accountId, 'Lumeris', 'Main', getutcdate());
 
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @lumerisPrimarySubscriptionId, 'Lumeris IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @lumerisPrimarySubscriptionId, 'Lumeris IdP');
 
 		-- Primary Subscription 2
 		declare @tenetPrimarySubscriptionId int;
-		select @tenetPrimarySubscriptionId = next value for Client.PrimarySubscriptionId;
+		select @tenetPrimarySubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@tenetPrimarySubscriptionId, @accountId, 'Tenet Healthcare', 'Tenet', getutcdate());
+		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@tenetPrimarySubscriptionId, @accountId, 'Tenet Healthcare', 'Tenet', getutcdate());
 
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @tenetPrimarySubscriptionId, 'Tenet IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @tenetPrimarySubscriptionId, 'Tenet IdP');
 
 		-- Primary Subscription 3
 		declare @aramarkPrimarySubscriptionId int;
-		select @aramarkPrimarySubscriptionId = next value for Client.PrimarySubscriptionId;
+		select @aramarkPrimarySubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@aramarkPrimarySubscriptionId, @accountId, 'Aramark Corporation', 'Aramark', getutcdate());
+		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@aramarkPrimarySubscriptionId, @accountId, 'Aramark Corporation', 'Aramark', getutcdate());
 
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @aramarkPrimarySubscriptionId, 'Aramark IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @aramarkPrimarySubscriptionId, 'Aramark IdP');
 		
 		-- Secondary Subscriptions
 		declare @bhcSubscriptionId int;
 		select @bhcSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@bhcSubscriptionId, @lumerisPrimarySubscriptionId, 'Behavioral Health Clinic');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@bhcSubscriptionId, @lumerisPrimarySubscriptionId, 'Behavioral Health Clinic');
 
 		declare @bhcStagingSubscriptionId int;
 		select @bhcStagingSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@bhcStagingSubscriptionId, @lumerisPrimarySubscriptionId, 'Behavioral Health Clinic - Staging');		
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@bhcStagingSubscriptionId, @lumerisPrimarySubscriptionId, 'Behavioral Health Clinic - Staging');		
 
 		declare @ucSubscriptionId int;
 		select @ucSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@ucSubscriptionId, @lumerisPrimarySubscriptionId, 'Urology Specialty Clinic');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ucSubscriptionId, @lumerisPrimarySubscriptionId, 'Urology Specialty Clinic');
 
 		declare @ucStagingSubscriptionId int;
 		select @ucStagingSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@ucStagingSubscriptionId, @lumerisPrimarySubscriptionId, 'Urology Specialty Clinic - Staging');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ucStagingSubscriptionId, @lumerisPrimarySubscriptionId, 'Urology Specialty Clinic - Staging');
 
 		declare @tenetSubscriptionId int;
 		select @tenetSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@tenetSubscriptionId, @tenetPrimarySubscriptionId, 'Tenet');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@tenetSubscriptionId, @tenetPrimarySubscriptionId, 'Tenet');
 
 		declare @tenetStagingSubscriptionId int;
 		select @tenetStagingSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@tenetStagingSubscriptionId, @tenetPrimarySubscriptionId, 'Tenet - Staging');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@tenetStagingSubscriptionId, @tenetPrimarySubscriptionId, 'Tenet - Staging');
 
 		declare @aramarkSubscriptionId int;
 		select @aramarkSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@aramarkSubscriptionId, @aramarkPrimarySubscriptionId, 'Aramark');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@aramarkSubscriptionId, @aramarkPrimarySubscriptionId, 'Aramark');
 
 		declare @aramarkStagingSubscriptionId int;
 		select @aramarkStagingSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@aramarkStagingSubscriptionId, @aramarkPrimarySubscriptionId, 'Aramark - Staging');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@aramarkStagingSubscriptionId, @aramarkPrimarySubscriptionId, 'Aramark - Staging');
 		
 		-- Data Links
 		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@bhcStagingSubscriptionId, @bhcSubscriptionId, 1);
@@ -509,93 +491,93 @@ begin
 
 		-- Primary Subscription 1
 		declare @caPrimarySubscriptionId int;
-		select @caPrimarySubscriptionId = next value for Client.PrimarySubscriptionId;
+		select @caPrimarySubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@caPrimarySubscriptionId, @accountId, 'Trinity California', 'California', getutcdate());
+		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@caPrimarySubscriptionId, @accountId, 'Trinity California', 'California', getutcdate());
 
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @caPrimarySubscriptionId, 'Trinity IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @caPrimarySubscriptionId, 'Trinity IdP');
 
 		-- Primary Subscription 2
 		declare @newEnglandPrimarySubscriptionId int;
-		select @newEnglandPrimarySubscriptionId = next value for Client.PrimarySubscriptionId;
+		select @newEnglandPrimarySubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@newEnglandPrimarySubscriptionId, @accountId, 'Trinity New England', 'New England', getutcdate());
+		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@newEnglandPrimarySubscriptionId, @accountId, 'Trinity New England', 'New England', getutcdate());
 
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @newEnglandPrimarySubscriptionId, 'Trinity IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @newEnglandPrimarySubscriptionId, 'Trinity IdP');
 
 		-- Primary Subscription 3
 		declare @nyPrimarySubscriptionId int;
-		select @nyPrimarySubscriptionId = next value for Client.PrimarySubscriptionId;
+		select @nyPrimarySubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.PrimarySubscription(PrimarySubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@nyPrimarySubscriptionId, @accountId, 'Trinity New York', 'New York', getutcdate());
+		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@nyPrimarySubscriptionId, @accountId, 'Trinity New York', 'New York', getutcdate());
 
 		-- Identity Source
-		insert into Client.IdentitySource(IdentitySourceId, PrimarySubscriptionId, [Name]) values (next value for Client.IdentitySourceId, @nyPrimarySubscriptionId, 'Trinity IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @nyPrimarySubscriptionId, 'Trinity IdP');
 
 		-- Saint Agnes Hospital Newtwork
 		declare @samcCaliforniaSubscriptionId int;
 		select @samcCaliforniaSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@samcCaliforniaSubscriptionId, @caPrimarySubscriptionId, 'Saint Agnes Medical Center');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@samcCaliforniaSubscriptionId, @caPrimarySubscriptionId, 'Saint Agnes Medical Center');
 
 		declare @sahcCaliforniaSubscriptionId int;
 		select @sahcCaliforniaSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@sahcCaliforniaSubscriptionId, @caPrimarySubscriptionId, 'Saint Agnes Home Care and Hospice');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sahcCaliforniaSubscriptionId, @caPrimarySubscriptionId, 'Saint Agnes Home Care and Hospice');
 
 		-- Trinity and Mercy in Connecticut and Massachusetts
 		declare @trinityNewEnglandSubscriptionId int;
 		select @trinityNewEnglandSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@trinityNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Trinity Health of New England');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@trinityNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Trinity Health of New England');
 
 		declare @sfNewEnglandSubscriptionId int;
 		select @sfNewEnglandSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@sfNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Francis Hospital and Medical Center');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sfNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Francis Hospital and Medical Center');
 
 		declare @msNewEnglandSubscriptionId int;
 		select @msNewEnglandSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@msNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Mount Sinai Rehabilitation Hospital');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@msNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Mount Sinai Rehabilitation Hospital');
 
 		declare @smNewEnglandSubscriptionId int;
 		select @smNewEnglandSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@smNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Hospital');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Hospital');
 
 		declare @smFamilyNewEnglandSubscriptionId int;
 		select @smFamilyNewEnglandSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@smFamilyNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Family Care Clinic');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smFamilyNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Family Care Clinic');
 
 		declare @smCardioNewEnglandSubscriptionId int;
 		select @smCardioNewEnglandSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@smCardioNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Cardiology Clinic');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smCardioNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Cardiology Clinic');
 
 		-- Trinity in New York
 		declare @mhNewYorkSubscriptionId int;
 		select @mhNewYorkSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@mhNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'Mercy Hospital of Buffalo');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@mhNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'Mercy Hospital of Buffalo');
 
 		declare @msmNewYorkSubscriptionId int;
 		select @msmNewYorkSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@msmNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'Mount St. Mary''s Hospital');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@msmNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'Mount St. Mary''s Hospital');
 
 		declare @sjhNewYorkSubscriptionId int;
 		select @sjhNewYorkSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@sjhNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'St. Joseph''s Hospital Health Center');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sjhNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'St. Joseph''s Hospital Health Center');
 
 		declare @spNewYorkSubscriptionId int;
 		select @spNewYorkSubscriptionId = next value for Client.SubscriptionId;
 
-		insert into Client.Subscription(SubscriptionId, PrimarySubscriptionId, [Name]) values (@spNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'St. Peter''s Health Care Services');
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@spNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'St. Peter''s Health Care Services');
 
 		-- Subscription Paths
 		-- Saint Agnes Network
@@ -676,8 +658,8 @@ group by t.[Name];
 select 
 	s.[Name] as Subscription
 from Client.Subscription s
-where s.PrimarySubscriptionId in (
-	select PrimarySubscriptionId 
+where s.SubscriptionId in (
+	select SubscriptionId 
 	from Client.PrimarySubscription p 
 		inner join Client.Account a on p.AccountId = a.AccountId
 	where a.[Name] = 'EClinicalWorks'
@@ -692,9 +674,9 @@ select
 	t.[Name] as DataLinkType
 from Client.DataLink l	
 	inner join Client.Subscription s1 on l.FromSubscriptionId = s1.SubscriptionId
-	inner join Client.PrimarySubscription p1 on s1.PrimarySubscriptionId = p1.PrimarySubscriptionId
+	inner join Client.PrimarySubscription p1 on s1.SubscriptionId = p1.SubscriptionId
 	inner join Client.Subscription s2 on l.ToSubscriptionId = s2.SubscriptionId
-	inner join Client.PrimarySubscription p2 on s2.PrimarySubscriptionId = p2.PrimarySubscriptionId
+	inner join Client.PrimarySubscription p2 on s2.SubscriptionId = p2.SubscriptionId
 	inner join Client.DataLinkType t on l.[Type] = t.DataLinkTypeId
 where p1.AccountId = p2.AccountId
 	and p2.AccountId in (
@@ -714,7 +696,7 @@ select
 	s1.[Enabled]	
 from Client.SubscriptionPath p
 	inner join Client.Subscription s1 on p.DescendantSubscriptionId = s1.SubscriptionId
-	inner join Client.PrimarySubscription ps on s1.PrimarySubscriptionId = ps.PrimarySubscriptionId
+	inner join Client.PrimarySubscription ps on s1.SubscriptionId = ps.SubscriptionId
 	inner join Client.Account a on ps.AccountId = a.AccountId
 where AncestorSubscriptionId in
 (
@@ -722,7 +704,7 @@ where AncestorSubscriptionId in
 	from Client.Subscription
 	where [Name] = 'Trinity Health of New England'
 )
-order by a.AccountId, ps.PrimarySubscriptionId, s1.SubscriptionId;
+order by a.AccountId, ps.SubscriptionId, s1.SubscriptionId;
 
 if not exists (select 1 from sys.schemas where [name] = 'Clinical')
 	 exec('CREATE SCHEMA [Clinical]');
@@ -740,8 +722,8 @@ select
 	s.[Name] as [Account.PrimarySubscription.Subscription.Name],
 	s.[Enabled] as [Account.PrimarySubscription.Subscription.Enabled]
 from Client.Subscription s
-	inner join Client.PrimarySubscription ps on ps.PrimarySubscriptionId = s.PrimarySubscriptionId
-	inner join Client.IdentitySource i on ps.PrimarySubscriptionId = i.PrimarySubscriptionId
+	inner join Client.PrimarySubscription ps on ps.SubscriptionId = s.SubscriptionId
+	inner join Client.IdentityProvider i on ps.SubscriptionId = i.SubscriptionId
 	inner join Client.Account a on ps.AccountId = a.AccountId
 	inner join Client.AccountType t on a.AccountType = t.AccountTypeId				
 for json path, root('Subscriptions');
@@ -759,14 +741,14 @@ select
 			s.[Name] as [Subscription.Name],
 			s.[Enabled] as [Subscription.Enabled]
 		from Client.Subscription s
-		where s.PrimarySubscriptionId = ps.PrimarySubscriptionId
+		where s.SubscriptionId = ps.SubscriptionId
 		for json path
 	) as [Account.PrimarySubscription.Subscriptions]
 from Client.PrimarySubscription ps
-	inner join Client.IdentitySource i on ps.PrimarySubscriptionId = i.PrimarySubscriptionId
+	inner join Client.IdentityProvider i on ps.SubscriptionId = i.SubscriptionId
 	inner join Client.Account a on ps.AccountId = a.AccountId
 	inner join Client.AccountType t on a.AccountType = t.AccountTypeId
-group by a.[Name], a.SalesforceId, t.[Name], ps.PrimarySubscriptionId, ps.[Name], ps.ActivationDate, i.[Name]
+group by a.[Name], a.SalesforceId, t.[Name], ps.SubscriptionId, ps.[Name], ps.ActivationDate, i.[Name]
 for json path, root('Accounts');
 
 /* Output JSON 'model' - got it */
@@ -784,13 +766,13 @@ select
 					s.[Name] as [Name],
 					s.[Enabled] as [Enabled]
 				from Client.Subscription s
-				where s.PrimarySubscriptionId = ps.PrimarySubscriptionId
+				where s.SubscriptionId = ps.SubscriptionId
 				for json path
 			) as [Subscriptions]
 		from Client.PrimarySubscription ps
-			inner join Client.IdentitySource i on ps.PrimarySubscriptionId = i.PrimarySubscriptionId
+			inner join Client.IdentityProvider i on ps.SubscriptionId = i.SubscriptionId
 		where ps.AccountId = a.AccountId
-		group by ps.PrimarySubscriptionId, ps.[Name], ps.ActivationDate, i.[Name]
+		group by ps.SubscriptionId, ps.[Name], ps.ActivationDate, i.[Name]
 		for json path
 	) as [Account.PrimarySubscriptions]
 from Client.Account a
