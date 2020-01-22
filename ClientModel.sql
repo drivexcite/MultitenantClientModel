@@ -15,8 +15,8 @@ if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Accou
 	);
 go
 
-if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'ClientArchetype' and TABLE_SCHEMA = 'Client')
-	create table Client.ClientArchetype 
+if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Archetype' and TABLE_SCHEMA = 'Client')
+	create table Client.Archetype 
 	(
 		ArchetypeId tinyint not null,
 		[Name] varchar(40) not null,
@@ -42,7 +42,7 @@ begin
 		constraint PK_Account primary key clustered (AccountId),
 		constraint UQ_Account_Name unique ([Name]),
 		constraint FK_Account_AccountType foreign key (AccountType) references Client.AccountType(AccountTypeId),
-		constraint FK_Account_ClientArchetype foreign key (Archetype) references Client.ClientArchetype(ArchetypeId)
+		constraint FK_Account_ClientArchetype foreign key (Archetype) references Client.Archetype(ArchetypeId)
 	);
 
 	create index IX_Account_AccountType on Client.Account(AccountType);
@@ -50,40 +50,23 @@ begin
 end
 go
 
-if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'PrimarySubscription' and TABLE_SCHEMA = 'Client')
-begin
-	create table Client.PrimarySubscription 
-	(
-		PrimarySubscriptionId int not null,
-		AccountId int not null,
-		[Name] varchar(120) not null,
-		[OrganizationalUnit] nvarchar(120),
-		ActivationDate datetime2(2) not null,
-		CreatedDate datetime2(2) not null constraint DF_PrimarySubscription_CreatedDate default getutcdate(),
-		CreatedBy nvarchar(128) not null constraint DF_PrimarySubscription_CreatedBy default system_user,
-		constraint PK_PrimarySubscription primary key clustered (PrimarySubscriptionId),
-		constraint FK_PrimarySubscription_Account foreign key (AccountId) references Client.Account(AccountId)
-	);
-
-	create index IX_PrimarySubscription_Account on Client.PrimarySubscription(AccountId);
-end
-go
-
 if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Subscription' and TABLE_SCHEMA = 'Client')
 begin
 	create table Client.Subscription 
 	(
-		SubscriptionId int not null,
-		PrimarySubscriptionId int not null,
+		SubscriptionId int not null,	
+		AccountId int not null,
 		[Name] varchar(120) not null,
+		[OrganizationalUnit] nvarchar(120),
+		ActivationDate datetime2(2) not null,
 		[Enabled] bit not null constraint DF_Subscription_Enabled default 1,
 		CreatedDate datetime2(2) not null constraint DF_Subscription_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_Subscription_CreatedBy default system_user,
 		constraint PK_Subscription primary key clustered (SubscriptionId),
-		constraint FK_Subscription_PrimarySubscription foreign key (PrimarySubscriptionId) references Client.PrimarySubscription(PrimarySubscriptionId)
+		constraint FK_Subscription_Account foreign key (AccountId) references Client.Account(AccountId)
 	);
 
-	create index IX_Subscription_PrimarySubscription on Client.Subscription(SubscriptionId);
+	create index IX_Subscription_Account on Client.Account(AccountId);
 end
 go
 
@@ -163,9 +146,8 @@ begin
 	drop table Client.IdentitySource;
 	drop table Client.SubscriptionPath;
 	drop table Client.Subscription;
-	drop table Client.PrimarySubscription;
 	drop table Client.Account;
-	drop table Client.ClientArchetype;
+	drop table Client.Archetype;
 	drop table Client.AccountType;
 end;
 go
@@ -174,11 +156,6 @@ go
 if not exists (select 1 from sys.sequences where [name] = 'AccountId')
 begin
 	create sequence Client.AccountId as int start with 1 increment by 1 no cycle;
-end
-
-if not exists (select 1 from sys.sequences where [name] = 'PrimarySubscriptionId')
-begin
-	create sequence Client.PrimarySubscriptionId as int start with 1 increment by 1 no cycle;
 end
 
 if not exists (select 1 from sys.sequences where [name] = 'SubscriptionId')
@@ -212,11 +189,11 @@ begin
 	insert into Client.AccountType(AccountTypeId, [Name]) values (3, 'Referral');
 
 	-- Archetype
-	insert into Client.ClientArchetype(ArchetypeId, [Name]) values (1, 'Basic');
-	insert into Client.ClientArchetype(ArchetypeId, [Name]) values (2, 'Segragated');
-	insert into Client.ClientArchetype(ArchetypeId, [Name]) values (3, 'Var');
-	insert into Client.ClientArchetype(ArchetypeId, [Name]) values (4, 'Hybrid');
-	insert into Client.ClientArchetype(ArchetypeId, [Name]) values (5, 'Enterprise');
+	insert into Client.Archetype(ArchetypeId, [Name]) values (1, 'Basic');
+	insert into Client.Archetype(ArchetypeId, [Name]) values (2, 'Segragated');
+	insert into Client.Archetype(ArchetypeId, [Name]) values (3, 'Var');
+	insert into Client.Archetype(ArchetypeId, [Name]) values (4, 'Hybrid');
+	insert into Client.Archetype(ArchetypeId, [Name]) values (5, 'Enterprise');
 
 	-- DataLink
 	insert into Client.DataLinkType(DataLinkTypeId, [Name]) values (1, 'Customization');
@@ -692,7 +669,7 @@ select
 	t.[Name] as Archetype,
 	count(*) as Clients 
 from Client.Account a
-	inner join Client.ClientArchetype t on a.Archetype = t.ArchetypeId
+	inner join Client.Archetype t on a.Archetype = t.ArchetypeId
 group by t.[Name];
 
 /* All subscriptions of a given client */
