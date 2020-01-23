@@ -388,74 +388,54 @@ begin
 		
 		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'Lumeris', 'SF00004', 1 /* Client */, 4 /* Hybrid */);
 
-		-- Primary Subscription 1
-		declare @lumerisPrimarySubscriptionId int;
-		select @lumerisPrimarySubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@lumerisPrimarySubscriptionId, @accountId, 'Lumeris', 'Main', getutcdate());
-
 		-- Identity Source
-		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @lumerisPrimarySubscriptionId, 'Lumeris IdP');
 
-		-- Primary Subscription 2
-		declare @tenetPrimarySubscriptionId int;
-		select @tenetPrimarySubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@tenetPrimarySubscriptionId, @accountId, 'Tenet Healthcare', 'Tenet', getutcdate());
-
-		-- Identity Source
-		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @tenetPrimarySubscriptionId, 'Tenet IdP');
-
-		-- Primary Subscription 3
-		declare @aramarkPrimarySubscriptionId int;
-		select @aramarkPrimarySubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@aramarkPrimarySubscriptionId, @accountId, 'Aramark Corporation', 'Aramark', getutcdate());
-
-		-- Identity Source
-		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @aramarkPrimarySubscriptionId, 'Aramark IdP');
+		declare @lumerisIdentityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@lumerisIdentityProviderId, 'Lumeris IdP');	
 		
-		-- Secondary Subscriptions
-		declare @bhcSubscriptionId int;
-		select @bhcSubscriptionId = next value for Client.SubscriptionId;
+		declare @tenetIdentityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@tenetIdentityProviderId, 'Tenet IdP');
 
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@bhcSubscriptionId, @lumerisPrimarySubscriptionId, 'Behavioral Health Clinic');
-
-		declare @bhcStagingSubscriptionId int;
-		select @bhcStagingSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@bhcStagingSubscriptionId, @lumerisPrimarySubscriptionId, 'Behavioral Health Clinic - Staging');		
-
-		declare @ucSubscriptionId int;
-		select @ucSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ucSubscriptionId, @lumerisPrimarySubscriptionId, 'Urology Specialty Clinic');
-
-		declare @ucStagingSubscriptionId int;
-		select @ucStagingSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ucStagingSubscriptionId, @lumerisPrimarySubscriptionId, 'Urology Specialty Clinic - Staging');
-
-		declare @tenetSubscriptionId int;
-		select @tenetSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@tenetSubscriptionId, @tenetPrimarySubscriptionId, 'Tenet');
-
-		declare @tenetStagingSubscriptionId int;
-		select @tenetStagingSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@tenetStagingSubscriptionId, @tenetPrimarySubscriptionId, 'Tenet - Staging');
-
-		declare @aramarkSubscriptionId int;
-		select @aramarkSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@aramarkSubscriptionId, @aramarkPrimarySubscriptionId, 'Aramark');
-
-		declare @aramarkStagingSubscriptionId int;
-		select @aramarkStagingSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@aramarkStagingSubscriptionId, @aramarkPrimarySubscriptionId, 'Aramark - Staging');
+		declare @aramarkIdentityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@aramarkIdentityProviderId, 'Aramark IdP');
 		
+		-- Subscriptions
+		declare @bhcSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@bhcSubscriptionId, @accountId, 'Behavioral Health Clinic', 'Production', 1, getutcdate());
+
+		declare @bhcStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@bhcStagingSubscriptionId, @accountId, 'Behavioral Health Clinic', 'Staging', 1, getutcdate());		
+
+		declare @ucSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ucSubscriptionId, @accountId, 'Urology Specialty Clinic', 'Production', 1, getutcdate());
+
+		declare @ucStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@ucStagingSubscriptionId, @accountId, 'Urology Specialty Clinic', 'Staging', 1, getutcdate());
+
+		declare @tenetSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@tenetSubscriptionId, @accountId, 'Tenet', 'Production', 1, getutcdate());
+
+		declare @tenetStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@tenetStagingSubscriptionId, @accountId, 'Tenet', 'Staging', 1, getutcdate());
+
+		declare @aramarkSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@aramarkSubscriptionId, @accountId, 'Aramark', 'Production', 1, getutcdate());
+
+		declare @aramarkStagingSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@aramarkStagingSubscriptionId, @accountId, 'Aramark', 'Staging', 1, getutcdate());
+		
+		-- IdentityProvider Mappings
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@bhcSubscriptionId, @lumerisIdentityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@bhcStagingSubscriptionId, @lumerisIdentityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@ucSubscriptionId, @lumerisIdentityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@ucStagingSubscriptionId, @lumerisIdentityProviderId);
+
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@tenetSubscriptionId, @tenetIdentityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@tenetStagingSubscriptionId, @tenetIdentityProviderId);
+
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@aramarkSubscriptionId, @aramarkIdentityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@aramarkStagingSubscriptionId, @aramarkIdentityProviderId);
+
 		-- Data Links
 		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@bhcStagingSubscriptionId, @bhcSubscriptionId, 1);
 		insert into Client.DataLink(FromSubscriptionId, ToSubscriptionId, [Type]) values (@ucStagingSubscriptionId, @ucSubscriptionId, 1);
@@ -484,128 +464,65 @@ begin
 		begin transaction
 
 		-- Acount
-		declare @accountId int;
-		select @accountId = next value for Client.AccountId;
-		
+		declare @accountId int = next value for Client.AccountId;		
 		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'Trinity', 'SF00005', 1 /* Client */, 5 /* Enterprise */);
-
-		-- Primary Subscription 1
-		declare @caPrimarySubscriptionId int;
-		select @caPrimarySubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@caPrimarySubscriptionId, @accountId, 'Trinity California', 'California', getutcdate());
-
+		
 		-- Identity Source
-		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @caPrimarySubscriptionId, 'Trinity IdP');
-
-		-- Primary Subscription 2
-		declare @newEnglandPrimarySubscriptionId int;
-		select @newEnglandPrimarySubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@newEnglandPrimarySubscriptionId, @accountId, 'Trinity New England', 'New England', getutcdate());
-
-		-- Identity Source
-		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @newEnglandPrimarySubscriptionId, 'Trinity IdP');
-
-		-- Primary Subscription 3
-		declare @nyPrimarySubscriptionId int;
-		select @nyPrimarySubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.PrimarySubscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, ActivationDate) values (@nyPrimarySubscriptionId, @accountId, 'Trinity New York', 'New York', getutcdate());
-
-		-- Identity Source
-		insert into Client.IdentityProvider(IdentityProviderId, SubscriptionId, [Name]) values (next value for Client.IdentityProviderId, @nyPrimarySubscriptionId, 'Trinity IdP');
+		declare @identityProviderId int = next value for Client.IdentityProviderId;
+		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@identityProviderId, 'Trinity IdP');
 
 		-- Saint Agnes Hospital Newtwork
-		declare @samcCaliforniaSubscriptionId int;
-		select @samcCaliforniaSubscriptionId = next value for Client.SubscriptionId;
+		declare @samcCaliforniaSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@samcCaliforniaSubscriptionId, @accountId, 'Saint Agnes Medical Center', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@samcCaliforniaSubscriptionId, @caPrimarySubscriptionId, 'Saint Agnes Medical Center');
-
-		declare @sahcCaliforniaSubscriptionId int;
-		select @sahcCaliforniaSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sahcCaliforniaSubscriptionId, @caPrimarySubscriptionId, 'Saint Agnes Home Care and Hospice');
+		declare @sahcCaliforniaSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sahcCaliforniaSubscriptionId, @accountId, 'Saint Agnes Home Care and Hospice', 'Production', 1, getutcdate());
 
 		-- Trinity and Mercy in Connecticut and Massachusetts
-		declare @trinityNewEnglandSubscriptionId int;
-		select @trinityNewEnglandSubscriptionId = next value for Client.SubscriptionId;
+		declare @trinityNewEnglandSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@trinityNewEnglandSubscriptionId, @accountId, 'Trinity Health of New England', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@trinityNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Trinity Health of New England');
+		declare @sfNewEnglandSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sfNewEnglandSubscriptionId, @accountId, 'Saint Francis Hospital and Medical Center', 'Production', 1, getutcdate());
 
-		declare @sfNewEnglandSubscriptionId int;
-		select @sfNewEnglandSubscriptionId = next value for Client.SubscriptionId;
+		declare @msNewEnglandSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@msNewEnglandSubscriptionId, @accountId, 'Mount Sinai Rehabilitation Hospital', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sfNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Francis Hospital and Medical Center');
+		declare @smNewEnglandSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smNewEnglandSubscriptionId, @accountId, 'Saint Mary''s Hospital', 'Production', 1, getutcdate());
 
-		declare @msNewEnglandSubscriptionId int;
-		select @msNewEnglandSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@msNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Mount Sinai Rehabilitation Hospital');
-
-		declare @smNewEnglandSubscriptionId int;
-		select @smNewEnglandSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Hospital');
-
-		declare @smFamilyNewEnglandSubscriptionId int;
-		select @smFamilyNewEnglandSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smFamilyNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Family Care Clinic');
-
-		declare @smCardioNewEnglandSubscriptionId int;
-		select @smCardioNewEnglandSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smCardioNewEnglandSubscriptionId, @newEnglandPrimarySubscriptionId, 'Saint Mary''s Cardiology Clinic');
+		declare @smFamilyNewEnglandSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smFamilyNewEnglandSubscriptionId, @accountId, 'Saint Mary''s Family Care Clinic', 'Production', 1, getutcdate());
+		
+		declare @smCardioNewEnglandSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@smCardioNewEnglandSubscriptionId, @accountId, 'Saint Mary''s Cardiology Clinic', 'Production', 1, getutcdate());
 
 		-- Trinity in New York
-		declare @mhNewYorkSubscriptionId int;
-		select @mhNewYorkSubscriptionId = next value for Client.SubscriptionId;
+		declare @mhNewYorkSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@mhNewYorkSubscriptionId, @accountId, 'Mercy Hospital of Buffalo', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@mhNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'Mercy Hospital of Buffalo');
+		declare @msmNewYorkSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@msmNewYorkSubscriptionId, @accountId, 'Mount St. Mary''s Hospital', 'Production', 1, getutcdate());
 
-		declare @msmNewYorkSubscriptionId int;
-		select @msmNewYorkSubscriptionId = next value for Client.SubscriptionId;
+		declare @sjhNewYorkSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sjhNewYorkSubscriptionId, @accountId, 'St. Joseph''s Hospital Health Center', 'Production', 1, getutcdate());
 
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@msmNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'Mount St. Mary''s Hospital');
+		declare @spNewYorkSubscriptionId int = next value for Client.SubscriptionId;
+		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@spNewYorkSubscriptionId, @accountId, 'St. Peter''s Health Care Services', 'Production', 1, getutcdate());		
 
-		declare @sjhNewYorkSubscriptionId int;
-		select @sjhNewYorkSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@sjhNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'St. Joseph''s Hospital Health Center');
-
-		declare @spNewYorkSubscriptionId int;
-		select @spNewYorkSubscriptionId = next value for Client.SubscriptionId;
-
-		insert into Client.Subscription(SubscriptionId, AccountId, [Name], OrganizationalUnit, SubscriptionType, ActivationDate) values (@spNewYorkSubscriptionId, @nyPrimarySubscriptionId, 'St. Peter''s Health Care Services');
-
-		-- Subscription Paths
-		-- Saint Agnes Network
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@samcCaliforniaSubscriptionId, @samcCaliforniaSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@sahcCaliforniaSubscriptionId, @sahcCaliforniaSubscriptionId);
-
-		-- Trinity Health of New England
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@trinityNewEnglandSubscriptionId, @trinityNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@sfNewEnglandSubscriptionId, @sfNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@msNewEnglandSubscriptionId, @msNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@smNewEnglandSubscriptionId, @smNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@smFamilyNewEnglandSubscriptionId, @smFamilyNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@smCardioNewEnglandSubscriptionId, @smCardioNewEnglandSubscriptionId);
-	
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@trinityNewEnglandSubscriptionId, @sfNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@trinityNewEnglandSubscriptionId, @msNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@trinityNewEnglandSubscriptionId, @smNewEnglandSubscriptionId);
-
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@trinityNewEnglandSubscriptionId, @smFamilyNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@smNewEnglandSubscriptionId, @smFamilyNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@trinityNewEnglandSubscriptionId, @smCardioNewEnglandSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@smNewEnglandSubscriptionId, @smCardioNewEnglandSubscriptionId);
-		
-		-- Trinity New York
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@mhNewYorkSubscriptionId, @mhNewYorkSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@msmNewYorkSubscriptionId, @msmNewYorkSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@sjhNewYorkSubscriptionId, @sjhNewYorkSubscriptionId);
-		insert into Client.SubscriptionPath(AncestorSubscriptionId, DescendantSubscriptionId) values (@spNewYorkSubscriptionId, @spNewYorkSubscriptionId);
+		-- IdentityProvider Mappings
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@samcCaliforniaSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@sahcCaliforniaSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@trinityNewEnglandSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@sfNewEnglandSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@msNewEnglandSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@smNewEnglandSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@smFamilyNewEnglandSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@smCardioNewEnglandSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@mhNewYorkSubscriptionId, @identityProviderId);		
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@msmNewYorkSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@sjhNewYorkSubscriptionId, @identityProviderId);
+		insert into Client.IdentityProviderMapping(SubscriptionId, IdentityProviderId) values(@spNewYorkSubscriptionId, @identityProviderId);
 
 		-- Data Links		
 		-- Saint Agnes Activity
@@ -656,12 +573,13 @@ group by t.[Name];
 
 /* All subscriptions of a given client */
 select 
-	s.[Name] as Subscription
+	s.[Name] as Subscription,
+	s.OrganizationalUnit
 from Client.Subscription s
 where s.SubscriptionId in (
 	select SubscriptionId 
-	from Client.PrimarySubscription p 
-		inner join Client.Account a on p.AccountId = a.AccountId
+	from Client.Subscription s 
+		inner join Client.Account a on s.AccountId = a.AccountId
 	where a.[Name] = 'EClinicalWorks'
 );
 
@@ -674,41 +592,15 @@ select
 	t.[Name] as DataLinkType
 from Client.DataLink l	
 	inner join Client.Subscription s1 on l.FromSubscriptionId = s1.SubscriptionId
-	inner join Client.PrimarySubscription p1 on s1.SubscriptionId = p1.SubscriptionId
 	inner join Client.Subscription s2 on l.ToSubscriptionId = s2.SubscriptionId
-	inner join Client.PrimarySubscription p2 on s2.SubscriptionId = p2.SubscriptionId
 	inner join Client.DataLinkType t on l.[Type] = t.DataLinkTypeId
-where p1.AccountId = p2.AccountId
-	and p2.AccountId in (
+where s1.AccountId = s2.AccountId
+	and s2.AccountId in (
 		select AccountId
 		from Client.Account a
 		where a.[Name] = 'Trinity'
 	)
 order by t.[Name]
-
-/* What are all the descendants of Trinity Health of New England? */
-select	
-	a.[Name] as Client,
-	ps.[Name] as [Primary],
-	ps.ActivationDate,
-	s1.SubscriptionId,
-	s1.[Name] as Descentand,
-	s1.[Enabled]	
-from Client.SubscriptionPath p
-	inner join Client.Subscription s1 on p.DescendantSubscriptionId = s1.SubscriptionId
-	inner join Client.PrimarySubscription ps on s1.SubscriptionId = ps.SubscriptionId
-	inner join Client.Account a on ps.AccountId = a.AccountId
-where AncestorSubscriptionId in
-(
-	select SubscriptionId 
-	from Client.Subscription
-	where [Name] = 'Trinity Health of New England'
-)
-order by a.AccountId, ps.SubscriptionId, s1.SubscriptionId;
-
-if not exists (select 1 from sys.schemas where [name] = 'Clinical')
-	 exec('CREATE SCHEMA [Clinical]');
-go
 
 /* How do the model can be represented as a document? */
 /* Output JSON 'model' - nowhere near */
@@ -716,15 +608,15 @@ select
 	a.[Name] as [Account.Name],
 	a.SalesforceId as [Account.SalesforceId],
 	t.[Name] as [Account.AccountType],
-	ps.[Name] as [Account.PrimarySubscription.Name],
-	ps.ActivationDate as [Account.PrimarySubscription.ActivationDate],
-	i.[Name] as [Account.PrimarySubscription.IdentityStore],
-	s.[Name] as [Account.PrimarySubscription.Subscription.Name],
-	s.[Enabled] as [Account.PrimarySubscription.Subscription.Enabled]
+	s.[Name] as [Account.Subscription.Name],
+	s.OrganizationalUnit as [Account.Subscription.Organization],
+	s.[Enabled] as [Account.Subscription.Enabled],
+	s.ActivationDate as [Account.Subscription.ActivationDate],
+	i.[Name] as [Account.Subscription.IdentityStore]	
 from Client.Subscription s
-	inner join Client.PrimarySubscription ps on ps.SubscriptionId = s.SubscriptionId
-	inner join Client.IdentityProvider i on ps.SubscriptionId = i.SubscriptionId
-	inner join Client.Account a on ps.AccountId = a.AccountId
+	inner join Client.IdentityProviderMapping m on m.SubscriptionId = s.SubscriptionId
+	inner join Client.IdentityProvider i on i.IdentityProviderId = m.IdentityProviderId
+	inner join Client.Account a on s.AccountId = a.AccountId
 	inner join Client.AccountType t on a.AccountType = t.AccountTypeId				
 for json path, root('Subscriptions');
 
@@ -733,22 +625,21 @@ select
 	a.[Name] as [Account.Name],
 	a.SalesforceId as [Account.SalesforceId],
 	t.[Name] as [Account.AccountType],
-	ps.[Name] as [Account.PrimarySubscription.Name],
-	ps.ActivationDate as [Account.PrimarySubscription.ActivationDate],
-	i.[Name] as [Account.PrimarySubscription.IdentityStore],
 	(
 		select 
-			s.[Name] as [Subscription.Name],
-			s.[Enabled] as [Subscription.Enabled]
+			s.[Name] as [Account.Subscription.Name],
+			s.OrganizationalUnit as [Account.Subscription.Organization],
+			s.[Enabled] as [Account.Subscription.Enabled],
+			s.ActivationDate as [Account.Subscription.ActivationDate],
+			i.[Name] as [Account.Subscription.IdentityStore]
 		from Client.Subscription s
-		where s.SubscriptionId = ps.SubscriptionId
+			inner join Client.IdentityProviderMapping m on m.SubscriptionId = s.SubscriptionId
+			inner join Client.IdentityProvider i on i.IdentityProviderId = m.IdentityProviderId
+		where s.AccountId = a.AccountId
 		for json path
-	) as [Account.PrimarySubscription.Subscriptions]
-from Client.PrimarySubscription ps
-	inner join Client.IdentityProvider i on ps.SubscriptionId = i.SubscriptionId
-	inner join Client.Account a on ps.AccountId = a.AccountId
+	) as [Account.Subscriptions]
+from Client.Account a
 	inner join Client.AccountType t on a.AccountType = t.AccountTypeId
-group by a.[Name], a.SalesforceId, t.[Name], ps.SubscriptionId, ps.[Name], ps.ActivationDate, i.[Name]
 for json path, root('Accounts');
 
 /* Output JSON 'model' - got it */
@@ -758,24 +649,17 @@ select
 	t.[Name] as [Account.AccountType],
 	(
 		select 
-			ps.[Name] as [Name],
-			ps.ActivationDate as [ActivationDate],
-			i.[Name] as [IdentityStore],
-			(
-				select 
-					s.[Name] as [Name],
-					s.[Enabled] as [Enabled]
-				from Client.Subscription s
-				where s.SubscriptionId = ps.SubscriptionId
-				for json path
-			) as [Subscriptions]
-		from Client.PrimarySubscription ps
-			inner join Client.IdentityProvider i on ps.SubscriptionId = i.SubscriptionId
-		where ps.AccountId = a.AccountId
-		group by ps.SubscriptionId, ps.[Name], ps.ActivationDate, i.[Name]
+			s.[Name] as [Account.Subscription.Name],
+			s.OrganizationalUnit as [Account.Subscription.Organization],
+			s.[Enabled] as [Account.Subscription.Enabled],
+			s.ActivationDate as [Account.Subscription.ActivationDate],
+			i.[Name] as [Account.Subscription.IdentityStore]
+		from Client.Subscription s
+			inner join Client.IdentityProviderMapping m on m.SubscriptionId = s.SubscriptionId
+			inner join Client.IdentityProvider i on i.IdentityProviderId = m.IdentityProviderId
+		where s.AccountId = a.AccountId
 		for json path
-	) as [Account.PrimarySubscriptions]
+	) as [Account.Subscriptions]
 from Client.Account a
 	inner join Client.AccountType t on a.AccountType = t.AccountTypeId
-group by a.AccountId, a.[Name], a.SalesforceId, t.[Name]
 for json path, root('Accounts');
