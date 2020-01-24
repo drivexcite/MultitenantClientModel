@@ -627,11 +627,11 @@ select
 	t.[Name] as [Account.AccountType],
 	(
 		select 
-			s.[Name] as [Account.Subscription.Name],
-			s.OrganizationalUnit as [Account.Subscription.Organization],
-			s.[Enabled] as [Account.Subscription.Enabled],
-			s.ActivationDate as [Account.Subscription.ActivationDate],
-			i.[Name] as [Account.Subscription.IdentityStore]
+			s.[Name] as [Subscription.Name],
+			s.OrganizationalUnit as [Subscription.Organization],
+			s.[Enabled] as [Subscription.Enabled],
+			s.ActivationDate as [Subscription.ActivationDate],
+			i.[Name] as [Subscription.IdentityStore]
 		from Client.Subscription s
 			inner join Client.IdentityProviderMapping m on m.SubscriptionId = s.SubscriptionId
 			inner join Client.IdentityProvider i on i.IdentityProviderId = m.IdentityProviderId
@@ -649,17 +649,34 @@ select
 	t.[Name] as [Account.AccountType],
 	(
 		select 
-			s.[Name] as [Account.Subscription.Name],
-			s.OrganizationalUnit as [Account.Subscription.Organization],
-			s.[Enabled] as [Account.Subscription.Enabled],
-			s.ActivationDate as [Account.Subscription.ActivationDate],
-			i.[Name] as [Account.Subscription.IdentityStore]
-		from Client.Subscription s
-			inner join Client.IdentityProviderMapping m on m.SubscriptionId = s.SubscriptionId
-			inner join Client.IdentityProvider i on i.IdentityProviderId = m.IdentityProviderId
+			s.[Name] as [Subscription.Name],
+			s.OrganizationalUnit as [Subscription.Organization],
+			s.[Enabled] as [Subscription.Enabled],
+			s.ActivationDate as [Subscription.ActivationDate],
+			(
+				select 
+					i.[Name] as [IdentityProvider.Name]
+				from Client.IdentityProviderMapping m
+					inner join Client.IdentityProvider i on i.IdentityProviderId = m.IdentityProviderId
+				where m.SubscriptionId = s.SubscriptionId
+				for json path
+			) as [Subscription.IdentityProviders],
+			(
+				select 
+					fs.[Name] as [DataLink.Subscription],
+					dlt.[Name] as [DataLink.Type]
+				from Client.DataLink d
+					inner join Client.Subscription fs on fs.SubscriptionId = d.ToSubscriptionId
+					inner join Client.DataLinkType dlt on d.Type = dlt.DataLinkTypeId
+				where d.FromSubscriptionId = s.SubscriptionId
+				for json path
+			) as [Subscription.DataLinks]
+			
+		from Client.Subscription s			
 		where s.AccountId = a.AccountId
 		for json path
 	) as [Account.Subscriptions]
 from Client.Account a
 	inner join Client.AccountType t on a.AccountType = t.AccountTypeId
+where a.Archetype = 1
 for json path, root('Accounts');
