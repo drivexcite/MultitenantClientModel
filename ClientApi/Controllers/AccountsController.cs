@@ -37,7 +37,7 @@ namespace ClientApi.Controllers
 
             try
             {
-                var (accounts, total) = await _getAccount.GetAccounts(skip, top);
+                var (accounts, total) = await _getAccount.GetAccountsAsync(skip, top);
                 var items = await _mapper.ProjectTo<AccountViewModel>(accounts).ToListAsync();                
                 var viewModel = new ServerSidePagedResult<AccountViewModel>(items, baseUrl, total, skip, top).BuildViewModel();
 

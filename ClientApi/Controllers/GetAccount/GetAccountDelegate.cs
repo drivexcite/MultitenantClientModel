@@ -14,7 +14,7 @@ namespace ClientApi.Controllers.CreateAccount
             _db = db;
         }
 
-        public async Task<(IQueryable<Account>, int)> GetAccounts(int skip = 0, int top = 10)
+        public async Task<(IQueryable<Account>, int)> GetAccountsAsync(int skip = 0, int top = 10)
         {
             return (_db.Accounts.Skip(skip).Take(top), await _db.Accounts.CountAsync());
         }

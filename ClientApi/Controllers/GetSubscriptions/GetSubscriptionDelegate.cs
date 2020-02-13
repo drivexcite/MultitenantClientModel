@@ -16,7 +16,7 @@ namespace ClientApi.Controllers.CreateAccount
             _db = db;
         }
 
-        public async Task<(IQueryable<Subscription>, int)> GetSubscriptions(int accountId, int skip = 0, int top = 10)
+        public async Task<(IQueryable<Subscription>, int)> GetSubscriptionsAsync(int accountId, int skip = 0, int top = 10)
         {
             var doesAccountExist = await (from a in _db.Accounts where a.AccountId == accountId select 1).AnyAsync();
             var accountSubscriptions = (from s in _db.Subscriptions where s.AccountId == accountId select s);
