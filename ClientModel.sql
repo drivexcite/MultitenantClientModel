@@ -2,9 +2,25 @@ if not exists (select 1 from sys.schemas where [name] = 'Client')
 	 exec('CREATE SCHEMA [Client]');
 go
 
+-- Sequences
+if not exists (select 1 from sys.sequences where [name] = 'AccountId')
+begin
+	create sequence Client.AccountId as int start with 1 increment by 1 no cycle;
+end
+
+if not exists (select 1 from sys.sequences where [name] = 'SubscriptionId')
+begin
+	create sequence Client.SubscriptionId as int start with 1 increment by 1 no cycle;
+end
+
+if not exists (select 1 from sys.sequences where [name] = 'IdentityProviderId')
+begin
+	create sequence Client.IdentityProviderId as int start with 1 increment by 1 no cycle;
+end
+
 -- Tables
 if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'AccountType' and TABLE_SCHEMA = 'Client')
-	create table Client.AccountType 
+	create table Client.AccountType
 	(
 		AccountTypeId tinyint not null,
 		[Name] varchar(40) not null,
@@ -31,22 +47,26 @@ if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Accou
 begin
 	create table Client.Account 
 	(
-		AccountId int not null,
+		AccountId int not null constraint DF_AccountTypeId default next value for Client.AccountId,
 		[Name] varchar(120) not null,
-		AccountType tinyint not null,
-		Archetype tinyint not null,
-		SalesforceId varchar(40) not null,
+		AccountTypeId tinyint not null,
+		ArchetypeId tinyint not null,
+		SalesforceAccountId varchar(40) not null,
+		SalesforceAccountUrl nvarchar(max),
+		SalesforceAccountNumber varchar(40),
+		SalesforceAccountManager nvarchar(120),
+		ContractNumber varchar(40),
 		[Enabled] bit not null constraint DF_Account_Enabled default 1,
 		CreatedDate datetime2(2) not null constraint DF_Account_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_Account_CreatedBy default system_user,
 		constraint PK_Account primary key clustered (AccountId),
 		constraint UQ_Account_Name unique ([Name]),
-		constraint FK_Account_AccountType foreign key (AccountType) references Client.AccountType(AccountTypeId),
-		constraint FK_Account_ClientArchetype foreign key (Archetype) references Client.Archetype(ArchetypeId)
+		constraint FK_Account_AccountType foreign key (AccountTypeId) references Client.AccountType(AccountTypeId),
+		constraint FK_Account_ClientArchetype foreign key (ArchetypeId) references Client.Archetype(ArchetypeId)
 	);
 
-	create index IX_Account_AccountType on Client.Account(AccountType);
-	create index IX_Account_ClientArchetype on Client.Account(Archetype);
+	create index IX_Account_AccountTypeId on Client.Account(AccountTypeId);
+	create index IX_Account_ClientArchetype on Client.Account(ArchetypeId);
 end
 go
 
@@ -69,7 +89,7 @@ if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Ident
 begin
 	create table Client.IdentityProvider 
 	(
-		IdentityProviderId int not null,
+		IdentityProviderId int not null constraint DF_IdentityProviderId default next value for Client.IdentityProviderId,
 		[Name] varchar(120) not null,
 		CreatedDate datetime2(2) not null constraint DF_IdentityProvider_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_IdentityProvider_CreatedBy default system_user,
@@ -82,22 +102,24 @@ if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Subsc
 begin
 	create table Client.Subscription 
 	(
-		SubscriptionId int not null,	
+		SubscriptionId int not null constraint DF_SubscriptionId default next value for Client.SubscriptionId,	
 		AccountId int not null,
-		[Name] varchar(120) not null,
+		[Name] nvarchar(120) not null,
+		[Description] nvarchar(max),
+		[Tags] nvarchar(max) constraint DF_Tags default '{}',
 		[OrganizationalUnit] nvarchar(120),
-		SubscriptionType tinyint not null,
+		SubscriptionTypeId tinyint not null,
 		ActivationDate datetime2(2) not null,
 		[Enabled] bit not null constraint DF_Subscription_Enabled default 1,
 		CreatedDate datetime2(2) not null constraint DF_Subscription_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_Subscription_CreatedBy default system_user,
 		constraint PK_Subscription primary key clustered (SubscriptionId),
 		constraint FK_Subscription_Account foreign key (AccountId) references Client.Account(AccountId),
-		constraint FK_Subscription_SubscriptionType foreign key (SubscriptionType) references Client.SubscriptionType(SubscriptionTypeId)
+		constraint FK_Subscription_SubscriptionType foreign key (SubscriptionTypeId) references Client.SubscriptionType(SubscriptionTypeId)
 	);
 
 	create index IX_Subscription_Account on Client.Subscription(AccountId);
-	create index IX_Subscription_SubscriptionType on Client.Subscription(SubscriptionType);
+	create index IX_Subscription_SubscriptionType on Client.Subscription(SubscriptionTypeId);
 end
 go
 
@@ -137,18 +159,18 @@ begin
 	(
 		FromSubscriptionId int not null,
 		ToSubscriptionId int not null,
-		[Type] tinyint not null,
+		DataLinkTypeId tinyint not null,
 		CreatedDate datetime2(2) not null constraint DF_DataLink_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_DataLink_CreatedBy default system_user,
-		constraint PK_DataLink primary key clustered (FromSubscriptionId, ToSubscriptionId, [Type]),
+		constraint PK_DataLink primary key clustered (FromSubscriptionId, ToSubscriptionId, DataLinkTypeId),
 		constraint FK_DataLink_FromSubscription foreign key (FromSubscriptionId) references Client.Subscription(SubscriptionId),
 		constraint FK_DataLink_ToSubscription foreign key (ToSubscriptionId) references Client.Subscription(SubscriptionId),
-		constraint FK_DataLink_DataLinkType foreign key ([Type]) references Client.DataLinkType(DataLinkTypeId)
+		constraint FK_DataLink_DataLinkType foreign key (DataLinkTypeId) references Client.DataLinkType(DataLinkTypeId)
 	);
 
 	create index IX_DataLink_FromSubscription on Client.DataLink(FromSubscriptionId);
 	create index IX_DataLink_ToSubscriptionId on Client.DataLink(ToSubscriptionId);
-	create index IX_DataLink_DataLinkType on Client.DataLink([Type]);
+	create index IX_DataLink_DataLinkType on Client.DataLink(DataLinkTypeId);
 end
 go
 
@@ -168,21 +190,7 @@ begin
 end;
 go
 
--- Sequences
-if not exists (select 1 from sys.sequences where [name] = 'AccountId')
-begin
-	create sequence Client.AccountId as int start with 1 increment by 1 no cycle;
-end
 
-if not exists (select 1 from sys.sequences where [name] = 'SubscriptionId')
-begin
-	create sequence Client.SubscriptionId as int start with 1 increment by 1 no cycle;
-end
-
-if not exists (select 1 from sys.sequences where [name] = 'IdentityProviderId')
-begin
-	create sequence Client.IdentityProviderId as int start with 1 increment by 1 no cycle;
-end
 
 declare @removeAllSequences bit = 0;
 if(@removeAllSequences = 1)
@@ -211,8 +219,9 @@ begin
 	insert into Client.Archetype(ArchetypeId, [Name]) values (5, 'Enterprise');
 
 	-- Subscription Type
-	insert into Client.SubscriptionType(SubscriptionTypeId, [Name]) values (1, 'Open');
-	insert into Client.SubscriptionType(SubscriptionTypeId, [Name]) values (2, 'Closed');	
+	insert into Client.SubscriptionType(SubscriptionTypeId, [Name]) values (1, 'Production');
+	insert into Client.SubscriptionType(SubscriptionTypeId, [Name]) values (2, 'Test');
+	insert into Client.SubscriptionType(SubscriptionTypeId, [Name]) values (3, 'Demo');
 
 	-- DataLink
 	insert into Client.DataLinkType(DataLinkTypeId, [Name]) values (1, 'Customization');
@@ -229,7 +238,7 @@ begin
 
 		-- Acount
 		declare @accountId int = next value for Client.AccountId;		
-		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'Health Dialog', 'SF00001', 1 /* Client */, 1 /* Basic */);
+		insert into Client.Account(AccountId, [Name], SalesforceAccountId, AccountType, Archetype) values (@accountId, 'Health Dialog', 'SF00001', 1 /* Client */, 1 /* Basic */);
 
 		-- Identity Source
 		declare @identityProviderId int = next value for Client.IdentityProviderId;
@@ -267,7 +276,7 @@ begin
 
 		-- Acount
 		declare @accountId int = next value for Client.AccountId;		
-		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'Iora', 'SF00002', 1 /* Client */, 2 /* Segregated */);
+		insert into Client.Account(AccountId, [Name], SalesforceAccountId, AccountType, Archetype) values (@accountId, 'Iora', 'SF00002', 1 /* Client */, 2 /* Segregated */);
 
 		-- Identity Source
 		declare @identityProviderId int = next value for Client.IdentityProviderId;
@@ -320,7 +329,7 @@ begin
 
 		-- Acount
 		declare @accountId int = next value for Client.AccountId;		
-		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'EClinicalWorks', 'SF00003', 1 /* Client */, 3 /* Var */);
+		insert into Client.Account(AccountId, [Name], SalesforceAccountId, AccountType, Archetype) values (@accountId, 'EClinicalWorks', 'SF00003', 1 /* Client */, 3 /* Var */);
 
 		-- Identity Source
 		declare @openDoorIdentityProviderId int = next value for Client.IdentityProviderId;
@@ -386,7 +395,7 @@ begin
 		declare @accountId int;
 		select @accountId = next value for Client.AccountId;
 		
-		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'Lumeris', 'SF00004', 1 /* Client */, 4 /* Hybrid */);
+		insert into Client.Account(AccountId, [Name], SalesforceAccountId, AccountType, Archetype) values (@accountId, 'Lumeris', 'SF00004', 1 /* Client */, 4 /* Hybrid */);
 
 		-- Identity Source
 
@@ -465,7 +474,7 @@ begin
 
 		-- Acount
 		declare @accountId int = next value for Client.AccountId;		
-		insert into Client.Account(AccountId, [Name], SalesforceId, AccountType, Archetype) values (@accountId, 'Trinity', 'SF00005', 1 /* Client */, 5 /* Enterprise */);
+		insert into Client.Account(AccountId, [Name], SalesforceAccountId, AccountType, Archetype) values (@accountId, 'Trinity', 'SF00005', 1 /* Client */, 5 /* Enterprise */);
 		
 		-- Identity Source
 		declare @identityProviderId int = next value for Client.IdentityProviderId;
@@ -560,7 +569,7 @@ select
 	t.[Name] as AccountType,
 	count(*) as Clients 
 from Client.Account a
-	inner join Client.AccountType t on a.AccountType = t.AccountTypeId
+	inner join Client.AccountType t on a.AccountTypeId = t.AccountTypeId
 group by t.[Name];
 
 /* How many clients per archetype */
@@ -568,7 +577,7 @@ select
 	t.[Name] as Archetype,
 	count(*) as Clients 
 from Client.Account a
-	inner join Client.Archetype t on a.Archetype = t.ArchetypeId
+	inner join Client.Archetype t on a.ArchetypeId = t.ArchetypeId
 group by t.[Name];
 
 /* All subscriptions of a given client */
@@ -580,7 +589,7 @@ where s.SubscriptionId in (
 	select SubscriptionId 
 	from Client.Subscription s 
 		inner join Client.Account a on s.AccountId = a.AccountId
-	where a.[Name] = 'EClinicalWorks'
+	where a.[Name] = 'Trinity'
 );
 
 /* What are all the defined DataLinks of a given client */
@@ -606,7 +615,7 @@ order by t.[Name]
 /* Output JSON 'model' - nowhere near */
 select 
 	a.[Name] as [Account.Name],
-	a.SalesforceId as [Account.SalesforceId],
+	a.SalesforceAccountId as [Account.SalesforceAccountId],
 	t.[Name] as [Account.AccountType],
 	s.[Name] as [Account.Subscription.Name],
 	s.OrganizationalUnit as [Account.Subscription.Organization],
@@ -623,7 +632,7 @@ for json path, root('Subscriptions');
 /* Output JSON 'model' - getting closer */
 select 
 	a.[Name] as [Account.Name],
-	a.SalesforceId as [Account.SalesforceId],
+	a.SalesforceAccountId as [Account.SalesforceAccountId],
 	t.[Name] as [Account.AccountType],
 	(
 		select 
@@ -645,7 +654,7 @@ for json path, root('Accounts');
 /* Output JSON 'model' - got it */
 select 
 	a.[Name] as [Account.Name],
-	a.SalesforceId as [Account.SalesforceId],
+	a.SalesforceAccountId as [Account.SalesforceAccountId],
 	t.[Name] as [Account.AccountType],
 	(
 		select 
@@ -680,3 +689,7 @@ from Client.Account a
 	inner join Client.AccountType t on a.AccountType = t.AccountTypeId
 where a.Archetype = 1
 for json path, root('Accounts');
+
+
+delete from Client.Subscription;
+delete from Client.Account;
