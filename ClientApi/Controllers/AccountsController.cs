@@ -1,11 +1,15 @@
 ﻿using ClientApi.ViewModels;
-using ClientApi.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using AutoMapper;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using ClientApi.Controllers.CreateAccount;
+using ClientApi.Exceptions;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
+using System;
+using Microsoft.Extensions.Logging;
 
 namespace ClientApi.Controllers
 {
@@ -13,18 +17,37 @@ namespace ClientApi.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly IMapper _mapper;
+        private readonly ILogger<AccountsController> _logger;
+        private readonly CreateAccountDelegate _createAccount;
+        private readonly GetAccountDelegate _getAccount;
 
-        public AccountsController(IMapper mapper)
+        public AccountsController(IMapper mapper, ILogger<AccountsController> logger, CreateAccountDelegate createAccount, GetAccountDelegate getAccount)
         {
             _mapper = mapper;
+            _logger = logger;
+            _createAccount = createAccount;
+            _getAccount = getAccount;
         }
 
         [HttpGet]
         [Route("accounts")]
-        public async Task<IEnumerable<AccountViewModel>> GetAccounts(int top = 100, int skip = 0)
+        public async Task<IActionResult> GetAccounts(int skip = 0, int top = 10)
         {
-            using var db = new ClientsDb();
-            return await _mapper.ProjectTo<AccountViewModel>(db.Accounts.Skip(skip).Take(top)).ToListAsync();
+            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
+
+            try
+            {
+                var (accounts, total) = _getAccount.GetAccounts(skip, top);
+                var items = await _mapper.ProjectTo<AccountViewModel>(accounts).ToListAsync();                
+                var viewModel = new ServerSidePagedResult<AccountViewModel>(items, baseUrl, total, skip, top).BuildViewModel();
+
+                return Ok(viewModel);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError($"An unexpected error ocurred while processing GET: {baseUrl}?{Request.QueryString}", e);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { result = "An unexpected error ocurred while fetching the accounts" });
+            }
         }
 
         /*
@@ -64,15 +87,35 @@ namespace ClientApi.Controllers
         [Route("accounts")]
         public async Task<IActionResult> CreateAccount(AccountViewModel accountViewModel)
         {
-            using var db = new ClientsDb();
-            var (dependencies, errorMessage) = await CreateAccountDelegate.PrefetchAndValidateAsync(accountViewModel, db);
+            try
+            {
+                var dependencies = await _createAccount.PrefetchAndValidateAsync(accountViewModel);
+                var account = await _createAccount.PersistAccountAsync(accountViewModel, dependencies);
 
-            if (errorMessage.Length > 0)
-                return BadRequest(errorMessage.ToString());
+                var viewModel = _mapper.Map<AccountViewModel>(account);
 
-            var account = await CreateAccountDelegate.PersistAccountAsync(accountViewModel, db, dependencies);
+                _logger.LogInformation("Created Account {@ViewModel}", viewModel);
 
-            return Ok(_mapper.Map<AccountViewModel>(account));
+                return Ok(viewModel);
+            }
+            catch(AccountValidationException e)
+            {
+                var message = new
+                {
+                    result = e.Message,
+                    details = (
+                        from i in e.InnerExceptions ?? new List<System.Exception>()
+                        select new { error = e.Message }
+                    ).ToList()
+                };
+
+                return BadRequest(message);
+            } 
+            catch(PersistenceException e)
+            {
+                _logger.LogError($"An unexpected error ocurred while processing POST: {Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}?{Request.QueryString}", e);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { result = e.Message });
+            }
         }
     }
 }

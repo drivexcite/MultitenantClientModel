@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ClientApi.Controllers
 {
-    internal class CreateAccountPrefetch
+    public class CreateAccountPrefetch
     {
         public bool IsExistingAccount { get; set; }
         public AccountType AccountType { get; set; }

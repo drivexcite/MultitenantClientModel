@@ -4,16 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
-using System.Text;
 using Newtonsoft.Json;
 using System;
-using Microsoft.EntityFrameworkCore;
+using ClientApi.Exceptions;
 
 namespace ClientApi.Controllers
 {
-    class CreateAccountDelegate
+    public class CreateAccountDelegate
     {
-        internal static async Task<Account> PersistAccountAsync(AccountViewModel accountViewModel, ClientsDb db, CreateAccountPrefetch dependencies)
+        private readonly ClientsDb _db;
+
+        public CreateAccountDelegate(ClientsDb db)
+        {
+            _db = db;
+        }
+
+        public async Task<Account> PersistAccountAsync(AccountViewModel accountViewModel, CreateAccountPrefetch dependencies)
         {
             var account = new Account
             {
@@ -48,55 +54,71 @@ namespace ClientApi.Controllers
             ).ToList();
 
             subscriptions.ForEach(account.Subscriptions.Add);
-            db.Accounts.Add(account);
+            _db.Accounts.Add(account);
 
-            await db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
             return account;
         }
 
-        internal static async Task<(CreateAccountPrefetch, StringBuilder)> PrefetchAndValidateAsync(AccountViewModel account, ClientsDb db)
+        public async Task<CreateAccountPrefetch> PrefetchAndValidateAsync(AccountViewModel account)
         {
-            var errorMessage = new StringBuilder();
+            var exceptions = new List<Exception>();
 
-            var existingAccountFuture = (from a in db.Accounts where a.AccountId == account.AccountId || a.Name == account.AccountName select 1).DeferredAny().FutureValue();            
-            var accountTypeFuture = (from t in db.AccountTypes where t.AccountTypeId == account.AccountTypeId select t).DeferredFirstOrDefault().FutureValue();
-            var archetypeFuture = (from a in db.Archetypes where a.ArchetypeId == account.ArchetypeId select a).DeferredFirstOrDefault().FutureValue();
-
-            var subscriptionTypeIds = new HashSet<byte>((from s in account.Subscriptions ?? new List<SubscriptionViewModel>() select s.SubscriptionTypeId).Distinct());
-            var subscriptionTypesFuture = (from t in db.SubscriptionTypes where subscriptionTypeIds.Contains(t.SubscriptionTypeId) select t).Future();
-
-            var subscriptionIds = new HashSet<int>((from s in account.Subscriptions where s.SubscriptionId != default select s.SubscriptionId).Distinct());
-            var existingSubscriptionsFuture = (from s in db.Subscriptions where subscriptionIds.Contains(s.SubscriptionId) select s.SubscriptionId).Future();
-
-            var existingAccount = await existingAccountFuture.ValueAsync();
-            var accountType = await accountTypeFuture.ValueAsync();
-            var archetype = await archetypeFuture.ValueAsync();
-            var subscriptionTypes = await subscriptionTypesFuture.ToListAsync();
-            var existingSubscriptions = await existingSubscriptionsFuture.ToListAsync();
-
-            if (existingAccount)
+            try
             {
-                var message = account.AccountId == default ? $"An Account with AccountName = {account.AccountName} already exists" : $"An account with the same AccountId: {account.AccountId} already exists";
-                errorMessage.AppendLine(message);
-            }                
+                var existingAccountFuture = (from a in _db.Accounts where a.AccountId == account.AccountId || a.Name == account.AccountName select 1).DeferredAny().FutureValue();
+                var accountTypeFuture = (from t in _db.AccountTypes where t.AccountTypeId == account.AccountTypeId select t).DeferredFirstOrDefault().FutureValue();
+                var archetypeFuture = (from a in _db.Archetypes where a.ArchetypeId == account.ArchetypeId select a).DeferredFirstOrDefault().FutureValue();
 
-            if (accountType == null)
-                errorMessage.AppendLine($"The account type with AccountTypeId [{account.AccountTypeId}] is invalid");
+                var subscriptionTypeIds = new HashSet<byte>((from s in account.Subscriptions ?? new List<SubscriptionViewModel>() select s.SubscriptionTypeId).Distinct());
+                var subscriptionTypesFuture = (from t in _db.SubscriptionTypes where subscriptionTypeIds.Contains(t.SubscriptionTypeId) select t).Future();
 
-            if (archetype == null)
-                errorMessage.AppendLine($"The archetype with ArchetypeId [{account.ArchetypeId}] is invalid");
+                var subscriptionIds = new HashSet<int>((from s in account.Subscriptions where s.SubscriptionId != default select s.SubscriptionId).Distinct());
+                var existingSubscriptionsFuture = (from s in _db.Subscriptions where subscriptionIds.Contains(s.SubscriptionId) select s.SubscriptionId).Future();
 
-            var subscriptionErrors = (
-                from s in account.Subscriptions
-                where !subscriptionTypeIds.Contains(s.SubscriptionTypeId)
-                select $"Invalid SubscriptionTypeId [{s.SubscriptionTypeId}] for SubscriptionId [{s.SubscriptionId}]"
-            ).ToList();
+                var existingAccount = await existingAccountFuture.ValueAsync();
+                var accountType = await accountTypeFuture.ValueAsync();
+                var archetype = await archetypeFuture.ValueAsync();
+                var subscriptionTypes = await subscriptionTypesFuture.ToListAsync();
+                var existingSubscriptions = await existingSubscriptionsFuture.ToListAsync();
 
-            subscriptionErrors.ForEach(e => errorMessage.AppendLine(e));
-            existingSubscriptions.ForEach(s => errorMessage.AppendLine($"A subscription with SubscriptionId [{s}] already exists"));
+                if (existingAccount)
+                {
+                    var message = account.AccountId == default ? $"An Account with AccountName = {account.AccountName} already exists" : $"An account with the same AccountId: {account.AccountId} already exists";
+                    exceptions.Add(new ExistingAccountException(message));
+                }
 
-            return (new CreateAccountPrefetch { IsExistingAccount = existingAccount, AccountType = accountType, Archetype = archetype, SubscriptionTypes = subscriptionTypes }, errorMessage);
+                if (accountType == null)
+                    exceptions.Add(new MalformedAccountException($"The account type with AccountTypeId [{account.AccountTypeId}] is invalid"));
+
+                if (archetype == null)
+                    exceptions.Add(new MalformedAccountException($"The archetype with ArchetypeId [{account.ArchetypeId}] is invalid"));
+
+                var subscriptionErrors = (
+                    from s in account.Subscriptions
+                    where !subscriptionTypeIds.Contains(s.SubscriptionTypeId)
+                    select new MalformedSubscriptionsException($"Invalid SubscriptionTypeId [{s.SubscriptionTypeId}] for SubscriptionId [{s.SubscriptionId}]")
+                ).ToList();
+
+                subscriptionErrors.ForEach(exceptions.Add);
+                existingSubscriptions.ForEach(s => exceptions.Add(new MalformedSubscriptionsException($"A subscription with SubscriptionId [{s}] already exists")));
+
+                if (exceptions.Count > 0)
+                    throw new AccountValidationException("Some errors where found in the Account object.") { InnerExceptions = exceptions };
+
+                return new CreateAccountPrefetch
+                {
+                    IsExistingAccount = existingAccount,
+                    AccountType = accountType,
+                    Archetype = archetype,
+                    SubscriptionTypes = subscriptionTypes
+                };
+            }
+            catch (Exception e)
+            {
+                throw new PersistenceException("An unexpected error ocurred while validating the Create Account request.", e);
+            }
         }
     }
 }

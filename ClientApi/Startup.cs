@@ -1,17 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
+using ClientApi.Controllers;
+using ClientApi.Controllers.CreateAccount;
+using ClientApi.Entities;
 using ClientApi.ViewModels.Mappings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace ClientApi
 {
@@ -29,6 +27,12 @@ namespace ClientApi
         {
             services.AddControllers();
             services.AddAutoMapper(typeof(AccountProfile));
+
+            var clientsDbConnectionString = Configuration["ConnectionStrings:ClientsDbConnectionString"];
+            services.AddDbContext<ClientsDb>(options => options.UseSqlServer(clientsDbConnectionString));
+
+            services.AddScoped<CreateAccountDelegate>();
+            services.AddScoped<GetAccountDelegate>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +53,8 @@ namespace ClientApi
             {
                 endpoints.MapControllers();
             });
+
+            app.UseSerilogRequestLogging();
         }
     }
 }
