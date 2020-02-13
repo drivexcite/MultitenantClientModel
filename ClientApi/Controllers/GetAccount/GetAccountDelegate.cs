@@ -1,5 +1,7 @@
 ﻿using ClientApi.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ClientApi.Controllers.CreateAccount
 {
@@ -12,9 +14,9 @@ namespace ClientApi.Controllers.CreateAccount
             _db = db;
         }
 
-        public (IQueryable<Account>, int) GetAccounts(int skip = 0, int top = 10)
+        public async Task<(IQueryable<Account>, int)> GetAccounts(int skip = 0, int top = 10)
         {
-            return (_db.Accounts.Skip(skip).Take(top), _db.Accounts.Count());
+            return (_db.Accounts.Skip(skip).Take(top), await _db.Accounts.CountAsync());
         }
     }
 }

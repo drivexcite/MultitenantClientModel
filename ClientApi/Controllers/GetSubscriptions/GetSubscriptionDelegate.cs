@@ -1,5 +1,6 @@
 ﻿using ClientApi.Entities;
 using ClientApi.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
@@ -15,9 +16,9 @@ namespace ClientApi.Controllers.CreateAccount
             _db = db;
         }
 
-        public (IQueryable<Subscription>, int) GetSubscriptions(int accountId, int skip = 0, int top = 10)
+        public async Task<(IQueryable<Subscription>, int)> GetSubscriptions(int accountId, int skip = 0, int top = 10)
         {
-            var doesAccountExist = (from a in _db.Accounts where a.AccountId == accountId select 1).Any();
+            var doesAccountExist = await (from a in _db.Accounts where a.AccountId == accountId select 1).AnyAsync();
             var accountSubscriptions = (from s in _db.Subscriptions where s.AccountId == accountId select s);
 
             if (!doesAccountExist)

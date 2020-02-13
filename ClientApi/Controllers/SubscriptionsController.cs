@@ -33,7 +33,7 @@ namespace ClientApi.Controllers
 
             try
             {
-                var (subscriptions, total) = _getSubscription.GetSubscriptions(accountId, skip, top);
+                var (subscriptions, total) = await _getSubscription.GetSubscriptions(accountId, skip, top);
                 var items = await _mapper.ProjectTo<SubscriptionViewModel>(subscriptions).ToListAsync();                   
                 var viewModel = new ServerSidePagedResult<SubscriptionViewModel>(items, baseUrl, total, skip, top).BuildViewModel();
 
