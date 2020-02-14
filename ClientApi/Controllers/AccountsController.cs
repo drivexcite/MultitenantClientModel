@@ -10,6 +10,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.Extensions.Logging;
+using ClientApi.Authorization;
 
 namespace ClientApi.Controllers
 {
@@ -31,6 +32,7 @@ namespace ClientApi.Controllers
 
         [HttpGet]
         [Route("accounts")]
+        [AuthorizeRbac("users:read")]
         public async Task<IActionResult> GetAccounts(int skip = 0, int top = 10)
         {
             var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
@@ -85,6 +87,7 @@ namespace ClientApi.Controllers
         */
         [HttpPost]
         [Route("accounts")]
+        [AuthorizeRbac("users:read")]
         public async Task<IActionResult> CreateAccount(AccountViewModel accountViewModel)
         {
             try

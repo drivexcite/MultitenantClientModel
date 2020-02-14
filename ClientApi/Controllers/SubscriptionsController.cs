@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.Extensions.Logging;
 using ClientApi.Exceptions;
+using ClientApi.Authorization;
 
 namespace ClientApi.Controllers
 {
@@ -27,6 +28,7 @@ namespace ClientApi.Controllers
 
         [HttpGet]
         [Route("accounts/{accountId}/subscriptions")]
+        [AuthorizeRbac("users:read")]
         public async Task<IActionResult> GetAccounts(int accountId, int skip = 0, int top = 10)
         {
             var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
