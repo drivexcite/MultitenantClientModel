@@ -1,30 +1,28 @@
 ﻿using ClientApi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using AutoMapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using ClientApi.Controllers.CreateAccount;
-using ClientApi.Exceptions;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.Extensions.Logging;
 using ClientApi.Authorization;
+using ClientModel.DataAccess.CreateAccount;
+using ClientModel.DataAccess.GetAccount;
+using ClientApi.Dtos;
+using ClientModel.Exceptions;
 
 namespace ClientApi.Controllers
 {
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly ILogger<AccountsController> _logger;
         private readonly CreateAccountDelegate _createAccount;
         private readonly GetAccountDelegate _getAccount;
 
-        public AccountsController(IMapper mapper, ILogger<AccountsController> logger, CreateAccountDelegate createAccount, GetAccountDelegate getAccount)
+        public AccountsController(ILogger<AccountsController> logger, CreateAccountDelegate createAccount, GetAccountDelegate getAccount)
         {
-            _mapper = mapper;
             _logger = logger;
             _createAccount = createAccount;
             _getAccount = getAccount;
@@ -39,13 +37,10 @@ namespace ClientApi.Controllers
 
             try
             {
-                var (accounts, total) = await _getAccount.GetAccountsAsync(skip, top);
-                var items = await _mapper.ProjectTo<AccountViewModel>(accounts).ToListAsync();                
-                var viewModel = new ServerSidePagedResult<AccountViewModel>(items, baseUrl, total, skip, top).BuildViewModel();
-
-                return Ok(viewModel);
+                var (items, total) = await _getAccount.GetAccounts(skip, top);
+                return Ok(items.CreateServerSidePagedResult(baseUrl, total, skip, top));
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogError($"An unexpected error ocurred while processing GET: {baseUrl}?{Request.QueryString}", e);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { result = "An unexpected error ocurred while fetching the accounts" });
@@ -88,20 +83,16 @@ namespace ClientApi.Controllers
         [HttpPost]
         [Route("accounts")]
         [AuthorizeRbac("users:read")]
-        public async Task<IActionResult> CreateAccount(AccountViewModel accountViewModel)
+        public async Task<IActionResult> CreateAccount(AccountDto accountViewModel)
         {
             try
             {
-                var dependencies = await _createAccount.PrefetchAndValidateAsync(accountViewModel);
-                var account = await _createAccount.PersistAccountAsync(accountViewModel, dependencies);
+                var account = _createAccount.CreateAccount(accountViewModel);
+                _logger.LogInformation("Created Account {@ViewModel}", account);
 
-                var viewModel = _mapper.Map<AccountViewModel>(account);
-
-                _logger.LogInformation("Created Account {@ViewModel}", viewModel);
-
-                return Ok(viewModel);
+                return Ok(account);
             }
-            catch(AccountValidationException e)
+            catch (AccountValidationException e)
             {
                 var message = new
                 {
@@ -113,8 +104,8 @@ namespace ClientApi.Controllers
                 };
 
                 return BadRequest(message);
-            } 
-            catch(PersistenceException e)
+            }
+            catch (PersistenceException e)
             {
                 _logger.LogError($"An unexpected error ocurred while processing POST: {Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}?{Request.QueryString}", e);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { result = e.Message });

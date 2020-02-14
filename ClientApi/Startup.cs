@@ -1,9 +1,10 @@
 using AutoMapper;
 using ClientApi.Authorization;
-using ClientApi.Controllers;
-using ClientApi.Controllers.CreateAccount;
-using ClientApi.Entities;
-using ClientApi.ViewModels.Mappings;
+using ClientApi.Dtos.Mappings;
+using ClientModel.DataAccess.CreateAccount;
+using ClientModel.DataAccess.GetAccount;
+using ClientModel.DataAccess.GetSubscriptions;
+using ClientModel.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;

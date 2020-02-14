@@ -1,3 +1,7 @@
 /ClientApi/obj
 /ClientApi/bin
 /ClientApi/.vs
+/ClientApi.Test/bin/Debug/netcoreapp3.1
+/ClientApi.Test/obj
+/ClientModel/bin/Debug/netstandard2.0
+/ClientModel/obj

@@ -1,27 +1,23 @@
 ﻿using ClientApi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using ClientApi.Controllers.CreateAccount;
 using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.Extensions.Logging;
-using ClientApi.Exceptions;
 using ClientApi.Authorization;
+using ClientModel.DataAccess.GetSubscriptions;
+using ClientModel.Exceptions;
 
 namespace ClientApi.Controllers
 {
     [ApiController]
     public class SubscriptionsController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly ILogger<SubscriptionsController> _logger;
         private readonly GetSubscriptionDelegate _getSubscription;
 
-        public SubscriptionsController(IMapper mapper, ILogger<SubscriptionsController> logger, GetSubscriptionDelegate getSubscription)
+        public SubscriptionsController(ILogger<SubscriptionsController> logger, GetSubscriptionDelegate getSubscription)
         {
-            _mapper = mapper;
             _logger = logger;
             _getSubscription = getSubscription;
         }
@@ -35,17 +31,14 @@ namespace ClientApi.Controllers
 
             try
             {
-                var (subscriptions, total) = await _getSubscription.GetSubscriptionsAsync(accountId, skip, top);
-                var items = await _mapper.ProjectTo<SubscriptionViewModel>(subscriptions).ToListAsync();                   
-                var viewModel = new ServerSidePagedResult<SubscriptionViewModel>(items, baseUrl, total, skip, top).BuildViewModel();
-
-                return Ok(viewModel);
+                var (items, total) = await _getSubscription.GetSubscriptionsAsync(accountId, skip, top);
+                return Ok(items.CreateServerSidePagedResult(baseUrl, total, skip, top));
             }
-            catch(AccountNotFoundException e)
+            catch (AccountNotFoundException e)
             {
                 return NotFound(e.Message);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogError($"An unexpected error ocurred while processing GET: {baseUrl}?{Request.QueryString}", e);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { result = $"An unexpected error ocurred while fetching the subscriptions for AccountId {accountId}" });
