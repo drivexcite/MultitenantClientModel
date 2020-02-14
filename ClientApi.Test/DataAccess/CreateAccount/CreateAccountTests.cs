@@ -2,10 +2,10 @@ using AutoMapper;
 using ClientApi.Dtos;
 using ClientApi.Dtos.Mappings;
 using ClientModel.DataAccess.CreateAccount;
-using ClientModel.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -132,17 +132,21 @@ namespace ClientModel.Test
         [TestMethod]
         public async Task GivenAnAccountDefinition_WhenTheTheAccountNameIsLongerThan120_ThenAValidationErrorShouldBeRaised()
         {
+            var memberInfo = typeof(AccountDto).GetProperty(nameof(AccountDto.AccountName));
+            var attribute = (StringLengthAttribute)Attribute.GetCustomAttribute(memberInfo, typeof(StringLengthAttribute));
+            var length = attribute.MaximumLength;
+
             await AssertValidationErorOnAccountCreation(
-                alterDto: dto => dto.AccountName = new string('e', 121), // Setup: 1 AccountName is just over 120 characters
+                alterDto: dto => dto.AccountName = new string('e', length + 1), // Setup: 1 AccountName is just over 120 characters
                 assertOverThrownException: e =>
                 {
                     Assert.AreEqual(typeof(AggregateException), e.GetType());
                     var aggregateException = (AggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
-                    Assert.AreEqual($"The field {nameof(AccountDto.AccountName)} must be a string with a maximum length of 120.", aggregateException.InnerExceptions[0].Message);
+                    Assert.AreEqual($"The field {nameof(AccountDto.AccountName)} must be a string with a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
                 },
-                explanation: $"the {nameof(AccountDto.AccountName)} property is larger than 120 characters"
+                explanation: $"the {nameof(AccountDto.AccountName)} property is larger than {length} characters"
             );
         }
 
@@ -159,8 +163,110 @@ namespace ClientModel.Test
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The account type with {nameof(AccountDto.AccountTypeId)} [0] is invalid", aggregateException.InnerExceptions[0].Message);
                 },
-                explanation: $"the {nameof(AccountDto.AccountType)} property has an invalid value",
+                explanation: $"the {nameof(AccountDto.AccountTypeId)} property has an invalid value",
                 useEntityModel: true
+            );
+        }
+
+        [TestMethod]
+        public async Task GivenAnAccountDefinition_WhenTheTheArchetypeIdIsMissing_ThenAValidationErrorShouldBeRaised()
+        {
+            await AssertValidationErorOnAccountCreation(
+                alterDto: dto => dto.ArchetypeId = 0, // Setup: AccountTypeId is set to an invalid value
+                assertOverThrownException: e =>
+                {
+                    Assert.AreEqual(typeof(AggregateException), e.GetType());
+                    var aggregateException = (AggregateException)e;
+
+                    Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
+                    Assert.AreEqual($"The archetype with {nameof(AccountDto.ArchetypeId)} [0] is invalid", aggregateException.InnerExceptions[0].Message);
+                },
+                explanation: $"the {nameof(AccountDto.ArchetypeId)} property has an invalid value",
+                useEntityModel: true
+            );
+        }
+
+        [TestMethod]
+        public async Task GivenAnAccountDefinition_WhenTheTheSalesforceAccountIdIsLongerThan40_ThenAValidationErrorShouldBeRaised()
+        {
+            var memberInfo = typeof(AccountDto).GetProperty(nameof(AccountDto.SalesforceAccountId));
+            var attribute = (StringLengthAttribute)Attribute.GetCustomAttribute(memberInfo, typeof(StringLengthAttribute));
+            var length = attribute.MaximumLength;
+
+            await AssertValidationErorOnAccountCreation(
+                alterDto: dto => dto.SalesforceAccountId = new string('e', length + 1), // Setup: 1 SalesforceAccountId is just over 40 characters
+                assertOverThrownException: e =>
+                {
+                    Assert.AreEqual(typeof(AggregateException), e.GetType());
+                    var aggregateException = (AggregateException)e;
+
+                    Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
+                    Assert.AreEqual($"The field {nameof(AccountDto.SalesforceAccountId)} must be a string with a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
+                },
+                explanation: $"the {nameof(AccountDto.SalesforceAccountId)} property is larger than {length} characters"
+            );
+        }
+
+        [TestMethod]
+        public async Task GivenAnAccountDefinition_WhenTheTheSalesforceAccountNumberIsLongerThan40_ThenAValidationErrorShouldBeRaised()
+        {
+            var memberInfo = typeof(AccountDto).GetProperty(nameof(AccountDto.SalesforceAccountNumber));
+            var attribute = (StringLengthAttribute)Attribute.GetCustomAttribute(memberInfo, typeof(StringLengthAttribute));
+            var length = attribute.MaximumLength;
+
+            await AssertValidationErorOnAccountCreation(
+                alterDto: dto => dto.SalesforceAccountNumber = new string('e', length + 1), // Setup: 1 SalesforceAccountNumber is just over 40 characters
+                assertOverThrownException: e =>
+                {
+                    Assert.AreEqual(typeof(AggregateException), e.GetType());
+                    var aggregateException = (AggregateException)e;
+
+                    Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
+                    Assert.AreEqual($"The field {nameof(AccountDto.SalesforceAccountNumber)} must be a string with a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
+                },
+                explanation: $"the {nameof(AccountDto.SalesforceAccountNumber)} property is larger than {length} characters"
+            );
+        }
+
+        [TestMethod]
+        public async Task GivenAnAccountDefinition_WhenTheTheSalesforceAccountManagerIsLongerThan120_ThenAValidationErrorShouldBeRaised()
+        {
+            var memberInfo = typeof(AccountDto).GetProperty(nameof(AccountDto.SalesforceAccountManager));
+            var attribute = (StringLengthAttribute)Attribute.GetCustomAttribute(memberInfo, typeof(StringLengthAttribute));
+            var length = attribute.MaximumLength;
+
+            await AssertValidationErorOnAccountCreation(
+                alterDto: dto => dto.SalesforceAccountManager = new string('e', length + 1), // Setup: 1 SalesforceAccountManager is just over 120 characters
+                assertOverThrownException: e =>
+                {
+                    Assert.AreEqual(typeof(AggregateException), e.GetType());
+                    var aggregateException = (AggregateException)e;
+
+                    Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
+                    Assert.AreEqual($"The field {nameof(AccountDto.SalesforceAccountManager)} must be a string with a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
+                },
+                explanation: $"the {nameof(AccountDto.SalesforceAccountManager)} property is larger than {length} characters"
+            );
+        }
+
+        [TestMethod]
+        public async Task GivenAnAccountDefinition_WhenTheTheContractNumberIsLongerThan40_ThenAValidationErrorShouldBeRaised()
+        {
+            var memberInfo = typeof(AccountDto).GetProperty(nameof(AccountDto.ContractNumber));
+            var attribute = (StringLengthAttribute)Attribute.GetCustomAttribute(memberInfo, typeof(StringLengthAttribute));
+            var length = attribute.MaximumLength;
+
+            await AssertValidationErorOnAccountCreation(
+                alterDto: dto => dto.ContractNumber = new string('e', length + 1), // Setup: 1 ContractNumber is just over 40 characters
+                assertOverThrownException: e =>
+                {
+                    Assert.AreEqual(typeof(AggregateException), e.GetType());
+                    var aggregateException = (AggregateException)e;
+
+                    Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
+                    Assert.AreEqual($"The field {nameof(AccountDto.ContractNumber)} must be a string with a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
+                },
+                explanation: $"the {nameof(AccountDto.ContractNumber)} property is larger than {length} characters"
             );
         }
     }
