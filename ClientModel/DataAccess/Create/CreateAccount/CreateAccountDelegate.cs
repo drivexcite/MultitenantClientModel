@@ -8,6 +8,8 @@ using ClientModel.Entities;
 using ClientApi.Dtos;
 using ClientModel.Exceptions;
 using AutoMapper;
+using System.ComponentModel.DataAnnotations;
+using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace ClientModel.DataAccess.CreateAccount
 {
@@ -24,6 +26,13 @@ namespace ClientModel.DataAccess.CreateAccount
 
         public virtual async Task<AccountDto> CreateAccount(AccountDto accountViewModel)
         {
+            var validationErrors = new List<ValidationResult>();
+
+            if (!Validator.TryValidateObject(accountViewModel, new ValidationContext(accountViewModel, null, null), validationErrors, true))
+            {
+                throw new AggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
+            }
+
             var dependencies = await PrefetchAndValidateAsync(accountViewModel);
             var account = await PersistAccountAsync(accountViewModel, dependencies);
 
@@ -96,27 +105,27 @@ namespace ClientModel.DataAccess.CreateAccount
 
                 if (existingAccount)
                 {
-                    var message = account.AccountId == default ? $"An Account with AccountName = {account.AccountName} already exists" : $"An account with the same AccountId: {account.AccountId} already exists";
+                    var message = account.AccountId == default ? $"An Account with {nameof(AccountDto.AccountName)} = {account.AccountName} already exists" : $"An account with the same AccountId: {account.AccountId} already exists";
                     exceptions.Add(new ExistingAccountException(message));
                 }
 
                 if (accountType == null)
-                    exceptions.Add(new MalformedAccountException($"The account type with AccountTypeId [{account.AccountTypeId}] is invalid"));
+                    exceptions.Add(new MalformedAccountException($"The account type with {nameof(AccountDto.AccountTypeId)} [{account.AccountTypeId}] is invalid"));
 
                 if (archetype == null)
-                    exceptions.Add(new MalformedAccountException($"The archetype with ArchetypeId [{account.ArchetypeId}] is invalid"));
+                    exceptions.Add(new MalformedAccountException($"The archetype with {nameof(AccountDto.ArchetypeId)} [{account.ArchetypeId}] is invalid"));
 
                 var subscriptionErrors = (
                     from s in account.Subscriptions
                     where !subscriptionTypeIds.Contains(s.SubscriptionTypeId)
-                    select new MalformedSubscriptionsException($"Invalid SubscriptionTypeId [{s.SubscriptionTypeId}] for SubscriptionId [{s.SubscriptionId}]")
+                    select new MalformedSubscriptionsException($"Invalid {nameof(SubscriptionDto.SubscriptionTypeId)} [{s.SubscriptionTypeId}] for SubscriptionId [{s.SubscriptionId}]")
                 ).ToList();
 
                 subscriptionErrors.ForEach(exceptions.Add);
-                existingSubscriptions.ForEach(s => exceptions.Add(new MalformedSubscriptionsException($"A subscription with SubscriptionId [{s}] already exists")));
+                existingSubscriptions.ForEach(s => exceptions.Add(new MalformedSubscriptionsException($"A subscription with {nameof(SubscriptionDto.SubscriptionTypeId)} [{s}] already exists")));
 
                 if (exceptions.Count > 0)
-                    throw new AccountValidationException("Some errors where found in the Account object.") { InnerExceptions = exceptions };
+                    throw new AggregateException("Some errors where found in the graph of the Account object.", exceptions);
 
                 return new CreateAccountPrefetch
                 {
@@ -125,6 +134,10 @@ namespace ClientModel.DataAccess.CreateAccount
                     Archetype = archetype,
                     SubscriptionTypes = subscriptionTypes
                 };
+            }
+            catch (AggregateException e)
+            {
+                throw e;
             }
             catch (Exception e)
             {

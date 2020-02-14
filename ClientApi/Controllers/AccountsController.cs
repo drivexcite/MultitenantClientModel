@@ -92,13 +92,13 @@ namespace ClientApi.Controllers
 
                 return Ok(account);
             }
-            catch (AccountValidationException e)
+            catch (AggregateException e)
             {
                 var message = new
                 {
                     result = e.Message,
                     details = (
-                        from i in e.InnerExceptions ?? new List<System.Exception>()
+                        from i in e.InnerExceptions
                         select new { error = e.Message }
                     ).ToList()
                 };
