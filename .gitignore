@@ -5,3 +5,5 @@
 /ClientApi.Test/obj
 /ClientModel/bin/Debug/netstandard2.0
 /ClientModel/obj
+/WebApi.Test/bin/Debug/netcoreapp3.1
+/WebApi.Test/obj

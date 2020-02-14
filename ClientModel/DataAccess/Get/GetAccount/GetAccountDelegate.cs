@@ -19,7 +19,7 @@ namespace ClientModel.DataAccess.GetAccount
             _mapper = mapper;
         }
 
-        public virtual async Task<(List<AccountDto>, int)> GetAccounts(int skip, int top)
+        public virtual async Task<(List<AccountDto>, int)> GetAccountsAsync(int skip, int top)
         {
             var (accounts, total) = await GetAccountsAndCountAsync(skip, top);
             return (await _mapper.ProjectTo<AccountDto>(accounts).ToListAsync(), total);
