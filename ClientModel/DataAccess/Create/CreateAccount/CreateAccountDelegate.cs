@@ -24,7 +24,7 @@ namespace ClientModel.DataAccess.CreateAccount
             _mapper = mapper;
         }
 
-        public virtual async Task<AccountDto> CreateAccount(AccountDto accountViewModel)
+        public virtual async Task<AccountDto> CreateAccountAsync(AccountDto accountViewModel)
         {
             var validationErrors = new List<ValidationResult>();
 

@@ -33,11 +33,11 @@ namespace ClientApi.Controllers
         [AuthorizeRbac("users:read")]
         public async Task<IActionResult> GetAccounts(int skip = 0, int top = 10)
         {
-            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
+            var baseUrl = $"{Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}";
 
             try
             {
-                var (items, total) = await _getAccount.GetAccounts(skip, top);
+                var (items, total) = await _getAccount.GetAccountsAsync(skip, top);
                 return Ok(items.CreateServerSidePagedResult(baseUrl, total, skip, top));
             }
             catch (Exception e)
@@ -87,7 +87,7 @@ namespace ClientApi.Controllers
         {
             try
             {
-                var account = _createAccount.CreateAccount(accountViewModel);
+                var account = await _createAccount.CreateAccountAsync(accountViewModel);
                 _logger.LogInformation("Created Account {@ViewModel}", account);
 
                 return Ok(account);
@@ -107,7 +107,7 @@ namespace ClientApi.Controllers
             }
             catch (PersistenceException e)
             {
-                _logger.LogError($"An unexpected error ocurred while processing POST: {Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}?{Request.QueryString}", e);
+                _logger.LogError($"An unexpected error ocurred while processing POST: {Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}?{Request?.QueryString}", e);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { result = e.Message });
             }
         }

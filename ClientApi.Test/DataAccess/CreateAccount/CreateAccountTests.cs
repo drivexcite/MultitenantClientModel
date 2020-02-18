@@ -83,7 +83,7 @@ namespace ClientModel.Test
             var createAccountDelegate = new CreateAccountDelegate(db, Mapper);
 
             // Exercise: invoke CreateAccount
-            await createAccountDelegate.CreateAccount(dto);
+            await createAccountDelegate.CreateAccountAsync(dto);
 
             // Assert: the number of Accounts in the InMemory database is now 1
             // Assert: the number of Subscriptions in the InMemory database is now 2
@@ -103,8 +103,8 @@ namespace ClientModel.Test
             // Exercise: invoke CreateAccount
             try
             {
-                await createAccountDelegate.CreateAccount(dto);
-                Assert.Fail($"The invocation to {nameof(CreateAccountDelegate.CreateAccount)} should not succeed when {explanation}.");
+                await createAccountDelegate.CreateAccountAsync(dto);
+                Assert.Fail($"The invocation to {nameof(CreateAccountDelegate.CreateAccountAsync)} should not succeed when {explanation}.");
             }
             catch (Exception e)
             {
