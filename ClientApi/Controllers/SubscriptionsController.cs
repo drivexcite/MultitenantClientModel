@@ -41,7 +41,7 @@ namespace ClientApi.Controllers
             catch (Exception e)
             {
                 _logger.LogError($"An unexpected error ocurred while processing GET: {baseUrl}?{Request.QueryString}", e);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { result = $"An unexpected error ocurred while fetching the subscriptions for AccountId {accountId}" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { result = $"An unexpected error occurred while fetching the subscriptions for AccountId {accountId}" });
             }
         }
     }

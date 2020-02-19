@@ -16,6 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.DataAccess.Get.GetAccount;
+using ClientModel.DataAccess.Get.GetIdentityProviders;
 using ClientModel.DataAccess.Get.GetSubscriptions;
 using ClientModel.Dtos.Mappings;
 
@@ -41,6 +42,7 @@ namespace ClientApi
             services.AddScoped<CreateAccountDelegate>();
             services.AddScoped<GetAccountDelegate>();
             services.AddScoped<GetSubscriptionDelegate>();
+            services.AddScoped<GetIdentityProvidersDelegate>();
 
             //var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.["TokenProviderOptions:SecretKey"]));           
 

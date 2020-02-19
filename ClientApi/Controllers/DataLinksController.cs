@@ -19,7 +19,15 @@ namespace ClientApi.Controllers
         [HttpGet]
         [Route("accounts/{accountId}/subscriptions/{subscriptionId}/dataLinks")]
         //[AuthorizeRbac("accounts:read")]
-        public async Task<IActionResult> GetAccounts()
+        public async Task<IActionResult> GetDataLinks()
+        {
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("accounts/{accountId}/subscriptions/{subscriptionId}/dataLinks")]
+        //[AuthorizeRbac("accounts:read")]
+        public async Task<IActionResult> CreateDataLinks()
         {
             return Ok();
         }
