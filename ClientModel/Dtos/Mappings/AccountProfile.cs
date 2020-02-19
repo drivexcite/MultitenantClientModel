@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using ClientModel.Entities;
 
-namespace ClientApi.Dtos.Mappings
+namespace ClientModel.Dtos.Mappings
 {
     public class AccountProfile : Profile
     {

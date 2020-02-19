@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace ClientApi.Dtos
+namespace ClientModel.Dtos
 {
     public class SubscriptionDto
     {
         public int SubscriptionId { get; set; }
 
         [Required]
-        [StringLength(120)]
+        [StringLength(120, MinimumLength = 1)]
         public string SubscriptionName { get; set; }
 
         public string Description { get; set; }

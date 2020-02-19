@@ -91,9 +91,11 @@ begin
 	(
 		IdentityProviderId int not null constraint DF_IdentityProviderId default next value for Client.IdentityProviderId,
 		[Name] varchar(120) not null,
+		AccountId int not null,
 		CreatedDate datetime2(2) not null constraint DF_IdentityProvider_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_IdentityProvider_CreatedBy default system_user,
-		constraint PK_IdentityProvider primary key clustered (IdentityProviderId)
+		constraint PK_IdentityProvider primary key clustered (IdentityProviderId),
+		constraint FK_IdentityProvider_Account foreign key(AccountId) references Client.Account(AccountId)
 	);
 end
 go
@@ -133,8 +135,10 @@ begin
 		CreatedDate datetime2(2) not null constraint DF_IdentityProviderMapping_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_IdentityProviderMapping_CreatedBy default system_user,
 		constraint PK_IdentityProviderMapping primary key clustered (SubscriptionId, IdentityProviderId),
-		constraint FK_IdentityProviderMapping_Subscription foreign key (SubscriptionId) references Client.Subscription(SubscriptionId),
-		constraint FK_IdentityProviderMapping_IdentityProvider foreign key (IdentityProviderId) references Client.IdentityProvider(IdentityProviderId),
+		constraint FK_IdentityProviderMapping_Subscription foreign key (SubscriptionId) references Client.Subscription(SubscriptionId)
+			on delete cascade,
+		constraint FK_IdentityProviderMapping_IdentityProvider foreign key (IdentityProviderId) references Client.IdentityProvider(IdentityProviderId)
+			on delete cascade,
 	);
 
 	create index IX_IdentityProviderMapping_Subscription on Client.IdentityProviderMapping(SubscriptionId);
@@ -242,7 +246,7 @@ begin
 
 		-- Identity Source
 		declare @identityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@identityProviderId, 'Healthwise Managed Directory');
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@identityProviderId, @accountId, 'Healthwise Managed Directory');
 
 		-- Subscriptions
 		declare @hdProductionSubscriptionId int = next value for Client.SubscriptionId;
@@ -280,7 +284,7 @@ begin
 
 		-- Identity Source
 		declare @identityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@identityProviderId, 'Iora IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@identityProviderId, @accountId, 'Iora IdP');
 
 		-- Subscriptions
 		declare @ioraPrimaryCareSubscriptionId int = next value for Client.SubscriptionId;
@@ -333,13 +337,13 @@ begin
 
 		-- Identity Source
 		declare @openDoorIdentityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@openDoorIdentityProviderId, 'Open Door IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@openDoorIdentityProviderId, @accountId, 'Open Door IdP');
 
 		declare @primaryCareIdentityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@primaryCareIdentityProviderId, 'Prime Care IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@primaryCareIdentityProviderId, @accountId, 'Prime Care IdP');
 
 		declare @arkansasIdentityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@arkansasIdentityProviderId, 'AKHH IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@arkansasIdentityProviderId, @accountId, 'AKHH IdP');
 
 		-- Subscriptions
 		declare @openDoorProductionSubscriptionId int  = next value for Client.SubscriptionId;
@@ -400,13 +404,13 @@ begin
 		-- Identity Source
 
 		declare @lumerisIdentityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@lumerisIdentityProviderId, 'Lumeris IdP');	
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@lumerisIdentityProviderId, @accountId, 'Lumeris IdP');	
 		
 		declare @tenetIdentityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@tenetIdentityProviderId, 'Tenet IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@tenetIdentityProviderId, @accountId, 'Tenet IdP');
 
 		declare @aramarkIdentityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@aramarkIdentityProviderId, 'Aramark IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@aramarkIdentityProviderId, @accountId, 'Aramark IdP');
 		
 		-- Subscriptions
 		declare @bhcSubscriptionId int = next value for Client.SubscriptionId;
@@ -478,7 +482,7 @@ begin
 		
 		-- Identity Source
 		declare @identityProviderId int = next value for Client.IdentityProviderId;
-		insert into Client.IdentityProvider(IdentityProviderId, [Name]) values (@identityProviderId, 'Trinity IdP');
+		insert into Client.IdentityProvider(IdentityProviderId, AccountId, [Name]) values (@identityProviderId, @accountId, 'Trinity IdP');
 
 		-- Saint Agnes Hospital Newtwork
 		declare @samcCaliforniaSubscriptionId int = next value for Client.SubscriptionId;
@@ -691,5 +695,8 @@ where a.ArchetypeId = 1
 for json path, root('Accounts');
 
 
---delete from Client.Subscription;
---delete from Client.Account;
+delete from Client.DataLink;
+delete from Client.IdentityProviderMapping;
+delete from Client.IdentityProvider;
+delete from Client.Subscription;
+delete from Client.Account;

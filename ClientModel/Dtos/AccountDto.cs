@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace ClientApi.Dtos
+namespace ClientModel.Dtos
 {
     public class AccountDto
     {
@@ -22,22 +22,24 @@ namespace ClientApi.Dtos
         public string Achetype { get; set; }
 
         [Required]
-        [StringLength(40)]
+        [StringLength(40, MinimumLength = 1)]
         public string SalesforceAccountId { get; set; }
         
         public string SalesforceAccountUrl { get; set; }
 
-        [StringLength(40)]
+        [StringLength(40, MinimumLength = 1)]
         public string SalesforceAccountNumber { get; set; }
 
-        [StringLength(120)]
+        [StringLength(120, MinimumLength = 1)]
         public string SalesforceAccountManager { get; set; }
         
-        [StringLength(40)]
+        [StringLength(40, MinimumLength = 1)]
         public string ContractNumber { get; set; }
         
         public int SubscriptionCount { get; set; }
         
-        public List<SubscriptionDto> Subscriptions { get; set; }
+        public List<SubscriptionDto> Subscriptions { get; set; } = new List<SubscriptionDto>();
+
+        public List<IdentityProviderDto> IdentityProviders { get; set; } = new List<IdentityProviderDto>();
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using ClientModel.Entities.Configuration;
+﻿using ClientModel.Entities.Configuration;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClientModel.Entities

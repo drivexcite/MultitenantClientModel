@@ -1,14 +1,13 @@
-﻿using AutoMapper;
-using ClientApi.Dtos;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using ClientModel.Dtos;
 using ClientModel.Entities;
 using ClientModel.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Z.EntityFramework.Plus;
 
-namespace ClientModel.DataAccess.GetSubscriptions
+namespace ClientModel.DataAccess.Get.GetSubscriptions
 {
     public class GetSubscriptionDelegate
     {

@@ -1,8 +1,8 @@
-﻿using ClientModel.Entities;
+﻿using System;
+using ClientModel.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
 
-namespace ClientModel.Test
+namespace ClientModel.Test.DataAccess.CreateAccount
 {
     public class ClientsDbTestProvider
     {

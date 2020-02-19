@@ -8,6 +8,7 @@ namespace ClientModel.Entities
         public Account()
         {
             Subscriptions = new HashSet<Subscription>();
+            IdentityProviders = new HashSet<IdentityProvider>();
         }
 
         public int AccountId { get; set; }
@@ -26,5 +27,6 @@ namespace ClientModel.Entities
         public virtual AccountType AccountType { get; set; }
         public virtual Archetype Archetype { get; set; }
         public virtual ICollection<Subscription> Subscriptions { get; set; }
+        public virtual ICollection<IdentityProvider> IdentityProviders { get; set; }
     }
 }

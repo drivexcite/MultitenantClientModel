@@ -1,9 +1,5 @@
 using AutoMapper;
 using ClientApi.Authorization;
-using ClientApi.Dtos.Mappings;
-using ClientModel.DataAccess.CreateAccount;
-using ClientModel.DataAccess.GetAccount;
-using ClientModel.DataAccess.GetSubscriptions;
 using ClientModel.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +14,10 @@ using Serilog;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
+using ClientModel.DataAccess.Create.CreateAccount;
+using ClientModel.DataAccess.Get.GetAccount;
+using ClientModel.DataAccess.Get.GetSubscriptions;
+using ClientModel.Dtos.Mappings;
 
 namespace ClientApi
 {

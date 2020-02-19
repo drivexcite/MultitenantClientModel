@@ -16,7 +16,7 @@ namespace ClientApi.Authorization
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RbacRequirement requirement)
         {
-            _logger.LogWarning($"Evaluating RBAC authorization requirement for {requirement.Setting}");
+            _logger.LogWarning($"Evaluating RBAC authorization requirement for {requirement?.Setting}");
             var requirementPresentInJwt = (from c in context.User.Claims where c.Type == "rbac" && c.Value == requirement.Setting select 1).Any();
             
             if (requirementPresentInJwt)

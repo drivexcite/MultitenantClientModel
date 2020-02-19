@@ -1,12 +1,12 @@
-﻿using AutoMapper;
-using ClientApi.Dtos;
-using ClientModel.Entities;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using ClientModel.Dtos;
+using ClientModel.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace ClientModel.DataAccess.GetAccount
+namespace ClientModel.DataAccess.Get.GetAccount
 {
     public class GetAccountDelegate
     {

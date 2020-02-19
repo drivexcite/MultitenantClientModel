@@ -1,9 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using ClientModel.Entities;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
-namespace ClientApi.Dtos.Mappings
+namespace ClientModel.Dtos.Mappings
 {
     public class SubscriptionProfile : Profile
     {

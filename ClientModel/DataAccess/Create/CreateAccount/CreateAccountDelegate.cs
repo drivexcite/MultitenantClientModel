@@ -1,17 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Z.EntityFramework.Plus;
-using Newtonsoft.Json;
-using System;
-using ClientModel.Entities;
-using ClientApi.Dtos;
-using ClientModel.Exceptions;
 using AutoMapper;
-using System.ComponentModel.DataAnnotations;
+using ClientModel.Dtos;
+using ClientModel.Entities;
+using ClientModel.Exceptions;
+using Newtonsoft.Json;
+using Z.EntityFramework.Plus;
 using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
-namespace ClientModel.DataAccess.CreateAccount
+namespace ClientModel.DataAccess.Create.CreateAccount
 {
     public class CreateAccountDelegate
     {
@@ -28,7 +28,15 @@ namespace ClientModel.DataAccess.CreateAccount
         {
             var validationErrors = new List<ValidationResult>();
 
-            if (!Validator.TryValidateObject(accountViewModel, new ValidationContext(accountViewModel, null, null), validationErrors, true))
+            Validator.TryValidateObject(accountViewModel, new ValidationContext(accountViewModel, null, null), validationErrors, true);
+
+            var subscriptions = accountViewModel.Subscriptions ?? new List<SubscriptionDto>();
+            var identityProviders = accountViewModel.IdentityProviders ?? new List<IdentityProviderDto>();
+
+            subscriptions.ForEach(s => Validator.TryValidateObject(s, new ValidationContext(s, null, null), validationErrors, true));
+            identityProviders.ForEach(i => Validator.TryValidateObject(i, new ValidationContext(i, null, null), validationErrors, true));
+
+            if (validationErrors.Count > 0) 
             {
                 throw new AggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
             }
@@ -73,7 +81,18 @@ namespace ClientModel.DataAccess.CreateAccount
                 }
             ).ToList();
 
+            var identityProviders = (
+                from i in accountViewModel.IdentityProviders ?? new List<IdentityProviderDto>()
+                select new IdentityProvider
+                {
+                    Account    = account,
+                    Name = i.Name
+                }
+            ).ToList();
+
             subscriptions.ForEach(account.Subscriptions.Add);
+            identityProviders.ForEach(account.IdentityProviders.Add);
+
             _db.Accounts.Add(account);
 
             await _db.SaveChangesAsync();

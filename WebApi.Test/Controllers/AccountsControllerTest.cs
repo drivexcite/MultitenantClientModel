@@ -1,20 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using ClientApi.Controllers;
-using ClientApi.Dtos;
-using ClientModel.DataAccess.CreateAccount;
-using ClientModel.DataAccess.GetAccount;
+using ClientModel.DataAccess.Create.CreateAccount;
+using ClientModel.DataAccess.Get.GetAccount;
+using ClientModel.Dtos;
 using ClientModel.Entities;
 using ClientModel.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
 
-namespace WebApi.Test
+namespace ClientApi.Test.Controllers
 {
     [TestClass]
     public class AccountsControllerTest
