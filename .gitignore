@@ -7,3 +7,6 @@
 /ClientModel/obj
 /WebApi.Test/bin/Debug/netcoreapp3.1
 /WebApi.Test/obj
+/ContentModelImporter/obj
+/ContentModelImporter/bin
+/ContentModelImporter/.vs

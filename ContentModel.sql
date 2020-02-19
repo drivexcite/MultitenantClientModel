@@ -95,6 +95,40 @@ if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Relat
 	);
 go
 
+if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'CodeSystem' and TABLE_SCHEMA = 'Structured')
+begin
+	create table Structured.CodeSystem
+	(
+		CodeSystemId varchar(20) not null,
+		CreatedDate datetime2(2) not null constraint DF_CodeSystem_CreatedDate default getutcdate(),
+		CreatedBy nvarchar(128) not null constraint DF_CodeSystem_CreatedBy default system_user,
+		constraint PK_CodeSystem primary key clustered(CodeSystemId)
+	);
+end
+go
+
+if not exists (select 1 from sys.sequences where [name] = 'MedicalCodeId')
+begin
+	create sequence Structured.MedicalCodeId as int start with 1 increment by 1 no cycle;
+end
+
+if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'MedicalCode' and TABLE_SCHEMA = 'Structured')
+begin
+	create table Structured.MedicalCode
+	(
+		MedicalCodeId int not null constraint DF_MedicalCode_MedicalCodeId default next value for Structured.MedicalCodeId,
+		CodeSystemId varchar(20) not null,
+		Code varchar(40) not null,
+		[Name] varchar(40) not null,
+		CreatedDate datetime2(2) not null constraint DF_MedicalCode_CreatedDate default getutcdate(),
+		CreatedBy nvarchar(128) not null constraint DF_MedicalCode_CreatedBy default system_user,
+		constraint PK_MedicalCode primary key clustered(MedicalCodeId)
+	);
+
+	create unique nonclustered index UI_MedicalCode_CodeSystemCode on Structured.MedicalCode(CodeSystemId, Code);
+end
+go
+
 if not exists (select 1 from sys.sequences where [name] = 'ConceptSurrogateId')
 begin
 	create sequence Structured.ConceptSurrogateId as int start with 1 increment by 1 no cycle;
@@ -126,6 +160,35 @@ if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Conce
 	);
 
 	create unique nonclustered index UI_Concept_ConceptId on Structured.Concept(ConceptId);
+go
+
+if not exists (select 1 from sys.sequences where [name] = 'MedicalCodeMappingId')
+begin
+	create sequence Structured.MedicalCodeMappingId as int start with 1 increment by 1 no cycle;
+end
+
+if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'MedicalCodeMapping' and TABLE_SCHEMA = 'Structured')
+begin
+	create table Structured.MedicalCodeMapping
+	(
+		MedicalCodeMappingId int not null constraint DF_MedicalCodeMappingId default next value for Structured.MedicalCodeMappingId,
+		ConceptId varchar(40) not null,
+		CodeSystemId varchar(20) not null,
+		Code varchar(40) not null,		
+		Relevance tinyint not null,
+		CreatedDate datetime2(2) not null constraint DF_MedicalCodeMapping_CreatedDate default getutcdate(),
+		CreatedBy nvarchar(128) not null constraint DF_MedicalCodeMapping_CreatedBy default system_user,
+		constraint PK_MedicalCodeMapping primary key clustered(MedicalCodeMappingId),
+		constraint FK_MedicalCodeMapping_Concept foreign key (ConceptId) references Structured.Concept(ConceptId) 
+			on update cascade 
+			on delete cascade,
+		constraint FK_MedicalCodeMapping_MedicalCode foreign key (CodeSystemId, Code) references Structured.MedicalCode(CodeSystemId, Code)
+			on update cascade
+			on delete cascade
+	);
+
+	create unique nonclustered index UI_MedicalCodeMapping_NaturalKey on Structured.MedicalCodeMapping(ConceptId, CodeSystemId, Code, Relevance);
+end
 go
 
 if not exists (select 1 from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'ConceptRelationship' and TABLE_SCHEMA = 'Structured')
@@ -200,9 +263,15 @@ begin
 		CreatedDate datetime2(2) not null constraint DF_TopicAspectMapping_CreatedDate default getutcdate(),
 		CreatedBy nvarchar(128) not null constraint DF_TopicAspectMapping_CreatedBy default system_user,
 		constraint PK_TopicAspectMapping primary key clustered(MappingId),		
-		constraint FK_TopicAspectMapping_Topic foreign key(TopicId, Localization) references Structured.Topic(TopicId, Localization),
-		constraint FK_TopicAspectMapping_Aspect foreign key(AspectId) references Structured.Aspect(AspectId),
-		constraint FK_TopicAspectMapping_Concept foreign key(ConceptId) references Structured.Concept(ConceptId)	
+		constraint FK_TopicAspectMapping_Topic foreign key(TopicId, Localization) references Structured.Topic(TopicId, Localization)
+			on update cascade
+			on delete cascade,
+		constraint FK_TopicAspectMapping_Aspect foreign key(AspectId) references Structured.Aspect(AspectId)
+			on update cascade
+			on delete cascade,
+		constraint FK_TopicAspectMapping_Concept foreign key(ConceptId) references Structured.Concept(ConceptId)
+			on update cascade
+			on delete cascade	
 	);
 
 	create unique nonclustered index UI_TopicAspectMapping on Structured.TopicAspectMapping (TopicId, Localization, ConceptId, AspectId);
@@ -213,9 +282,14 @@ go
 drop table Structured.ConceptRelationship;
 drop table Structured.RelationshipType;
 drop table Structured.TopicAspectMapping;
+drop table Structured.MedicalCodeMapping;
+drop table Structured.MedicalCode;
+drop table Structured.CodeSystem;
 drop table Structured.Concept;
 drop table Structured.Topic;
 
+drop sequence Structured.MedicalCodeId;
+drop sequence Structured.MedicalCodeMappingId;
 drop sequence Structured.ConceptSurrogateId;
 drop sequence Structured.TopicSurrogateId;
 drop sequence Structured.MappingId;

@@ -250,6 +250,86 @@ if not exists (select 1 from Structured.ConceptStatus where ConceptStatusId = @c
             return (from t in tasks from concept in t.Result select concept).ToList();
         }
 
+        public static byte ExtractRelevance(string relevanceNode)
+        {
+            if (byte.TryParse(relevanceNode.Substring(1), out var relevance))
+                return relevance;
+
+            return 0;
+        }
+
+        private static Dictionary<string, List<CodeSystemMapping>> GetMedicalCodeMappings(List<Concept> concepts)
+        {
+            return (
+                from concept in concepts
+                let codeSystemsJson = string.IsNullOrEmpty(concept.CodeSystemsJson) ? null : JToken.Parse(concept.CodeSystemsJson)
+                where codeSystemsJson != null
+
+                from codeSystemNode in codeSystemsJson.Children<JProperty>()
+                let codeSystem = codeSystemNode.Name
+                from relevanceNode in codeSystemNode.Value.Children<JProperty>()
+                let relevance = ExtractRelevance(relevanceNode.Name)
+                where relevance > 0
+
+                from codeJson in relevanceNode.Value.Children<JValue>()
+                let code = codeJson.Value<string>()
+                let mapping = new CodeSystemMapping { CodeSystemId = codeSystem, Relevance = relevance, Code = code }
+
+                group mapping by concept.ConceptId into g
+                select new { ConceptId = g.Key, Mappings = g.ToList() }
+            ).ToDictionary(k => k.ConceptId, v => v.Mappings);
+        }
+
+        private static async Task<int> PersistCodeSystemsAsync(SqlConnection connection, Dictionary<string, List<CodeSystemMapping>> medicalCodeMappings)
+        {
+            var codeSystems = (from entry in medicalCodeMappings.Values from mapping in entry select mapping.CodeSystemId).Distinct().ToList();
+
+            var insertCommand = @"insert into Structured.CodeSystem (CodeSystemId) values (@CodeSystemId);";
+            return await connection.ExecuteAsync(insertCommand, from entry in codeSystems select new { CodeSystemId = entry });
+        }
+
+        private static async Task<int> PersistMedicalCodesAsync(SqlConnection connection, Dictionary<string, List<CodeSystemMapping>> medicalCodeMappings)
+        {
+            var insertCommand = @"insert into Structured.MedicalCode (CodeSystemId, Code, [Name]) values (@CodeSystemId, @Code, @Code);";
+
+            var parameters = (
+                from conceptMappings in medicalCodeMappings
+                from mapping in conceptMappings.Value
+                select new { mapping.CodeSystemId, mapping.Code }
+            ).Distinct().ToList();            
+
+            var transaction = connection.BeginTransaction();
+            var results = await connection.ExecuteAsync(insertCommand, parameters, transaction);
+
+            await transaction.CommitAsync();
+            return results;
+        }
+
+        private static async Task<int> PersistCodeSystemMappings(SqlConnection connection, Dictionary<string, List<CodeSystemMapping>> mappings)
+        {
+            var insertCommand = @"
+insert into Structured.MedicalCodeMapping (ConceptId, CodeSystemId, Code, Relevance) 
+    values (@ConceptId, @CodeSystemId, @Code, @Relevance);
+";
+            var parameters = (
+                from entry in mappings
+                from mapping in entry.Value
+                select new
+                {
+                    ConceptId = entry.Key,
+                    mapping.CodeSystemId,
+                    mapping.Relevance,
+                    mapping.Code
+                }
+            ).ToList();
+
+            var transaction = connection.BeginTransaction();
+            var results = await connection.ExecuteAsync(insertCommand, parameters, transaction);
+
+            await transaction.CommitAsync();
+            return results;
+        }
+
         private static async Task<int> PersistConceptsAsync(SqlConnection connection, List<Concept> concepts)
         {
             var transaction = connection.BeginTransaction();
@@ -645,19 +725,27 @@ insert into Structured.TopicAspectMapping(TopicId, Localization, AspectId, Conce
             var concepts = await GetConceptsAsync(300, 6);
             //var insertedConcepts = await PersistConceptsAsync(connection, concepts);
 
+            var medicalCodeMappings = GetMedicalCodeMappings(concepts);
+            
+            var insertedCodeSystems = await PersistCodeSystemsAsync(connection, medicalCodeMappings);
+            var insertedMedicalCodes = await PersistMedicalCodesAsync(connection, medicalCodeMappings);
+            var insertedMappings = await PersistCodeSystemMappings(connection, medicalCodeMappings);
+
             var (conceptRelationships, relationshipTypes, invalidConcepts) = GetConceptRelationships(concepts);
 
             //foreach (var invalidConcept in (from dynamic c in invalidConcepts group c.InvalidConcept by c.ReferencingConceptId into g select new { Concept = g.Key, InvalidConcepts = string.Join(", ", g) }))
             //    File.AppendAllText("InvalidConcepts.txt", $"{invalidConcept}\n");
 
-            //var insertedConceptRelationships = await PersistConceptRelationships(connection, conceptRelationships, relationshipTypes);
+            var insertedConceptRelationships = await PersistConceptRelationships(connection, conceptRelationships, relationshipTypes);
 
             var topics = await GetTopicsAsync(audiences, concepts, aspects, 300, 8);
-            //var insertedTopics = await PersistTopics(connection, topics, concepts);
+            var insertedTopics = await PersistTopics(connection, topics, concepts);
 
             stopWatch.Stop();
 
             Console.WriteLine($"Elapsed: {stopWatch.Elapsed}");
         }
+
+        
     }
 }

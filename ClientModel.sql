@@ -691,5 +691,5 @@ where a.ArchetypeId = 1
 for json path, root('Accounts');
 
 
-delete from Client.Subscription;
-delete from Client.Account;
+--delete from Client.Subscription;
+--delete from Client.Account;
