@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientModel.Test", "..\Clie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientModel", "..\ClientModel\ClientModel.csproj", "{A4C9B295-1EAF-45AD-90FD-30FE08B76B3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientApi.Test", "..\WebApi.Test\ClientApi.Test.csproj", "{36275483-C29B-4C92-8805-2F75C8A32F08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientApi.Test", "..\WebApi.Test\ClientApi.Test.csproj", "{36275483-C29B-4C92-8805-2F75C8A32F08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientApiFunctionHost", "..\ClientApiFunctionHost\ClientApiFunctionHost.csproj", "{45FF2653-E6E2-4B63-A6E2-8B4B835F6203}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{36275483-C29B-4C92-8805-2F75C8A32F08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36275483-C29B-4C92-8805-2F75C8A32F08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36275483-C29B-4C92-8805-2F75C8A32F08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45FF2653-E6E2-4B63-A6E2-8B4B835F6203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45FF2653-E6E2-4B63-A6E2-8B4B835F6203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45FF2653-E6E2-4B63-A6E2-8B4B835F6203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45FF2653-E6E2-4B63-A6E2-8B4B835F6203}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

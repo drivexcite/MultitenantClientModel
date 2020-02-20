@@ -22,9 +22,9 @@ using ClientModel.Dtos.Mappings;
 
 namespace ClientApi
 {
-    public class Startup
+    public class ClientApiStartup
     {
-        public Startup(IConfiguration configuration)
+        public ClientApiStartup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
@@ -33,7 +33,7 @@ namespace ClientApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddApplicationPart(GetType().Assembly);
             services.AddAutoMapper(typeof(AccountProfile));
 
             var clientsDbConnectionString = Configuration["ConnectionStrings:ClientsDbConnectionString"];
@@ -44,13 +44,13 @@ namespace ClientApi
             services.AddScoped<GetSubscriptionDelegate>();
             services.AddScoped<GetIdentityProvidersDelegate>();
 
-            //var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.["TokenProviderOptions:SecretKey"]));           
+            //var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.["TokenProviderOptions:SecretKey"]));
 
             var issuer = Configuration["TokenProviderOptions:Issuer"];
             var audience = Configuration["TokenProviderOptions:Audience"];
 
             services
-                .AddAuthentication(options => 
+                .AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -81,7 +81,7 @@ namespace ClientApi
                     {
                         OnTokenValidated = context =>
                         {
-                            var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();                            
+                            var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
                             return Task.CompletedTask;
                         }
                     };

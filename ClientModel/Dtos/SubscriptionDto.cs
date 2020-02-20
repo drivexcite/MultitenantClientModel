@@ -21,5 +21,7 @@ namespace ClientModel.Dtos
         public byte SubscriptionTypeId { get; set; }
 
         public string SubscriptionType { get; set; }
+
+        public List<IdentityProviderDto> IdentityProviders { get; set; } = new List<IdentityProviderDto>();
     }
 }
