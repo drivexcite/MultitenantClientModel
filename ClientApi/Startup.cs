@@ -82,7 +82,23 @@ namespace ClientApi
                         {
                             var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
                             return Task.CompletedTask;
-                        }
+                        },
+                        OnMessageReceived = context =>
+                        {
+                            return Task.CompletedTask;
+                        },
+                        OnChallenge = context =>
+                        {
+                            return Task.CompletedTask;
+                        },
+                        OnForbidden = context =>
+                        {
+                            return Task.CompletedTask;
+                        },
+                        OnAuthenticationFailed = context =>
+                        {
+                            return Task.CompletedTask;
+                        },
                     };
                 });
 

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System;
+using ClientApi.Authorization;
 using Microsoft.Extensions.Logging;
 using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.DataAccess.Get.GetAccount;
@@ -28,7 +29,7 @@ namespace ClientApi.Controllers
 
         [HttpGet]
         [Route("accounts")]
-        //[AuthorizeRbac("accounts:read")]
+        [AuthorizeRbac("accounts:read")]
         public async Task<IActionResult> GetAccounts(int skip = 0, int top = 10)
         {
             var baseUrl = $"{Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}";
@@ -80,7 +81,7 @@ namespace ClientApi.Controllers
         */
         [HttpPost]
         [Route("accounts")]
-        //[AuthorizeRbac("accounts:create")]
+        [AuthorizeRbac("accounts:create")]
         public async Task<IActionResult> CreateAccount(AccountDto accountViewModel)
         {
             try
