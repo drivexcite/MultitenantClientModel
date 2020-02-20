@@ -49,43 +49,43 @@ namespace ClientApi
             var issuer = Configuration["TokenProviderOptions:Issuer"];
             var audience = Configuration["TokenProviderOptions:Audience"];
 
-            services
-                .AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.RequireHttpsMetadata = false;
+            //services
+            //    .AddAuthentication(options =>
+            //    {
+            //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    })
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.RequireHttpsMetadata = false;
 
-                    options.Audience = audience;
-                    options.Authority = issuer;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        RequireExpirationTime = true,
-                        RequireSignedTokens = true,
-                        ValidateIssuerSigningKey = false,
-                        //IssuerSigningKey = signingKey,
-                        ValidateIssuer = true,
-                        ValidIssuer = issuer,
-                        ValidateAudience = true,
-                        ValidAudience = audience,
-                        ValidateLifetime = false,
-                        ClockSkew = TimeSpan.Zero
-                    };
+            //        options.Audience = audience;
+            //        options.Authority = issuer;
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            RequireExpirationTime = true,
+            //            RequireSignedTokens = true,
+            //            ValidateIssuerSigningKey = false,
+            //            //IssuerSigningKey = signingKey,
+            //            ValidateIssuer = true,
+            //            ValidIssuer = issuer,
+            //            ValidateAudience = true,
+            //            ValidAudience = audience,
+            //            ValidateLifetime = false,
+            //            ClockSkew = TimeSpan.Zero
+            //        };
 
-                    options.SaveToken = true;
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnTokenValidated = context =>
-                        {
-                            var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
+            //        options.SaveToken = true;
+            //        options.Events = new JwtBearerEvents
+            //        {
+            //            OnTokenValidated = context =>
+            //            {
+            //                var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
+            //                return Task.CompletedTask;
+            //            }
+            //        };
+            //    });
 
             services.AddSingleton<IAuthorizationHandler, RbacAuthorizationHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, RbacAuhtorizationPolicyProvider>();
@@ -103,8 +103,8 @@ namespace ClientApi
 
             app.UseRouting();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
