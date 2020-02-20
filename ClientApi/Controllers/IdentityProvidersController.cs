@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using ClientApi.Authorization;
 using ClientApi.ViewModels;
 using ClientModel.DataAccess.Get.GetIdentityProviders;
 using ClientModel.Exceptions;

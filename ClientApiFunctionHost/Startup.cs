@@ -5,20 +5,11 @@ using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using Microsoft.Extensions.ObjectPool;
-using ClientApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
+using Serilog.Events;
 using Serilog.Extensions.Logging;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Threading.Tasks;
-using System.Text.Encodings.Web;
-using System.Security.Claims;
 
 [assembly: FunctionsStartup(typeof(ClientApiFunctionHost.Startup))]
 namespace ClientApiFunctionHost
@@ -29,39 +20,41 @@ namespace ClientApiFunctionHost
         {
             // Of course this magic won't work because: https://github.com/Azure/azure-functions-host/issues/5447
             Environment.SetEnvironmentVariable("BASEDIR", AppContext.BaseDirectory);
+            Environment.SetEnvironmentVariable("ConnectionStrings:ClientsDbConnectionString", "Server=(local);Database=Clients;Trusted_Connection=True;");
 
             var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", true)
                 .AddEnvironmentVariables()
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
                 .CreateLogger();
 
             var services = new ServiceCollection();
+            var loggerFactory = new SerilogLoggerFactory(Log.Logger, false);
+            var diagnosticListener = new DiagnosticListener("Microsoft.AspNetCore");
 
-            services.AddSingleton<DiagnosticSource>(new DiagnosticListener("Microsoft.AspNetCore"));
+            services.AddSingleton<DiagnosticSource>(diagnosticListener);
+            services.AddSingleton<DiagnosticListener>(diagnosticListener);
             services.AddSingleton<ObjectPoolProvider>(new DefaultObjectPoolProvider());
-            services.AddSingleton<ILoggerFactory>(new SerilogLoggerFactory(Log.Logger, false));
+            services.AddSingleton<ILoggerFactory>(loggerFactory);
             services.AddSingleton<IConfiguration>(configuration);
+            services.AddLogging();
 
-            var startup = new ClientApiStartup(configuration);
+            var startup = new ClientApi.Startup(configuration);
             startup.ConfigureServices(services);
 
             var serviceProvider = services.BuildServiceProvider();
 
-            /* Initialize Application builder */
-            var appicationBuilder = new ApplicationBuilder(serviceProvider, new FeatureCollection());
-            /* Configure the HTTP request pipeline */
-            startup.Configure(appicationBuilder, new WebHostEnvironment { EnvironmentName = configuration["Environment"] });
+            var applicationBuilder = new ApplicationBuilder(serviceProvider, new FeatureCollection());
+            startup.Configure(applicationBuilder, new WebHostEnvironment { EnvironmentName = configuration["Environment"] });
 
-            services.AddSingleton<ServiceProvider>(serviceProvider);
-            services.AddSingleton<IServiceProvider>(serviceProvider);
-            services.AddSingleton<ApplicationBuilder>(appicationBuilder);
-
+            builder.Services.AddSingleton<ILoggerFactory>(loggerFactory);
             builder.Services.AddSingleton<ServiceProvider>(serviceProvider);
-            builder.Services.AddSingleton<ApplicationBuilder>(appicationBuilder);
+            builder.Services.AddSingleton<ApplicationBuilder>(applicationBuilder);
         }
     }
 }

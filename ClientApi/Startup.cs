@@ -1,7 +1,6 @@
 using AutoMapper;
 using ClientApi.Authorization;
 using ClientModel.Entities;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,11 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using Serilog;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Threading.Tasks;
 using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.DataAccess.Get.GetAccount;
 using ClientModel.DataAccess.Get.GetIdentityProviders;
@@ -22,9 +16,9 @@ using ClientModel.Dtos.Mappings;
 
 namespace ClientApi
 {
-    public class ClientApiStartup
+    public class Startup
     {
-        public ClientApiStartup(IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
@@ -49,43 +43,43 @@ namespace ClientApi
             var issuer = Configuration["TokenProviderOptions:Issuer"];
             var audience = Configuration["TokenProviderOptions:Audience"];
 
-            services
-                .AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.RequireHttpsMetadata = false;
+            //services
+            //    .AddAuthentication(options =>
+            //    {
+            //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    })
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.RequireHttpsMetadata = false;
 
-                    options.Audience = audience;
-                    options.Authority = issuer;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        RequireExpirationTime = true,
-                        RequireSignedTokens = true,
-                        ValidateIssuerSigningKey = false,
-                        //IssuerSigningKey = signingKey,
-                        ValidateIssuer = true,
-                        ValidIssuer = issuer,
-                        ValidateAudience = true,
-                        ValidAudience = audience,
-                        ValidateLifetime = false,
-                        ClockSkew = TimeSpan.Zero
-                    };
+            //        options.Audience = audience;
+            //        options.Authority = issuer;
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            RequireExpirationTime = true,
+            //            RequireSignedTokens = true,
+            //            ValidateIssuerSigningKey = false,
+            //            //IssuerSigningKey = signingKey,
+            //            ValidateIssuer = true,
+            //            ValidIssuer = issuer,
+            //            ValidateAudience = true,
+            //            ValidAudience = audience,
+            //            ValidateLifetime = false,
+            //            ClockSkew = TimeSpan.Zero
+            //        };
 
-                    options.SaveToken = true;
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnTokenValidated = context =>
-                        {
-                            var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
+            //        options.SaveToken = true;
+            //        options.Events = new JwtBearerEvents
+            //        {
+            //            OnTokenValidated = context =>
+            //            {
+            //                var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
+            //                return Task.CompletedTask;
+            //            }
+            //        };
+            //    });
 
             services.AddSingleton<IAuthorizationHandler, RbacAuthorizationHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, RbacAuhtorizationPolicyProvider>();
@@ -111,7 +105,7 @@ namespace ClientApi
                 endpoints.MapControllers();
             });
 
-            app.UseSerilogRequestLogging();
+            //app.UseSerilogRequestLogging();
         }
     }
 }

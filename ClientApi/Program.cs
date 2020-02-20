@@ -42,7 +42,7 @@ namespace ClientApi
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<ClientApiStartup>();
+                    webBuilder.UseStartup<Startup>();
                 })
                 .UseSerilog();
     }

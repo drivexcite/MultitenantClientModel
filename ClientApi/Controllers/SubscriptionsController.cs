@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.Extensions.Logging;
-using ClientApi.Authorization;
 using ClientModel.DataAccess.Get.GetSubscriptions;
 using ClientModel.Exceptions;
 

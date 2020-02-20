@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ClientModel.Dtos
+﻿namespace ClientModel.Dtos
 {
     public class DataLinkDto
     {

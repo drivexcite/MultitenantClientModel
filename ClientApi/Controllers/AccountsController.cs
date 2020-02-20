@@ -5,7 +5,6 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.Extensions.Logging;
-using ClientApi.Authorization;
 using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.DataAccess.Get.GetAccount;
 using ClientModel.Dtos;
