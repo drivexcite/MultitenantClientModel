@@ -18,7 +18,6 @@ namespace ClientApiFunctionHost
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            // Of course this magic won't work because: https://github.com/Azure/azure-functions-host/issues/5447
             Environment.SetEnvironmentVariable("BASEDIR", AppContext.BaseDirectory);
             Environment.SetEnvironmentVariable("ConnectionStrings:ClientsDbConnectionString", "Server=(local);Database=Clients;Trusted_Connection=True;");
 
@@ -38,7 +37,7 @@ namespace ClientApiFunctionHost
             var diagnosticListener = new DiagnosticListener("Microsoft.AspNetCore");
 
             services.AddSingleton<DiagnosticSource>(diagnosticListener);
-            services.AddSingleton<DiagnosticListener>(diagnosticListener);
+            services.AddSingleton(diagnosticListener);
             services.AddSingleton<ObjectPoolProvider>(new DefaultObjectPoolProvider());
             services.AddSingleton<ILoggerFactory>(loggerFactory);
             services.AddSingleton<IConfiguration>(configuration);
@@ -53,8 +52,8 @@ namespace ClientApiFunctionHost
             startup.Configure(applicationBuilder, new WebHostEnvironment { EnvironmentName = configuration["Environment"] });
 
             builder.Services.AddSingleton<ILoggerFactory>(loggerFactory);
-            builder.Services.AddSingleton<ServiceProvider>(serviceProvider);
-            builder.Services.AddSingleton<ApplicationBuilder>(applicationBuilder);
+            builder.Services.AddSingleton(serviceProvider);
+            builder.Services.AddSingleton(applicationBuilder);
         }
     }
 }
