@@ -57,7 +57,11 @@ namespace ClientApiFunctionHost
             startup.Configure(appicationBuilder, new WebHostEnvironment { EnvironmentName = configuration["Environment"] });
 
             services.AddSingleton<ServiceProvider>(serviceProvider);
+            services.AddSingleton<IServiceProvider>(serviceProvider);
             services.AddSingleton<ApplicationBuilder>(appicationBuilder);
+
+            builder.Services.AddSingleton<ServiceProvider>(serviceProvider);
+            builder.Services.AddSingleton<ApplicationBuilder>(appicationBuilder);
         }
     }
 }
