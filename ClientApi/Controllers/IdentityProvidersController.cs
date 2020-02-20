@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -8,7 +10,6 @@ using ClientModel.Exceptions;
 using Microsoft.AspNetCore.Http;
 using ClientModel.Dtos;
 using ClientModel.DataAccess.Create.CreateIdentityProvider;
-using System.Collections.Generic;
 
 namespace ClientApi.Controllers
 {
@@ -78,18 +79,62 @@ namespace ClientApi.Controllers
         [HttpGet]
         [Route("accounts/{accountId}/subscriptions/{subscriptionId}/identityProviders")]
         //[AuthorizeRbac("accounts:read")]
-        public async Task<IActionResult> GetAccounts(int accountId, int subscriptionId, int skip = 0, int top = 10)
+        public async Task<IActionResult> GetIdentityProvidersForAccountAndSubscription(int accountId, int subscriptionId, int skip = 0, int top = 10)
         {
             var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
 
             try
             {
-                var (items, total) = (new List<IdentityProviderDto>(), 0);
+                var (items, total) = await _getIdentityProviders.GetIdentityProvidersForSubscriptionAsync(accountId, subscriptionId, skip, top);
                 return Ok(items.CreateServerSidePagedResult(baseUrl, total, skip, top));
             }
             catch (AccountNotFoundException e)
             {
                 return NotFound(e.Message);
+            }
+            catch (SubscriptionNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"An unexpected error ocurred while processing GET: {baseUrl}?{Request.QueryString}", e);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { result = $"An unexpected error occurred while fetching the identity providers for AccountId {accountId} and SubscriptionId {subscriptionId}" });
+            }
+        }
+
+        [HttpPost]
+        [Route("accounts/{accountId}/subscriptions/{subscriptionId}/identityProviders")]
+        //[AuthorizeRbac("accounts:write")]
+        public async Task<IActionResult> AssignIdentityProvidersToSubscription(int accountId, int subscriptionId, [FromBody]IdentityProviderAssignmentViewModel body, int skip = 0, int top = 10)
+        {
+            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}";
+
+            try
+            {
+                if(body?.IdentityProviderIds == null || body.IdentityProviderIds.Length < 1)
+                    return BadRequest($"A list of valid Identity Providers must be supplied in the request body: {{ identityProviderIds: [...] }}");
+
+                var identityProviderIds = body?.IdentityProviderIds?.ToList() ?? new List<int>();
+                var (items, total) = await _createIdentityProvider.AssignIdentityProviderToSubscription(accountId, subscriptionId, identityProviderIds, skip, top);
+
+                return Ok(items.CreateServerSidePagedResult(baseUrl, total, skip, top));
+            }
+            catch (AccountNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (SubscriptionNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (MalformedAccountException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (MalformedSubscriptionException e)
+            {
+                return BadRequest(e.Message);
             }
             catch (Exception e)
             {

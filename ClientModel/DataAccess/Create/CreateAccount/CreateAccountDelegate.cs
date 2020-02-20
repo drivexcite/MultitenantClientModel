@@ -137,11 +137,11 @@ namespace ClientModel.DataAccess.Create.CreateAccount
                 var subscriptionErrors = (
                     from s in account.Subscriptions
                     where !subscriptionTypeIds.Contains(s.SubscriptionTypeId)
-                    select new MalformedSubscriptionsException($"Invalid {nameof(SubscriptionDto.SubscriptionTypeId)} [{s.SubscriptionTypeId}] for SubscriptionId [{s.SubscriptionId}]")
+                    select new MalformedSubscriptionException($"Invalid {nameof(SubscriptionDto.SubscriptionTypeId)} [{s.SubscriptionTypeId}] for SubscriptionId [{s.SubscriptionId}]")
                 ).ToList();
 
                 subscriptionErrors.ForEach(exceptions.Add);
-                existingSubscriptions.ForEach(s => exceptions.Add(new MalformedSubscriptionsException($"A subscription with {nameof(SubscriptionDto.SubscriptionTypeId)} [{s}] already exists")));
+                existingSubscriptions.ForEach(s => exceptions.Add(new MalformedSubscriptionException($"A subscription with {nameof(SubscriptionDto.SubscriptionTypeId)} [{s}] already exists")));
 
                 if (exceptions.Count > 0)
                     throw new AggregateException("Some errors where found in the graph of the Account object.", exceptions);

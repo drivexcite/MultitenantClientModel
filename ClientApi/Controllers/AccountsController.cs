@@ -29,7 +29,7 @@ namespace ClientApi.Controllers
 
         [HttpGet]
         [Route("accounts")]
-        [AuthorizeRbac("accounts:read")]
+        //[AuthorizeRbac("accounts:read")]
         public async Task<IActionResult> GetAccounts(int skip = 0, int top = 10)
         {
             var baseUrl = $"{Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}";
@@ -41,8 +41,30 @@ namespace ClientApi.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError($"An unexpected error ocurred while processing GET: {baseUrl}?{Request.QueryString}", e);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { result = "An unexpected error ocurred while fetching the accounts" });
+                _logger.LogError($"An unexpected error ocurred while processing GET: {baseUrl}?{Request?.QueryString}", e);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { result = "An unexpected error occurred while fetching the accounts" });
+            }
+        }
+
+        [HttpGet]
+        [Route("accounts/{accountId}")]
+        //[AuthorizeRbac("accounts:read")]
+        public async Task<IActionResult> GetAccount(int accountId)
+        {
+            var baseUrl = $"{Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}";
+
+            try
+            {
+                return Ok(await _getAccount.GetAccountAsync(accountId));
+            }
+            catch (AccountNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"An unexpected error ocurred while processing GET: {baseUrl}?{Request?.QueryString}", e);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { result = "An unexpected error occurred while fetching the accounts" });
             }
         }
 
@@ -81,7 +103,7 @@ namespace ClientApi.Controllers
         */
         [HttpPost]
         [Route("accounts")]
-        [AuthorizeRbac("accounts:create")]
+        //[AuthorizeRbac("accounts:create")]
         public async Task<IActionResult> CreateAccount(AccountDto accountViewModel)
         {
             try
@@ -106,7 +128,7 @@ namespace ClientApi.Controllers
             }
             catch (PersistenceException e)
             {
-                _logger.LogError($"An unexpected error ocurred while processing POST: {Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}?{Request?.QueryString}", e);
+                _logger.LogError($"An unexpected error occurred while processing POST: {Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}?{Request?.QueryString}", e);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { result = e.Message });
             }
         }

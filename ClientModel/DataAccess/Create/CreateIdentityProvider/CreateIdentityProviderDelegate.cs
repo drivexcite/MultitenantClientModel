@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace ClientModel.DataAccess.Create.CreateIdentityProvider
@@ -54,6 +55,57 @@ namespace ClientModel.DataAccess.Create.CreateIdentityProvider
             await _db.SaveChangesAsync();
 
             return _mapper.Map<IdentityProviderDto>(newIdentityProvider);
+        }
+
+        public async Task<(List<IdentityProviderDto>, int)> AssignIdentityProviderToSubscription(int accountId, int subscriptionId, List<int> identityProviderIds, int skip, int top)
+        {
+            var account = await (
+                from a in _db.Accounts
+                    .Include(a => a.IdentityProviders)
+                    .Include(a => a.Subscriptions)
+                    .ThenInclude(s => s.IdentityProviders)
+                    .ThenInclude(m => m.IdentityProvider)
+                where a.AccountId == accountId
+                select a
+            ).FirstOrDefaultAsync();
+
+            if (account == null)
+            {
+                throw new AccountNotFoundException($"An account with AccountId {accountId} does not exist.");
+            }
+
+            var subscription = (from s in account.Subscriptions where s.SubscriptionId == subscriptionId select s).FirstOrDefault();
+
+            if (subscription == null)
+            {
+                throw new SubscriptionNotFoundException($"A subscription with SubscriptionId = {subscriptionId} does not exist within Account with AccountId = {accountId}.");
+            }
+
+            foreach (var identityProviderId in identityProviderIds)
+            {
+                var identityProvider = account.IdentityProviders.FirstOrDefault(i => i.IdentityProviderId == identityProviderId);
+
+                if (identityProvider == null)
+                {
+                    throw new MalformedAccountException($"The Identity Provider with IdentityProviderId = {identityProviderId} does not exist in the Account with AccountId = {accountId}.");
+                }
+
+                if (subscription.IdentityProviders.Any(m => m.IdentityProviderId == identityProviderId))
+                {
+                    throw new MalformedSubscriptionException($"The Identity Provider with IdentityProviderId = {identityProviderId} already exists in Subscription with SubscriptionId = {subscriptionId}.");
+                }
+
+                subscription.IdentityProviders.Add(new IdentityProviderMapping
+                {
+                    Subscription = subscription,
+                    IdentityProvider = identityProvider
+                });
+            }
+
+            await _db.SaveChangesAsync();
+            var identityProviders = (from m in subscription.IdentityProviders select _mapper.Map<IdentityProviderDto>(m.IdentityProvider)).ToList();
+
+            return (identityProviders.Skip(skip).Take(top).ToList(), identityProviders.Count());
         }
     }
 }

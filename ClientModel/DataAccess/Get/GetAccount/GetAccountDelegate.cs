@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using ClientModel.Dtos;
 using ClientModel.Entities;
+using ClientModel.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClientModel.DataAccess.Get.GetAccount
@@ -17,6 +18,24 @@ namespace ClientModel.DataAccess.Get.GetAccount
         {
             _db = db;
             _mapper = mapper;
+        }
+
+        public virtual async Task<AccountDto> GetAccountAsync(int accountId)
+        {
+            var account = await (
+                from a in _db.Accounts
+                    .Include(a => a.IdentityProviders)
+                    .Include(a => a.Subscriptions)
+                        .ThenInclude(s => s.IdentityProviders)
+                            .ThenInclude(m => m.IdentityProvider)
+                where a.AccountId == accountId 
+                select a
+            ).FirstOrDefaultAsync();
+
+            if(account == null)
+                throw new AccountNotFoundException($"An account with AccountId = {accountId} could not be found.");
+
+            return _mapper.Map<AccountDto>(account);
         }
 
         public virtual async Task<(List<AccountDto>, int)> GetAccountsAsync(int skip, int top)

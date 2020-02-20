@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ClientModel.DataAccess.Create.CreateAccount;
+using ClientModel.DataAccess.Create.CreateIdentityProvider;
 using ClientModel.DataAccess.Get.GetAccount;
 using ClientModel.DataAccess.Get.GetIdentityProviders;
 using ClientModel.DataAccess.Get.GetSubscriptions;
@@ -42,6 +43,7 @@ namespace ClientApi
             services.AddScoped<GetAccountDelegate>();
             services.AddScoped<GetSubscriptionDelegate>();
             services.AddScoped<GetIdentityProvidersDelegate>();
+            services.AddScoped<CreateIdentityProviderDelegate>();
 
             //var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.["TokenProviderOptions:SecretKey"]));
 
@@ -125,8 +127,6 @@ namespace ClientApi
             {
                 endpoints.MapControllers();
             });
-
-            //app.UseSerilogRequestLogging();
         }
     }
 }
