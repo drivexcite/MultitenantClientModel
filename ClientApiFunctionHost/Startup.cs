@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
+using ClientApiFunctionHost.Support;
 
 [assembly: FunctionsStartup(typeof(ClientApiFunctionHost.Startup))]
 namespace ClientApiFunctionHost

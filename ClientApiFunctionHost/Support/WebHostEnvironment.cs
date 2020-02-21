@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 
-namespace ClientApiFunctionHost
+namespace ClientApiFunctionHost.Support
 {
     public class WebHostEnvironment : IWebHostEnvironment
     {

@@ -9,7 +9,7 @@ namespace ClientModel.Test.DataAccess.CreateAccount
         public static ClientsDb CreateInMemoryClientDb()
         {
             var options = new DbContextOptionsBuilder<ClientsDb>()
-                .UseInMemoryDatabase(databaseName: $"InMemory{DateTime.Now.GetHashCode()}{DateTime.UtcNow.Millisecond}")
+                .UseInMemoryDatabase(databaseName: $"InMemory:{DateTime.Now.GetHashCode()}{DateTime.UtcNow.Millisecond}")
                 .Options;
 
             var db = new ClientsDb(options);

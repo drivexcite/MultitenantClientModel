@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using ClientApi.Controllers;
@@ -8,10 +11,16 @@ using ClientModel.DataAccess.Get.GetAccount;
 using ClientModel.Dtos;
 using ClientModel.Entities;
 using ClientModel.Exceptions;
+using FluentAssertions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ClientApi.Test.Controllers
 {
@@ -27,7 +36,6 @@ namespace ClientApi.Test.Controllers
                 ArchetypeId = 1,
                 SalesforceAccountId = "SF00001",
                 SalesforceAccountUrl = "https://healtwise.salesforce.com/accounts/SF00001",
-                SalesforceAccountNumber = "",
                 SalesforceAccountManager = "Katie Haller <khaller@healthwise.org>",
                 ContractNumber = "HW.SF00001",
                 Subscriptions = new List<SubscriptionDto>
@@ -52,34 +60,53 @@ namespace ClientApi.Test.Controllers
                         OrganizationalUnit = "Staging",
                         SubscriptionTypeId = 2
                     }
+                },
+                IdentityProviders = new List<IdentityProviderDto>
+                {
+                    new IdentityProviderDto
+                    {
+                        Name = "Health Dialog IdP"
+                    }
                 }
             };
+        }
+
+        public static TestServer CreateTestServer(Dictionary<string, string> configurationEntries = null)
+        {
+            configurationEntries = configurationEntries ?? new Dictionary<string, string>
+            {
+                ["ConnectionStrings:ClientsDbConnectionString"] = $"InMemory:{DateTime.Now}_{DateTime.UtcNow.Millisecond}",
+                ["DisableAuthenticationAndAuthorization"] = "true",
+                ["DisableHttpsRedirection"] = "true"
+            };
+
+            var configuration = new ConfigurationBuilder().AddInMemoryCollection(configurationEntries).Build();
+            var webhostBuilder = new WebHostBuilder().UseStartup<Startup>().UseConfiguration(configuration);
+
+            return new TestServer(webhostBuilder);
         }
 
         [TestMethod]
         public async Task GivenAnAccountController_WhenIPassAValidAccountToTheCreateAccountMethod_ThenTheCallSucceedsWithHttp200()
         {
             // Setup: Create AccountsController and dependencies
-            var logger = new Mock<ILogger<AccountsController>>();
-            var mapper = new Mock<IMapper>();
-            var db = new Mock<ClientsDb>();            
+            var server = CreateTestServer();
+            var httpClient = server.CreateClient();
 
-            var createAccount = new Mock<CreateAccountDelegate>(db.Object, mapper.Object);
-            var getAccount = new Mock<GetAccountDelegate>(db.Object, mapper.Object);
-
+            // Exercise: Invoke AccountsController.CreateAccount with a valid AccountDto object
             var account = CreateValidAccountDefinition();
+            var body = JsonConvert.SerializeObject(account);
 
-            // Setup: Simulate the Create Account data access method executed successfully.
-            createAccount.Setup(d => d.CreateAccountAsync(It.IsAny<AccountDto>())).ReturnsAsync(account);
+            var response = await httpClient.PostAsync("/accounts", new StringContent(body, Encoding.UTF8, "application/json"));
 
-            // System under test: Accounts Controller
-            var accountsController = new AccountsController(createAccount.Object, getAccount.Object);
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            
+            var content = await response.Content.ReadAsStringAsync();
+            content.Should().NotBeNullOrEmpty();
 
-            // Exercise: Invoke AccountsController.CreateAccount with a valid AccountDto object            
-            var result = await accountsController.CreateAccount(account) as ObjectResult;
-
-            Assert.IsNotNull(result, $"The {nameof(AccountsController.CreateAccount)} method returned an invalid result. Expected: {nameof(OkObjectResult)}");
-            Assert.AreEqual(200, result.StatusCode);
+            var responseJson = string.IsNullOrEmpty(content) ? new JObject() : JToken.Parse(content);
+            response.Should().NotBeNull();            
         }
 
         [TestMethod]
@@ -125,7 +152,7 @@ namespace ClientApi.Test.Controllers
             createAccount.Setup(d => d.CreateAccountAsync(It.IsAny<AccountDto>())).ThrowsAsync(new PersistenceException("This is very unfortunate =("));
 
             // System under test: Accounts Controller
-            var accountsController = new AccountsController(createAccount.Object, getAccount.Object);            
+            var accountsController = new AccountsController(createAccount.Object, getAccount.Object);
 
             // Exercise: Invoke AccountsController.CreateAccount with a valid AccountDto object            
             var result = await accountsController.CreateAccount(account) as ObjectResult;

@@ -20,6 +20,7 @@ using ClientModel.DataAccess.Get.GetSubscriptions;
 using ClientModel.Dtos.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ClientApi
 {
@@ -34,16 +35,31 @@ namespace ClientApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(options =>
+            var disableGlobalExceptionFilter = Configuration["DisableGlobalExceptionFilter"] == "true";
+
+            if (!disableGlobalExceptionFilter)
             {
-                options.Filters.Add<ClientModelExceptionFilterAttribute>();
-            });
+                services.AddMvc(options =>
+                {
+                    options.Filters.Add<ClientModelExceptionFilterAttribute>();
+                });
+            }
 
             services.AddControllers().AddApplicationPart(GetType().Assembly);
-            services.AddAutoMapper(typeof(AccountProfile));
+            services.AddAutoMapper(typeof(AccountProfile).Assembly);
 
             var clientsDbConnectionString = Configuration["ConnectionStrings:ClientsDbConnectionString"];
-            services.AddDbContext<ClientsDb>(options => options.UseSqlServer(clientsDbConnectionString));
+
+            // For Testing
+            if (clientsDbConnectionString.StartsWith("InMemory:", StringComparison.OrdinalIgnoreCase))
+            {
+                var databaseName = clientsDbConnectionString.Replace("InMemory:", "", StringComparison.OrdinalIgnoreCase);
+                services.AddDbContext<ClientsDb>(options => options.UseInMemoryDatabase(databaseName: databaseName));
+            }
+            else
+            {
+                services.AddDbContext<ClientsDb>(options => options.UseSqlServer(clientsDbConnectionString));
+            }
 
             services.AddScoped<CreateAccountDelegate>();
             services.AddScoped<GetAccountDelegate>();
@@ -51,12 +67,25 @@ namespace ClientApi
             services.AddScoped<GetIdentityProvidersDelegate>();
             services.AddScoped<CreateIdentityProviderDelegate>();
 
-            //var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.["TokenProviderOptions:SecretKey"]));
+            var signingKey = Configuration["TokenProviderOptions:SecretKey"] is string secretKey
+                ? new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey))
+                : null;
 
             var issuer = Configuration["TokenProviderOptions:Issuer"];
             var audience = Configuration["TokenProviderOptions:Audience"];
+            var requireHttpsMetadata = Configuration["TokenProviderOptions:RequireHttpsMetadata"] == "true";
+            var requireExpirationTime = Configuration["TokenProviderOptions:RequireExpirationTime"] == "true";
+            var requireSignedTokens = Configuration["TokenProviderOptions:RequireSignedTokens"] == "true";
+            var validateIssuerSigningKey = Configuration["TokenProviderOptions:ValidateIssuerSigningKey"] == "true";
+            var validateIssuer = Configuration["TokenProviderOptions:ValidateIssuer"] == "true";
+            var validateAudience = Configuration["TokenProviderOptions:ValidateAudience"] == "true";
+            var validateLifetime = Configuration["TokenProviderOptions:ValidateLifetime"] == "true";
 
-            services
+            var disableAuthenticationAndAuthorization = Configuration["DisableAuthenticationAndAuthorization"] == "true";
+
+            if (!disableAuthenticationAndAuthorization)
+            {
+                services
                 .AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -65,21 +94,21 @@ namespace ClientApi
                 })
                 .AddJwtBearer(options =>
                 {
-                    options.RequireHttpsMetadata = false;
+                    options.RequireHttpsMetadata = requireHttpsMetadata;
 
                     options.Audience = audience;
                     options.Authority = issuer;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        RequireExpirationTime = true,
-                        RequireSignedTokens = true,
-                        ValidateIssuerSigningKey = false,
-                        //IssuerSigningKey = signingKey,
-                        ValidateIssuer = true,
+                        RequireExpirationTime = requireExpirationTime,
+                        RequireSignedTokens = requireSignedTokens,
+                        ValidateIssuerSigningKey = validateIssuerSigningKey,
+                        IssuerSigningKey = signingKey,
+                        ValidateIssuer = validateIssuer,
                         ValidIssuer = issuer,
-                        ValidateAudience = true,
+                        ValidateAudience = validateAudience,
                         ValidAudience = audience,
-                        ValidateLifetime = false,
+                        ValidateLifetime = validateLifetime,
                         ClockSkew = TimeSpan.Zero
                     };
 
@@ -109,6 +138,7 @@ namespace ClientApi
                         },
                     };
                 });
+            }
 
             services.AddSingleton<IAuthorizationHandler, RbacAuthorizationHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, RbacAuhtorizationPolicyProvider>();
@@ -122,11 +152,22 @@ namespace ClientApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+            var disableHttpsRedirection = Configuration["DisableHttpsRedirection"] == "true";
+
+            if (!disableHttpsRedirection)
+            {
+                app.UseHttpsRedirection();
+            }
+
             app.UseRouting();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            var disableAuthenticationAndAuthorization = Configuration["DisableAuthenticationAndAuthorization"] == "true";
+
+            if (!disableAuthenticationAndAuthorization)
+            {
+                app.UseAuthentication();
+                app.UseAuthorization();
+            }
 
             app.UseEndpoints(endpoints =>
             {
