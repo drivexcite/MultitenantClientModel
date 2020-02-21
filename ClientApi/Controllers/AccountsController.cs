@@ -1,6 +1,7 @@
 ﻿using ClientApi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ClientApi.Filters;
 using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.DataAccess.Get.GetAccount;
 using ClientModel.Dtos;
@@ -8,6 +9,7 @@ using ClientModel.Dtos;
 namespace ClientApi.Controllers
 {
     [ApiController]
+    [ServiceFilter(typeof(ClientModelExceptionFilter))]
     public class AccountsController : ControllerBase
     {
         private readonly CreateAccountDelegate _createAccount;

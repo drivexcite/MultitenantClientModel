@@ -35,16 +35,6 @@ namespace ClientApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var disableGlobalExceptionFilter = Configuration["DisableGlobalExceptionFilter"] == "true";
-
-            if (!disableGlobalExceptionFilter)
-            {
-                services.AddMvc(options =>
-                {
-                    options.Filters.Add<ClientModelExceptionFilterAttribute>();
-                });
-            }
-
             services.AddControllers().AddApplicationPart(GetType().Assembly);
             services.AddAutoMapper(typeof(AccountProfile).Assembly);
 

@@ -1,11 +1,13 @@
 ﻿using ClientApi.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ClientApi.Filters;
 using ClientModel.DataAccess.Get.GetSubscriptions;
 
 namespace ClientApi.Controllers
 {
     [ApiController]
+    [ServiceFilter(typeof(ClientModelExceptionFilter))]
     public class SubscriptionsController : ControllerBase
     {
         private readonly GetSubscriptionDelegate _getSubscription;

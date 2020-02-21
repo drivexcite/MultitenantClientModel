@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 using ClientModel.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ClientApi.Filters
 {
-    public class ClientModelExceptionFilterAttribute : ExceptionFilterAttribute
+    public class ClientModelExceptionFilter : ExceptionFilterAttribute
     {
         public static Dictionary<Type, HttpStatusCode> DesiredStatusCodes { get; set; }
 
-        static ClientModelExceptionFilterAttribute()
+        static ClientModelExceptionFilter()
         {
             DesiredStatusCodes = new Dictionary<Type, HttpStatusCode>
             {
@@ -28,11 +29,13 @@ namespace ClientApi.Filters
             };
         }
 
-        private readonly ILogger<ClientModelExceptionFilterAttribute> _logger;
+        private readonly ILogger<ClientModelExceptionFilter> _logger;
+        private readonly IConfiguration _configuration;
 
-        public ClientModelExceptionFilterAttribute(ILogger<ClientModelExceptionFilterAttribute> logger)
+        public ClientModelExceptionFilter(ILogger<ClientModelExceptionFilter> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
         }
 
         private void CommonHandler(ExceptionContext context)
@@ -86,7 +89,9 @@ namespace ClientApi.Filters
 
         public override void OnException(ExceptionContext context)
         {
-            if (context != null)
+            var disableGlobalExceptionFilter = _configuration["DisableGlobalExceptionFilter"] == "true";
+
+            if (context != null && !disableGlobalExceptionFilter)
                 CommonHandler(context);
 
             base.OnException(context);
@@ -94,7 +99,9 @@ namespace ClientApi.Filters
 
         public override Task OnExceptionAsync(ExceptionContext context)
         {
-            if (context != null)
+            var disableGlobalExceptionFilter = _configuration["DisableGlobalExceptionFilter"] == "true";
+
+            if (context != null && !disableGlobalExceptionFilter)
                 CommonHandler(context);
 
             return base.OnExceptionAsync(context);

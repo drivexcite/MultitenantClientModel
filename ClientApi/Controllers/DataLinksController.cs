@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ClientApi.Filters;
 
 namespace ClientApi.Controllers
 {
     [ApiController]
+    [ServiceFilter(typeof(ClientModelExceptionFilter))]
     public class DataLinksController : ControllerBase
     {
         [HttpGet]

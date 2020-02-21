@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ClientApi.Filters;
 using ClientApi.ViewModels;
 using ClientModel.DataAccess.Get.GetIdentityProviders;
 using ClientModel.Dtos;
@@ -10,6 +11,7 @@ using ClientModel.DataAccess.Create.CreateIdentityProvider;
 namespace ClientApi.Controllers
 {
     [ApiController]
+    [ServiceFilter(typeof(ClientModelExceptionFilter))]
     public class IdentityProvidersController : ControllerBase
     {
         private readonly GetIdentityProvidersDelegate _getIdentityProviders;
