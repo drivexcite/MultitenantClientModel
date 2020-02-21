@@ -19,7 +19,7 @@ namespace ClientModel.Test.DataAccess.CreateAccount
             db.AccountTypes.Add(new AccountType { AccountTypeId = 3, Name = "Referral", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
 
             db.Archetypes.Add(new Archetype { ArchetypeId = 1, Name = "Basic", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
-            db.Archetypes.Add(new Archetype { ArchetypeId = 2, Name = "Segragated", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+            db.Archetypes.Add(new Archetype { ArchetypeId = 2, Name = "Segregated", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
             db.Archetypes.Add(new Archetype { ArchetypeId = 3, Name = "Var", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
             db.Archetypes.Add(new Archetype { ArchetypeId = 4, Name = "Hybrid", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
             db.Archetypes.Add(new Archetype { ArchetypeId = 5, Name = "Enterprise", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });

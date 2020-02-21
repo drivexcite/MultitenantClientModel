@@ -1,24 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
-using ClientApi.Controllers;
-using ClientModel.DataAccess.Create.CreateAccount;
-using ClientModel.DataAccess.Get.GetAccount;
 using ClientModel.Dtos;
 using ClientModel.Entities;
-using ClientModel.Exceptions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -73,17 +67,109 @@ namespace ClientApi.Test.Controllers
 
         public static TestServer CreateTestServer(Dictionary<string, string> configurationEntries = null)
         {
-            configurationEntries = configurationEntries ?? new Dictionary<string, string>
+            var databaseName = $"InMemory:{DateTime.Now}_{DateTime.UtcNow.Millisecond}";
+
+            if (configurationEntries != null && configurationEntries.TryGetValue("ConnectionStrings:ClientsDbConnectionString", out var connectionstring) == true)
             {
-                ["ConnectionStrings:ClientsDbConnectionString"] = $"InMemory:{DateTime.Now}_{DateTime.UtcNow.Millisecond}",
+                databaseName = connectionstring;
+            }
+
+            configurationEntries ??= new Dictionary<string, string>
+            {
+                ["ConnectionStrings:ClientsDbConnectionString"] = databaseName,
                 ["DisableAuthenticationAndAuthorization"] = "true",
                 ["DisableHttpsRedirection"] = "true"
             };
+
+            if (databaseName.StartsWith("InMemory:", StringComparison.OrdinalIgnoreCase))
+            {
+                var options = new DbContextOptionsBuilder<ClientsDb>()
+                    .UseInMemoryDatabase(databaseName: databaseName.Replace("InMemory:", ""))
+                    .Options;
+
+                using var db = new ClientsDb(options);
+
+                db.AccountTypes.Add(new AccountType { AccountTypeId = 1, Name = "Client", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.AccountTypes.Add(new AccountType { AccountTypeId = 2, Name = "Partner", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.AccountTypes.Add(new AccountType { AccountTypeId = 3, Name = "Referral", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+
+                db.Archetypes.Add(new Archetype { ArchetypeId = 1, Name = "Basic", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.Archetypes.Add(new Archetype { ArchetypeId = 2, Name = "Segregated", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.Archetypes.Add(new Archetype { ArchetypeId = 3, Name = "Var", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.Archetypes.Add(new Archetype { ArchetypeId = 4, Name = "Hybrid", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.Archetypes.Add(new Archetype { ArchetypeId = 5, Name = "Enterprise", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+
+                db.SubscriptionTypes.Add(new SubscriptionType { SubscriptionTypeId = 1, Name = "Production", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.SubscriptionTypes.Add(new SubscriptionType { SubscriptionTypeId = 2, Name = "Test", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.SubscriptionTypes.Add(new SubscriptionType { SubscriptionTypeId = 3, Name = "Demo", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+
+                db.DataLinkTypes.Add(new DataLinkType { DataLinkTypeId = 1, Name = "Customization", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+                db.DataLinkTypes.Add(new DataLinkType { DataLinkTypeId = 2, Name = "Activity", CreatedDate = DateTime.UtcNow, CreatedBy = "TomStChief" });
+
+                db.SaveChanges();
+            }
 
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(configurationEntries).Build();
             var webhostBuilder = new WebHostBuilder().UseStartup<Startup>().UseConfiguration(configuration);
 
             return new TestServer(webhostBuilder);
+        }
+
+        private void AssertThatAccountJsonResemblesDto(JToken accountJson, AccountDto account)
+        {
+            accountJson.Should().NotBeNull();
+
+            account.GetType().GetProperties().Length.Should().Be(accountJson.Count());
+
+            accountJson["accountId"].Should().NotBeNull().And.BeOfType<JValue>();
+            accountJson["accountId"].Value<int>().Should().NotBe(0);
+
+            accountJson["accountTypeId"].Should().NotBeNull().And.BeOfType<JValue>();
+            accountJson["accountTypeId"].Value<int>().Should().Be(account.AccountTypeId);
+
+            accountJson["archetypeId"].Should().NotBeNull().And.BeOfType<JValue>();
+            accountJson["archetypeId"].Value<int>().Should().Be(account.ArchetypeId);
+
+            accountJson["salesforceAccountId"].Should().NotBeNull().And.BeOfType<JValue>();
+            accountJson["salesforceAccountId"].Value<string>().Should().NotBeNullOrEmpty().And.Be(account.SalesforceAccountId);
+
+            accountJson["salesforceAccountManager"].Should().NotBeNull().And.BeOfType<JValue>();
+            accountJson["salesforceAccountManager"].Value<string>().Should().NotBeNullOrEmpty().And.Be(account.SalesforceAccountManager);
+
+            accountJson["salesforceAccountNumber"].Should().NotBeNull().And.BeOfType<JValue>();
+            accountJson["salesforceAccountNumber"].Value<string>().Should().BeNullOrEmpty();
+
+            accountJson["salesforceAccountUrl"].Should().NotBeNull().And.BeOfType<JValue>();
+            accountJson["salesforceAccountUrl"].Value<string>().Should().NotBeNullOrEmpty().And.Be(account.SalesforceAccountUrl);
+
+            accountJson["contractNumber"].Should().NotBeNull().And.BeOfType<JValue>();
+            accountJson["contractNumber"].Value<string>().Should().NotBeNullOrEmpty().And.Be(account.ContractNumber);
+
+            accountJson["subscriptions"].Should().BeOfType<JArray>().And.NotBeNullOrEmpty().And.HaveCount(account.Subscriptions.Count);
+
+            for (var i = 0; i < account.Subscriptions.Count; i++)
+            {
+                var subscription = account.Subscriptions[i];
+                var subscriptionJson = ((JArray)accountJson["subscriptions"])[i];
+
+                subscription.GetType().GetProperties().Length.Should().Be(subscriptionJson.Count());
+
+                subscriptionJson["subscriptionName"].Should().NotBeNull().And.BeOfType<JValue>();
+                subscriptionJson["subscriptionName"].Value<string>().Should().NotBeNullOrEmpty().And.Be(subscription.SubscriptionName);
+
+                subscriptionJson["description"].Should().NotBeNull().And.BeOfType<JValue>();
+                subscriptionJson["description"].Value<string>().Should().NotBeNullOrEmpty().And.Be(subscription.Description);
+
+                subscriptionJson["organizationalUnit"].Should().NotBeNull().And.BeOfType<JValue>();
+                subscriptionJson["organizationalUnit"].Value<string>().Should().NotBeNullOrEmpty().And.Be(subscription.OrganizationalUnit);
+
+                subscriptionJson["subscriptionTypeId"].Should().NotBeNull().And.BeOfType<JValue>();
+                subscriptionJson["subscriptionTypeId"].Value<int>().Should().Be(subscription.SubscriptionTypeId);
+
+                subscriptionJson["tags"].Should().BeOfType<JObject>().And.NotBeNullOrEmpty().And.HaveCount(subscription.Tags.Count);
+            }
+
+            accountJson["identityProviders"].Should().BeOfType<JArray>().And.NotBeNullOrEmpty().And.HaveCount(account.IdentityProviders.Count);
         }
 
         [TestMethod]
@@ -105,60 +191,8 @@ namespace ClientApi.Test.Controllers
             var content = await response.Content.ReadAsStringAsync();
             content.Should().NotBeNullOrEmpty();
 
-            var responseJson = string.IsNullOrEmpty(content) ? new JObject() : JToken.Parse(content);
-            response.Should().NotBeNull();            
-        }
-
-        [TestMethod]
-        public async Task GivenAnAccountController_WhenIPassAnInvalidAccountToTheCreateAccountMethod_ThenTheCallSucceedsWithHttp400()
-        {
-            // Setup: Create AccountsController and dependencies
-            var logger = new Mock<ILogger<AccountsController>>();
-            var mapper = new Mock<IMapper>();
-            var db = new Mock<ClientsDb>();
-
-            var createAccount = new Mock<CreateAccountDelegate>(db.Object, mapper.Object);
-            var getAccount = new Mock<GetAccountDelegate>(db.Object, mapper.Object);
-
-            var account = CreateValidAccountDefinition();
-
-            // Setup: Simulate the Create Account data access method throws an exception (validation exception).
-            createAccount.Setup(d => d.CreateAccountAsync(It.IsAny<AccountDto>())).ThrowsAsync(new ClientModelAggregateException("This is unfortunate =("));
-
-            // System under test: Accounts Controller
-            var accountsController = new AccountsController(createAccount.Object, getAccount.Object);
-
-            // Exercise: Invoke AccountsController.CreateAccount with a valid AccountDto object            
-            var result = await accountsController.CreateAccount(account) as ObjectResult;
-
-            Assert.IsNotNull(result, $"The {nameof(AccountsController.CreateAccount)} method returned an invalid result.");
-            Assert.AreEqual(400, result.StatusCode);
-        }
-
-        [TestMethod]
-        public async Task GivenAnAccountController_WhenThereIsADataAccessErrorOnTheCreateAccountMethod_ThenTheCallSucceedsWithHttp500()
-        {
-            // Setup: Create AccountsController and dependencies
-            var logger = new Mock<ILogger<AccountsController>>();
-            var mapper = new Mock<IMapper>();
-            var db = new Mock<ClientsDb>();
-
-            var createAccount = new Mock<CreateAccountDelegate>(db.Object, mapper.Object);
-            var getAccount = new Mock<GetAccountDelegate>(db.Object, mapper.Object);
-
-            var account = CreateValidAccountDefinition();
-
-            // Setup: Simulate the Create Account data access method throws an exception (data access exception).
-            createAccount.Setup(d => d.CreateAccountAsync(It.IsAny<AccountDto>())).ThrowsAsync(new PersistenceException("This is very unfortunate =("));
-
-            // System under test: Accounts Controller
-            var accountsController = new AccountsController(createAccount.Object, getAccount.Object);
-
-            // Exercise: Invoke AccountsController.CreateAccount with a valid AccountDto object            
-            var result = await accountsController.CreateAccount(account) as ObjectResult;
-
-            Assert.IsNotNull(result, $"The {nameof(AccountsController.CreateAccount)} method returned an invalid result.");
-            Assert.AreEqual(500, result.StatusCode);
+            var accountJson = string.IsNullOrEmpty(content) ? new JObject() : JToken.Parse(content);
+            AssertThatAccountJsonResemblesDto(accountJson, account);
         }
     }
 }
