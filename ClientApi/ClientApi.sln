@@ -11,7 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientModel", "..\ClientMod
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientApi.Test", "..\WebApi.Test\ClientApi.Test.csproj", "{36275483-C29B-4C92-8805-2F75C8A32F08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientApiFunctionHost", "..\ClientApiFunctionHost\ClientApiFunctionHost.csproj", "{45FF2653-E6E2-4B63-A6E2-8B4B835F6203}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientApiFunctionHost", "..\ClientApiFunctionHost\ClientApiFunctionHost.csproj", "{45FF2653-E6E2-4B63-A6E2-8B4B835F6203}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{0CD7CE05-1106-4377-BBBE-29D0114DDB9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebApi", "WebApi", "{DE3462D8-1898-435A-9350-65EA823D5838}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FunctionHost", "FunctionHost", "{46B27782-5570-4DC2-9D6B-4BD1CEC0E53F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +48,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CC254A3C-4135-461C-B4C1-72898F0CDC28} = {DE3462D8-1898-435A-9350-65EA823D5838}
+		{AA1C07C5-8B28-4BBA-A437-3BF126D8A37F} = {0CD7CE05-1106-4377-BBBE-29D0114DDB9C}
+		{A4C9B295-1EAF-45AD-90FD-30FE08B76B3A} = {0CD7CE05-1106-4377-BBBE-29D0114DDB9C}
+		{36275483-C29B-4C92-8805-2F75C8A32F08} = {DE3462D8-1898-435A-9350-65EA823D5838}
+		{45FF2653-E6E2-4B63-A6E2-8B4B835F6203} = {46B27782-5570-4DC2-9D6B-4BD1CEC0E53F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A90DEBC-818A-4332-834A-AF089B05DB37}
