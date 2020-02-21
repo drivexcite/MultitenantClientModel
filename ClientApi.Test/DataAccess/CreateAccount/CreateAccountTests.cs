@@ -7,6 +7,7 @@ using AutoMapper;
 using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.Dtos;
 using ClientModel.Dtos.Mappings;
+using ClientModel.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ClientModel.Test.DataAccess.CreateAccount
@@ -127,8 +128,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.AccountName = "", // Setup: Account Name is empty
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The {nameof(AccountDto.AccountName)} field is required.", aggregateException.InnerExceptions[0].Message);
@@ -150,8 +151,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.AccountName = new string('e', length + 1), // Setup: 1 AccountName is just over 120 characters
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The field {nameof(AccountDto.AccountName)} must be a string with a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
@@ -167,8 +168,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.AccountTypeId = 0, // Setup: AccountTypeId is set to an invalid value
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The account type with {nameof(AccountDto.AccountTypeId)} [0] is invalid", aggregateException.InnerExceptions[0].Message);
@@ -185,8 +186,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.ArchetypeId = 0, // Setup: AccountTypeId is set to an invalid value
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The archetype with {nameof(AccountDto.ArchetypeId)} [0] is invalid", aggregateException.InnerExceptions[0].Message);
@@ -212,8 +213,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.SalesforceAccountId = new string('e', length + 1), // Setup: 1 SalesforceAccountId is just over 40 characters
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The field {nameof(AccountDto.SalesforceAccountId)} must be a string with{minStringMessage} a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
@@ -238,8 +239,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.SalesforceAccountNumber = new string('e', length + 1), // Setup: 1 SalesforceAccountNumber is just over 40 characters
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The field {nameof(AccountDto.SalesforceAccountNumber)} must be a string with{minStringMessage} a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
@@ -264,8 +265,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.SalesforceAccountManager = new string('e', length + 1), // Setup: 1 SalesforceAccountManager is just over 120 characters
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The field {nameof(AccountDto.SalesforceAccountManager)} must be a string with{minStringMessage} a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
@@ -290,8 +291,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.ContractNumber = new string('e', length + 1), // Setup: 1 ContractNumber is just over 40 characters
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The field {nameof(AccountDto.ContractNumber)} must be a string with{minStringMessage} a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);
@@ -307,8 +308,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.IdentityProviders.First().Name = null, // Setup: 1 IdentityProviders[*].Name is null
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The {nameof(IdentityProviderDto.Name)} field is required.", aggregateException.InnerExceptions[0].Message);
@@ -333,8 +334,8 @@ namespace ClientModel.Test.DataAccess.CreateAccount
                 alterDto: dto => dto.IdentityProviders.First().Name = new string('e', length + 1), // Setup: 1 IdentityProviders[*].Name is just over 120 characters
                 assertOverThrownException: e =>
                 {
-                    Assert.AreEqual(typeof(AggregateException), e.GetType());
-                    var aggregateException = (AggregateException)e;
+                    Assert.AreEqual(typeof(ClientModelAggregateException), e.GetType());
+                    var aggregateException = (ClientModelAggregateException)e;
 
                     Assert.AreEqual(1, aggregateException.InnerExceptions.Count);
                     Assert.AreEqual($"The field {nameof(IdentityProviderDto.Name)} must be a string with{minStringMessage} a maximum length of {length}.", aggregateException.InnerExceptions[0].Message);

@@ -38,7 +38,7 @@ namespace ClientModel.DataAccess.Create.CreateAccount
 
             if (validationErrors.Count > 0) 
             {
-                throw new AggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
+                throw new ClientModelAggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
             }
 
             var dependencies = await PrefetchAndValidateAsync(accountViewModel);
@@ -144,7 +144,7 @@ namespace ClientModel.DataAccess.Create.CreateAccount
                 existingSubscriptions.ForEach(s => exceptions.Add(new MalformedSubscriptionException($"A subscription with {nameof(SubscriptionDto.SubscriptionTypeId)} [{s}] already exists")));
 
                 if (exceptions.Count > 0)
-                    throw new AggregateException("Some errors where found in the graph of the Account object.", exceptions);
+                    throw new ClientModelAggregateException("Some errors where found in the graph of the Account object.", exceptions);
 
                 return new CreateAccountPrefetch
                 {
@@ -154,13 +154,13 @@ namespace ClientModel.DataAccess.Create.CreateAccount
                     SubscriptionTypes = subscriptionTypes
                 };
             }
-            catch (AggregateException e)
+            catch (ClientModelAggregateException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
-                throw new PersistenceException("An unexpected error ocurred while validating the Create Account request.", e);
+                throw new PersistenceException("An unexpected error occurred while validating the Create Account request.", e);
             }
         }
     }

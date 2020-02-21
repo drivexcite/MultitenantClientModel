@@ -73,7 +73,7 @@ namespace ClientApi.Test.Controllers
             createAccount.Setup(d => d.CreateAccountAsync(It.IsAny<AccountDto>())).ReturnsAsync(account);
 
             // System under test: Accounts Controller
-            var accountsController = new AccountsController(logger.Object, createAccount.Object, getAccount.Object);
+            var accountsController = new AccountsController(createAccount.Object, getAccount.Object);
 
             // Exercise: Invoke AccountsController.CreateAccount with a valid AccountDto object            
             var result = await accountsController.CreateAccount(account) as ObjectResult;
@@ -96,10 +96,10 @@ namespace ClientApi.Test.Controllers
             var account = CreateValidAccountDefinition();
 
             // Setup: Simulate the Create Account data access method throws an exception (validation exception).
-            createAccount.Setup(d => d.CreateAccountAsync(It.IsAny<AccountDto>())).ThrowsAsync(new AggregateException("This is unfortunate =("));
+            createAccount.Setup(d => d.CreateAccountAsync(It.IsAny<AccountDto>())).ThrowsAsync(new ClientModelAggregateException("This is unfortunate =("));
 
             // System under test: Accounts Controller
-            var accountsController = new AccountsController(logger.Object, createAccount.Object, getAccount.Object);
+            var accountsController = new AccountsController(createAccount.Object, getAccount.Object);
 
             // Exercise: Invoke AccountsController.CreateAccount with a valid AccountDto object            
             var result = await accountsController.CreateAccount(account) as ObjectResult;
@@ -125,7 +125,7 @@ namespace ClientApi.Test.Controllers
             createAccount.Setup(d => d.CreateAccountAsync(It.IsAny<AccountDto>())).ThrowsAsync(new PersistenceException("This is very unfortunate =("));
 
             // System under test: Accounts Controller
-            var accountsController = new AccountsController(logger.Object, createAccount.Object, getAccount.Object);            
+            var accountsController = new AccountsController(createAccount.Object, getAccount.Object);            
 
             // Exercise: Invoke AccountsController.CreateAccount with a valid AccountDto object            
             var result = await accountsController.CreateAccount(account) as ObjectResult;

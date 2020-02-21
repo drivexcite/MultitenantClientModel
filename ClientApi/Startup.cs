@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using AutoMapper;
 using ClientApi.Authorization;
+using ClientApi.Filters;
 using ClientModel.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -33,6 +34,11 @@ namespace ClientApi
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc(options =>
+            {
+                options.Filters.Add<ClientModelExceptionFilterAttribute>();
+            });
+
             services.AddControllers().AddApplicationPart(GetType().Assembly);
             services.AddAutoMapper(typeof(AccountProfile));
 
@@ -117,7 +123,6 @@ namespace ClientApi
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.UseAuthentication();

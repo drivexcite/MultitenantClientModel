@@ -30,7 +30,7 @@ namespace ClientModel.DataAccess.Create.CreateIdentityProvider
 
             if (validationErrors.Count > 0)
             {
-                throw new AggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
+                throw new ClientModelAggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
             }
 
             var account = (from a in _db.Accounts where a.AccountId == accountId select a).FirstOrDefault();
