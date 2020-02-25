@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -43,8 +44,6 @@ namespace ClientModel.DataAccess.Create.CreateSubscription
 
         private async Task<(Account, SubscriptionType)> PrefetchAndValidateAsync(int accountId, SubscriptionDto subscription)
         {
-            var exceptions = new List<Exception>();
-
             try
             {
                 var existingAccountFuture = (from a in _db.Accounts where a.AccountId == accountId select a).DeferredFirstOrDefault().FutureValue();
@@ -53,35 +52,25 @@ namespace ClientModel.DataAccess.Create.CreateSubscription
 
                 var account = await existingAccountFuture.ValueAsync();
                 var subscriptionType = await subscriptionTypeFuture.ValueAsync();
-
-
+                
                 if(account == null)
                 {
-                    exceptions.Add(new AccountNotFoundException($"An account with AccountId {accountId} could not be found."));
+                    throw new AccountNotFoundException($"An account with AccountId {accountId} could not be found.");
                 }
 
                 if (await existingSubscriptionsFuture.ValueAsync() > 1)
                 {
-                    exceptions.Add(new MalformedSubscriptionException($"An existing subscription with Subscription {subscription.SubscriptionId} already exists."));
+                    throw new MalformedSubscriptionException($"An existing subscription with Subscription {subscription.SubscriptionId} already exists.");
                 }
 
                 if (subscriptionType == null)
                 {
-                    exceptions.Add(new MalformedSubscriptionException($"A subscription type with SubscriptionTypeId {subscription.SubscriptionTypeId} doesn't exist."));
-                }
-
-                if (exceptions.Count > 0)
-                {
-                    throw new ClientModelAggregateException("Some errors where found in the graph of the Account object.", exceptions);
+                    throw new MalformedSubscriptionException($"A subscription type with SubscriptionTypeId {subscription.SubscriptionTypeId} doesn't exist.");
                 }
 
                 return (account, subscriptionType);
             }
-            catch (ClientModelAggregateException)
-            {
-                throw;
-            }
-            catch (Exception e)
+            catch (DbException e)
             {
                 throw new PersistenceException("An unexpected error occurred while validating the Create Account request.", e);
             }

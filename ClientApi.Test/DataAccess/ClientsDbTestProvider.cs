@@ -2,7 +2,7 @@
 using ClientModel.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace ClientModel.Test.DataAccess.CreateAccount
+namespace ClientModel.Test.DataAccess
 {
     public class ClientsDbTestProvider
     {

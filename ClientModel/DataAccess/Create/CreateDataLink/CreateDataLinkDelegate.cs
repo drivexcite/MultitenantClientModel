@@ -44,7 +44,7 @@ namespace ClientModel.DataAccess.Create.CreateDataLink
 
             if (await existingDataLink.ValueAsync())
             {
-                throw new MalformedDataLinkException($"An existing DataLink from subscription with SubscriptionId = {dataLinkDto.FromSubscriptionId} to subscription with SubscriptionId {dataLinkDto.ToSubscriptionId} already exists.");
+                throw new MalformedDataLinkException($"An existing DataLink from subscription with SubscriptionId = {dataLinkDto.FromSubscriptionId} to subscription with SubscriptionId = {dataLinkDto.ToSubscriptionId} already exists.");
             }
 
             var dataLinkType = await dataLinkTypeFuture.ValueAsync();
