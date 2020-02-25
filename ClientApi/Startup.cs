@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using AutoMapper;
 using ClientApi.Authorization;
-using ClientApi.Filters;
 using ClientModel.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +20,9 @@ using ClientModel.Dtos.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ClientModel.DataAccess.Create.CreateDataLink;
+using ClientModel.DataAccess.Create.CreateSubscription;
+using ClientModel.DataAccess.Get.GetDataLink;
 
 namespace ClientApi
 {
@@ -52,11 +54,15 @@ namespace ClientApi
             }
 
             services.AddScoped<CreateAccountDelegate>();
+            services.AddScoped<CreateSubscriptionDelegate>();
+            services.AddScoped<CreateIdentityProviderDelegate>();
+            services.AddScoped<CreateDataLinkDelegate>();
+
             services.AddScoped<GetAccountDelegate>();
             services.AddScoped<GetSubscriptionDelegate>();
             services.AddScoped<GetIdentityProvidersDelegate>();
-            services.AddScoped<CreateIdentityProviderDelegate>();
-
+            services.AddScoped<GetDataLinkDelegte>();
+            
             var signingKey = Configuration["TokenProviderOptions:SecretKey"] is string secretKey
                 ? new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey))
                 : null;
@@ -110,22 +116,10 @@ namespace ClientApi
                             var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
                             return Task.CompletedTask;
                         },
-                        OnMessageReceived = context =>
-                        {
-                            return Task.CompletedTask;
-                        },
-                        OnChallenge = context =>
-                        {
-                            return Task.CompletedTask;
-                        },
-                        OnForbidden = context =>
-                        {
-                            return Task.CompletedTask;
-                        },
-                        OnAuthenticationFailed = context =>
-                        {
-                            return Task.CompletedTask;
-                        },
+                        OnMessageReceived = context => Task.CompletedTask,
+                        OnChallenge = context => Task.CompletedTask,
+                        OnForbidden = context => Task.CompletedTask,
+                        OnAuthenticationFailed = context => Task.CompletedTask,
                     };
                 });
             }

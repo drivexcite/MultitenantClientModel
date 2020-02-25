@@ -40,7 +40,7 @@ namespace ClientModel.DataAccess.Get.GetIdentityProviders
 
             if (subscription == null)
             {
-                throw new SubscriptionNotFoundException($"A subscription with SubscriptionId = {subscriptionId} does not exist within Account({accountId})");
+                throw new SubscriptionNotFoundException($"A subscription with SubscriptionId = {subscriptionId} does not exist within Account with AccountId = {accountId}.");
             }
 
             var identityProviders = (from m in subscription.IdentityProviders select m.IdentityProvider).ToList();

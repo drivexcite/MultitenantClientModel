@@ -11,7 +11,7 @@ using ClientModel.DataAccess.Create.CreateIdentityProvider;
 namespace ClientApi.Controllers
 {
     [ApiController]
-    [ServiceFilter(typeof(ClientModelExceptionFilter))]
+    [TypeFilter(typeof(ClientModelExceptionFilter))]
     public class IdentityProvidersController : ControllerBase
     {
         private readonly GetIdentityProvidersDelegate _getIdentityProviders;

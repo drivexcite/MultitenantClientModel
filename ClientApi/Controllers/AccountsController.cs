@@ -9,7 +9,7 @@ using ClientModel.Dtos;
 namespace ClientApi.Controllers
 {
     [ApiController]
-    [ServiceFilter(typeof(ClientModelExceptionFilter))]
+    [TypeFilter(typeof(ClientModelExceptionFilter))]
     public class AccountsController : ControllerBase
     {
         private readonly CreateAccountDelegate _createAccount;
@@ -42,7 +42,7 @@ namespace ClientApi.Controllers
 
         [HttpPost]
         [Route("accounts")]
-        //[AuthorizeRbac("accounts:create")]
+        //[AuthorizeRbac("accounts:write")]
         public async Task<IActionResult> CreateAccount(AccountDto accountViewModel)
         {
             return Ok(await _createAccount.CreateAccountAsync(accountViewModel));

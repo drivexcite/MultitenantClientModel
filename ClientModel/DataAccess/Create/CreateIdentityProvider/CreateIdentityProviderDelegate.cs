@@ -105,7 +105,7 @@ namespace ClientModel.DataAccess.Create.CreateIdentityProvider
             await _db.SaveChangesAsync();
             var identityProviders = (from m in subscription.IdentityProviders select _mapper.Map<IdentityProviderDto>(m.IdentityProvider)).ToList();
 
-            return (identityProviders.Skip(skip).Take(top).ToList(), identityProviders.Count());
+            return (identityProviders.Skip(skip).Take(top).ToList(), identityProviders.Count);
         }
     }
 }

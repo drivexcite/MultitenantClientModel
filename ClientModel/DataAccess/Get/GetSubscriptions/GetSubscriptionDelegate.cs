@@ -6,6 +6,7 @@ using ClientModel.Dtos;
 using ClientModel.Entities;
 using ClientModel.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace ClientModel.DataAccess.Get.GetSubscriptions
 {
@@ -35,6 +36,35 @@ namespace ClientModel.DataAccess.Get.GetSubscriptions
                 throw new AccountNotFoundException($"An account with AccountId {accountId} could not be found");
 
             return (accountSubscriptions.Skip(skip).Take(top), accountSubscriptions.Count());
+        }
+
+        public virtual async Task<SubscriptionDto> GetSubscriptionAsync(int accountId, int subscriptionId)
+        {
+            var doesAccountExistsFuture = (
+                from a in _db.Accounts
+                where a.AccountId == accountId 
+                select 1
+            ).DeferredCount().FutureValue();
+
+            var subscriptionFuture = (
+                from s in _db.Subscriptions
+                    .Include(s => s.IdentityProviders) 
+                        .ThenInclude(m => m.IdentityProvider)
+                where s.AccountId == accountId 
+                        && s.SubscriptionId == subscriptionId 
+                select s
+            ).DeferredFirstOrDefault().FutureValue();
+
+            var doesAccountExist = await doesAccountExistsFuture.ValueAsync() > 0;
+            var subscription = await subscriptionFuture.ValueAsync();
+
+            if (!doesAccountExist)
+                throw new AccountNotFoundException($"An account with AccountId {accountId} could not be found");
+
+            if (subscription == null)
+                throw new SubscriptionNotFoundException($"A subscription with SubscriptionId {subscriptionId} could not be found");
+
+            return _mapper.Map<SubscriptionDto>(subscription);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace ClientModel.Entities.Configuration
     {
         public void Configure(EntityTypeBuilder<DataLink> builder)
         {
-            builder.HasKey(e => new { e.FromSubscriptionId, e.ToSubscriptionId, e.TypeDataLinkTypeId });
+            builder.HasKey(e => new { e.FromSubscriptionId, e.ToSubscriptionId, TypeDataLinkTypeId = e.DataLinkTypeId });
 
             builder.ToTable("DataLink", "Client");
 
@@ -16,7 +16,7 @@ namespace ClientModel.Entities.Configuration
 
             builder.HasIndex(e => e.ToSubscriptionId);
 
-            builder.HasIndex(e => e.TypeDataLinkTypeId)
+            builder.HasIndex(e => e.DataLinkTypeId)
                 .HasName("IX_DataLink_DataLinkType");
 
             builder.Property(e => e.CreatedBy)
@@ -42,7 +42,7 @@ namespace ClientModel.Entities.Configuration
 
             builder.HasOne(d => d.Type)
                 .WithMany()
-                .HasForeignKey(d => d.TypeDataLinkTypeId)
+                .HasForeignKey(d => d.DataLinkTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DataLink_DataLinkType");
         }

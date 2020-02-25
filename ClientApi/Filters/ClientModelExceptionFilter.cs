@@ -25,7 +25,8 @@ namespace ClientApi.Filters
                 [typeof(MalformedAccountException)] = HttpStatusCode.BadRequest,
                 [typeof(MalformedSubscriptionException)] = HttpStatusCode.BadRequest,
                 [typeof(PersistenceException)] = HttpStatusCode.InternalServerError,
-                [typeof(ClientModelAggregateException)] = HttpStatusCode.BadRequest
+                [typeof(ClientModelAggregateException)] = HttpStatusCode.BadRequest,
+                [typeof(DataLinkTypeNotFoundException)] = HttpStatusCode.NotFound
             };
         }
 
