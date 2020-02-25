@@ -22,6 +22,8 @@ namespace ClientApiFunctionHost
             Environment.SetEnvironmentVariable("BASEDIR", AppContext.BaseDirectory);
             Environment.SetEnvironmentVariable("ConnectionStrings:ClientsDbConnectionString", "Server=(local);Database=Clients;Trusted_Connection=True;");
             Environment.SetEnvironmentVariable("DisableAuthenticationAndAuthorization", "true");
+            Environment.SetEnvironmentVariable("TokenProviderOptions:Issuer", "https://dev-318215.okta.com/oauth2/aus15ubkj0WHGsqEV4x6");
+            Environment.SetEnvironmentVariable("TokenProviderOptions:Audience", "UserManagement");
 
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()

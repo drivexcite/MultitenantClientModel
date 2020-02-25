@@ -24,7 +24,7 @@ namespace ClientApi.Controllers
 
         [HttpGet]
         [Route("accounts")]
-        //[AuthorizeRbac("accounts:read")]
+        [AuthorizeRbac("users:read")]
         public async Task<IActionResult> GetAccounts(int skip = 0, int top = 10)
         {
             var baseUrl = $"{Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}";

@@ -1,33 +1,29 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace ClientApi.Authorization
 {
-    public class RbacAuthorizationHandler : AuthorizationHandler<RbacRequirement>
+    public class RbacAuhtorizationPolicyProvider : IAuthorizationPolicyProvider
     {
-        private readonly ILogger<RbacAuthorizationHandler> _logger;
+        public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; }
 
-        public RbacAuthorizationHandler(ILogger<RbacAuthorizationHandler> logger)
+        public RbacAuhtorizationPolicyProvider(IOptions<AuthorizationOptions> options)
         {
-            _logger = logger;
+            FallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
         }
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, RbacRequirement requirement)
+        public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => FallbackPolicyProvider.GetDefaultPolicyAsync();
+
+        public Task<AuthorizationPolicy> GetFallbackPolicyAsync() => FallbackPolicyProvider.GetDefaultPolicyAsync();
+
+        public Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
-            _logger.LogWarning($"Evaluating RBAC authorization requirement for {requirement?.Setting}");
+            var policy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme);
+            policy.AddRequirements(new RbacRequirement(policyName));
 
-            var requirementPresentInJwt = (
-                from c in context.User.Claims 
-                where c.Type == "rbac" 
-                    && c.Value == requirement.Setting select 1
-            ).Any();
-            
-            if (requirementPresentInJwt)
-                context.Succeed(requirement);
-
-            return Task.CompletedTask;
+            return Task.FromResult(policy.Build());
         }
     }
 }
