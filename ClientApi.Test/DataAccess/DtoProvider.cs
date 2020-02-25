@@ -49,5 +49,22 @@ namespace ClientModel.Test.DataAccess
                 }
             };
         }
+
+        public static SubscriptionDto CreateValidSubscriptionDefinition()
+        {
+            return new SubscriptionDto
+            {
+                SubscriptionName = "Health Dialog - Demo",
+                Description = "Demo subscription for Health Dialog",
+                Tags = new Dictionary<string, string>
+                {
+                    ["Managed"] = "true",
+                    ["PHI"] = "false",
+                    ["Transient"] = "true"
+                },
+                OrganizationalUnit = "Demo",
+                SubscriptionTypeId = 3
+            };
+        }
     }
 }

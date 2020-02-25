@@ -31,7 +31,6 @@ namespace ClientModel.Test.DataAccess.CreateDataLink
             var account = DtoProvider.CreateValidAccountDefinition();
             var createAccountDelegate = new CreateAccountDelegate(db, Mapper);
             
-            
             account = await createAccountDelegate.CreateAccountAsync(account);
             var dataLink = new DataLinkDto
             {
@@ -102,8 +101,7 @@ namespace ClientModel.Test.DataAccess.CreateDataLink
 
             var account = DtoProvider.CreateValidAccountDefinition();
             var createAccountDelegate = new CreateAccountDelegate(db, Mapper);
-
-
+            
             account = await createAccountDelegate.CreateAccountAsync(account);
             var dataLink = new DataLinkDto
             {

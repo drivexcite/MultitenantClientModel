@@ -37,7 +37,7 @@ namespace ClientApi.Controllers
         //[AuthorizeRbac("accounts:write")]
         public async Task<IActionResult> CreateSubscription(int accountId, [FromBody]SubscriptionDto subscriptionDto)
         {
-            return Ok(await _createSubscriptionDelegate.CreateAccountAsync(accountId, subscriptionDto));
+            return Ok(await _createSubscriptionDelegate.CreateSubscriptionAsync(accountId, subscriptionDto));
         }
 
         [HttpGet]

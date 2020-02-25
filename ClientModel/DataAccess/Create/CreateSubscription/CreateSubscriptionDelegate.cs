@@ -25,7 +25,7 @@ namespace ClientModel.DataAccess.Create.CreateSubscription
             _mapper = mapper;
         }
 
-        public virtual async Task<SubscriptionDto> CreateAccountAsync(int accountId, SubscriptionDto subscriptionDto)
+        public virtual async Task<SubscriptionDto> CreateSubscriptionAsync(int accountId, SubscriptionDto subscriptionDto)
         {
             var validationErrors = new List<ValidationResult>();
 
@@ -55,17 +55,19 @@ namespace ClientModel.DataAccess.Create.CreateSubscription
                 
                 if(account == null)
                 {
-                    throw new AccountNotFoundException($"An account with AccountId {accountId} could not be found.");
+                    throw new AccountNotFoundException($"An account with {nameof(AccountDto.AccountId)} = {accountId} could not be found.");
                 }
 
-                if (await existingSubscriptionsFuture.ValueAsync() > 1)
+                var existingSubscriptions = await existingSubscriptionsFuture.ValueAsync();
+
+                if (existingSubscriptions > 0)
                 {
-                    throw new MalformedSubscriptionException($"An existing subscription with Subscription {subscription.SubscriptionId} already exists.");
+                    throw new MalformedSubscriptionException($"An existing subscription with {nameof(SubscriptionDto.SubscriptionId)} = {subscription.SubscriptionId} already exists.");
                 }
 
                 if (subscriptionType == null)
                 {
-                    throw new MalformedSubscriptionException($"A subscription type with SubscriptionTypeId {subscription.SubscriptionTypeId} doesn't exist.");
+                    throw new MalformedSubscriptionException($"A subscription type with {nameof(SubscriptionDto.SubscriptionTypeId)} = {subscription.SubscriptionTypeId} doesn't exist.");
                 }
 
                 return (account, subscriptionType);
