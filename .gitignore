@@ -10,3 +10,8 @@
 /ContentModelImporter/obj
 /ContentModelImporter/bin
 /ContentModelImporter/.vs
+/Profiler/HttpRequestProfiler/obj
+/Profiler/HttpRequestProfiler/bin
+obj
+bin
+/Profiler/.vs

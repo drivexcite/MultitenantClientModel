@@ -21,7 +21,7 @@ namespace ClientApiFunctionHost
         }
 
         [FunctionName("ProxyFunction")]
-        public async Task<IActionResult> DelegateInvocation([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "patch", "delete", "head", "connect", "options", Route = "{*any}")] HttpRequest request, ILogger log)
+        public async Task<IActionResult> DelegateInvocation([HttpTrigger(AuthorizationLevel.Anonymous, Route = "{*any}")] HttpRequest request, ILogger log)
         {
             request.HttpContext.RequestServices = _serviceProvider;
             var handleRequest = _applicationBuilder.Build();

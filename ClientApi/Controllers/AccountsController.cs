@@ -5,6 +5,7 @@ using ClientApi.Filters;
 using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.DataAccess.Get.GetAccount;
 using ClientModel.Dtos;
+using ClientApi.Authorization;
 
 namespace ClientApi.Controllers
 {

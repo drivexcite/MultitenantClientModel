@@ -21,6 +21,7 @@ namespace ClientApiFunctionHost
         {
             Environment.SetEnvironmentVariable("BASEDIR", AppContext.BaseDirectory);
             Environment.SetEnvironmentVariable("ConnectionStrings:ClientsDbConnectionString", "Server=(local);Database=Clients;Trusted_Connection=True;");
+            Environment.SetEnvironmentVariable("DisableAuthenticationAndAuthorization", "true");
 
             var configuration = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
