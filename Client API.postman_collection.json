@@ -1,0 +1,601 @@
+{
+	"info": {
+		"_postman_id": "77ab4aaf-bd5f-4b48-a990-2326a68a6f70",
+		"name": "Client API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Account",
+			"item": [
+				{
+					"name": "Create Basic Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"AccountName\": \"Health Dialog\",\n\t\"AccountTypeId\": 1,\n\t\"ArchetypeId\": 1,\n\t\"SalesforceAccountId\": \"SF00001\",\n\t\"SalesforceAccountUrl\": \"https://healtwise.salesforce.com/accounts/SF00001\",\n\t\"SalesforceAccountManager\": \"Katie Haller <khaller@healthwise.org>\",\n\t\"ContractNumber\": \"HW.SF00001\",\n\t\"Subscriptions\": [{\n\t\t\"SubscriptionName\": \"Health Dialog - Main\",\n\t\t\"Description\": \"Production subscription for Health Dialog\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Health Dialog - Staging\",\n\t\t\"Description\": \"Staging subscription for Health Dialog\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t}],\n\t\"IdentityProviders\": [{\n\t\t\"Name\": \"Health Dialog IdP\"\t\n\t}]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{clientapi}}/accounts",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Segregated Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"AccountName\": \"Iora\",\n\t\"AccountTypeId\": 1,\n\t\"ArchetypeId\": 2,\n\t\"SalesforceAccountId\": \"SF00002\",\n\t\"SalesforceAccountUrl\": \"https://healtwise.salesforce.com/accounts/SF00002\",\n\t\"SalesforceAccountManager\": \"Katie Haller <khaller@healthwise.org>\",\n\t\"ContractNumber\": \"HW.SF00002\",\n\t\"Subscriptions\": [{\n\t\t\"SubscriptionName\": \"Primary Care - Main\",\n\t\t\"Description\": \"Production subscription for Iora Primary Care\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Primary Care - Staging\",\n\t\t\"Description\": \"Staging subscription for Iora Primary Care\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t},{\n\t\t\"SubscriptionName\": \"Behavioral Health - Main\",\n\t\t\"Description\": \"Production subscription for Iora Behavioral Health\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Behavioral Health - Staging\",\n\t\t\"Description\": \"Staging subscription for Iora Behavioral Health\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t}],\n\t\"IdentityProviders\": [{\n\t\t\"Name\": \"Iora IdP\"\t\n\t}]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{clientapi}}/accounts",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create VAR Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"AccountName\": \"EClinicalWorks\",\n\t\"AccountTypeId\": 2,\n\t\"ArchetypeId\": 3,\n\t\"SalesforceAccountId\": \"SF00003\",\n\t\"SalesforceAccountUrl\": \"https://healtwise.salesforce.com/accounts/SF00003\",\n\t\"SalesforceAccountManager\": \"Katie Haller <khaller@healthwise.org>\",\n\t\"ContractNumber\": \"HW.SF00003\",\n\t\"Subscriptions\": [{\n\t\t\"SubscriptionName\": \"Open Door - Main\",\n\t\t\"Description\": \"Production subscription for ECW/Open Door\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Open Door - Staging\",\n\t\t\"Description\": \"Staging subscription for ECW/Open Door\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t},{\n\t\t\"SubscriptionName\": \"Primary Care - Main\",\n\t\t\"Description\": \"Production subscription for ECW/Primary Care\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Primary Care - Staging\",\n\t\t\"Description\": \"Staging subscription for ECW/Primary Care\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t},{\n\t\t\"SubscriptionName\": \"Arkansas Heart - Main\",\n\t\t\"Description\": \"Production subscription for ECW/Arkansas Heart\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Primary Care - Staging\",\n\t\t\"Description\": \"Staging subscription for ECW/Arkansas Heart\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t}],\n\t\"IdentityProviders\": [{\n\t\t\"Name\": \"ECW Main IdP\"\t\n\t}]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{clientapi}}/accounts",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Hybrid Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"AccountName\": \"Lumeris\",\n\t\"AccountTypeId\": 1,\n\t\"ArchetypeId\": 4,\n\t\"SalesforceAccountId\": \"SF00004\",\n\t\"SalesforceAccountUrl\": \"https://healtwise.salesforce.com/accounts/SF00004\",\n\t\"SalesforceAccountManager\": \"Katie Haller <khaller@healthwise.org>\",\n\t\"ContractNumber\": \"HW.SF00004\",\n\t\"Subscriptions\": [{\n\t\t\"SubscriptionName\": \"Behavioral Health Clinic - Main\",\n\t\t\"Description\": \"Production subscription for Lumeris Behavioral Health Clinic\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Behavioral Health Clinic - Staging\",\n\t\t\"Description\": \"Staging subscription for Lumeris Behavioral Health Clinic\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t},{\n\t\t\"SubscriptionName\": \"Urology Specialty Clinic - Main\",\n\t\t\"Description\": \"Production subscription for Lumeris Urology Specialty Clinic\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Urology Specialty Clinic - Staging\",\n\t\t\"Description\": \"Staging subscription for Lumeris Urology Specialty Clinic\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t},{\n\t\t\"SubscriptionName\": \"Tenet - Main\",\n\t\t\"Description\": \"Production subscription for Lumeris/Tenet\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Production\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Primary Care - Staging\",\n\t\t\"Description\": \"Staging subscription for Lumeris/Tenet\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"false\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Staging\",\n\t\t\"SubscriptionTypeId\": 2\n\t}],\n\t\"IdentityProviders\": [{\n\t\t\"Name\": \"Lumeris IdP\"\t\n\t}]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44321/accounts",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44321",
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Enterprise Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"AccountName\": \"Trinity\",\n\t\"AccountTypeId\": 1,\n\t\"ArchetypeId\": 5,\n\t\"SalesforceAccountId\": \"SF00005\",\n\t\"SalesforceAccountUrl\": \"https://healtwise.salesforce.com/accounts/SF00005\",\n\t\"SalesforceAccountManager\": \"Katie Haller <khaller@healthwise.org>\",\n\t\"ContractNumber\": \"HW.SF00005\",\n\t\"Subscriptions\": [{\n\t\t\"SubscriptionName\": \"Saint Agnes Medical Center\",\n\t\t\"Description\": \"Primary Subscription for Trinity Saint Agnes Medical Center\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Saint Agnes Hospital Newtwork\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Saint Agnes Home Care and Hospice\",\n\t\t\"Description\": \"Production Subscription for Trinity Saint Agnes Medical Center / Saint Agnes Home Care and Hospice\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Saint Agnes Hospital Newtwork\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Trinity Health of New England\",\n\t\t\"Description\": \"Primary Subscription for Trinity Health of New England\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity and Mercy in Connecticut and Massachusetts\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Saint Francis Hospital and Medical Center\",\n\t\t\"Description\": \"Production Subscription for Trinity Health of New England / Saint Francis Hospital and Medical Center\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity and Mercy in Connecticut and Massachusetts\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Mount Sinai Rehabilitation Hospital\",\n\t\t\"Description\": \"Production Subscription for Trinity Health of New England / Mount Sinai Rehabilitation Hospital\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity and Mercy in Connecticut and Massachusetts\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Saint Mary's Hospital\",\n\t\t\"Description\": \"Primary Subscription for Trinity Saint Mary's Hospital\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity and Mercy in Connecticut and Massachusetts\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Saint Mary's Family Care Clinic\",\n\t\t\"Description\": \"Production Subscription for Trinity Saint Mary's Hospital / Saint Mary's Family Care Clinic\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity and Mercy in Connecticut and Massachusetts\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Saint Mary's Cardiology Clinic\",\n\t\t\"Description\": \"Production Subscription for Trinity Saint Mary's Hospital / Saint Mary's Cardiology Clinic\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity and Mercy in Connecticut and Massachusetts\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Mercy Hospital of Buffalo\",\n\t\t\"Description\": \"Primary Subscription for Trinity Mercy Hospital of Buffalo\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity in New York\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"Mount St. Mary's Hospital\",\n\t\t\"Description\": \"Primary Subscription for Mount St. Mary's Hospital\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity in New York\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"St. Joseph's Hospital Health Center\",\n\t\t\"Description\": \"Primary Subscription for St. Joseph's Hospital Health Center\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity in New York\",\n\t\t\"SubscriptionTypeId\": 1\n\t},{\n\t\t\"SubscriptionName\": \"St. Peter's Health Care Services\",\n\t\t\"Description\": \"Primary Subscription for St. Peter's Health Care Services\",\n\t\t\"Tags\": {\n\t\t\t\"Managed\": \"true\",\n\t\t\t\"PHI\": \"true\"\n\t\t},\n\t\t\"OrganizationalUnit\": \"Trinity in New York\",\n\t\t\"SubscriptionTypeId\": 1\n\t}],\n\t\"IdentityProviders\": [{\n\t\t\"Name\": \"Trinity IdP\"\t\n\t}]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://localhost:44321/accounts",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "44321",
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAccounts (with server side pagination)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{clientapi}}/accounts?skip=0&top=10",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts"
+							],
+							"query": [
+								{
+									"key": "skip",
+									"value": "0"
+								},
+								{
+									"key": "top",
+									"value": "10"
+								},
+								{
+									"key": null,
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAccount (by Id)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{clientapi}}/accounts/11",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Subscription",
+			"item": [
+				{
+					"name": "Create Subscription (in Account)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"subscriptionName\": \"Health Dialog - Demo\",\r\n    \"description\": \"Demo subscription for Health Dialog\",\r\n    \"tags\": {\r\n        \"Managed\": \"true\",\r\n        \"PHI\": \"false\"\r\n    },\r\n    \"organizationalUnit\": \"Demo\",\r\n    \"subscriptionTypeId\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/subscriptions",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"subscriptions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Subscriptions (by Account)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/subscriptions",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"subscriptions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Subscription (by Account and Subscription)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/subscriptions/65",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"subscriptions",
+								"65"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "IdentityProvider",
+			"item": [
+				{
+					"name": "Create IdentityProvider (for Account)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwt}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Health Dialog Secondary IdP\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/identityProviders",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"identityProviders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get IdentityProviders (by Account)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/identityProviders",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"identityProviders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create IdentityProvider (Assign to Subscription)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"identityProviderIds\": [\n\t\t24\n\t]\n}"
+						},
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/subscriptions/66/identityProviders",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"subscriptions",
+								"66",
+								"identityProviders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetIdentityProviders (by AccountId and SubscriptionId)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/subscriptions/65/identityProviders",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"subscriptions",
+								"65",
+								"identityProviders"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "DataLink",
+			"item": [
+				{
+					"name": "Create DataLink (on Subscription)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwt}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"ToSubscriptionId\" : 65,\n\t\"DataLinkTypeId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/subscriptions/66/dataLinks",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"subscriptions",
+								"66",
+								"dataLinks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data Links (from Account)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/dataLinks",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"dataLinks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get DataLinks (by Subscription)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwt}}"
+							}
+						],
+						"url": {
+							"raw": "{{clientapi}}/accounts/11/subscriptions/66/dataLinks",
+							"host": [
+								"{{clientapi}}"
+							],
+							"path": [
+								"accounts",
+								"11",
+								"subscriptions",
+								"66",
+								"dataLinks"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
