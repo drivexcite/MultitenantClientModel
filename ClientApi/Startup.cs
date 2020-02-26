@@ -82,46 +82,46 @@ namespace ClientApi
             if (!disableAuthenticationAndAuthorization)
             {
                 services
-                .AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.RequireHttpsMetadata = requireHttpsMetadata;
-
-                    options.Audience = audience;
-                    options.Authority = issuer;
-                    options.TokenValidationParameters = new TokenValidationParameters
+                    .AddAuthentication(options =>
                     {
-                        RequireExpirationTime = requireExpirationTime,
-                        RequireSignedTokens = requireSignedTokens,
-                        ValidateIssuerSigningKey = validateIssuerSigningKey,
-                        IssuerSigningKey = signingKey,
-                        ValidateIssuer = validateIssuer,
-                        ValidIssuer = issuer,
-                        ValidateAudience = validateAudience,
-                        ValidAudience = audience,
-                        ValidateLifetime = validateLifetime,
-                        ClockSkew = TimeSpan.Zero
-                    };
-
-                    options.SaveToken = true;
-                    options.Events = new JwtBearerEvents
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    })
+                    .AddJwtBearer(options =>
                     {
-                        OnTokenValidated = context =>
+                        options.RequireHttpsMetadata = requireHttpsMetadata;
+
+                        options.Audience = audience;
+                        options.Authority = issuer;
+                        options.TokenValidationParameters = new TokenValidationParameters
                         {
-                            var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
-                            return Task.CompletedTask;
-                        },
-                        OnMessageReceived = context => Task.CompletedTask,
-                        OnChallenge = context => Task.CompletedTask,
-                        OnForbidden = context => Task.CompletedTask,
-                        OnAuthenticationFailed = context => Task.CompletedTask,
-                    };
-                });
+                            RequireExpirationTime = requireExpirationTime,
+                            RequireSignedTokens = requireSignedTokens,
+                            ValidateIssuerSigningKey = validateIssuerSigningKey,
+                            IssuerSigningKey = signingKey,
+                            ValidateIssuer = validateIssuer,
+                            ValidIssuer = issuer,
+                            ValidateAudience = validateAudience,
+                            ValidAudience = audience,
+                            ValidateLifetime = validateLifetime,
+                            ClockSkew = TimeSpan.Zero
+                        };
+
+                        options.SaveToken = false;
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnTokenValidated = context =>
+                            {
+                                var jwt = (context.SecurityToken as JwtSecurityToken)?.ToString();
+                                return Task.CompletedTask;
+                            },
+                            OnMessageReceived = context => Task.CompletedTask,
+                            OnChallenge = context => Task.CompletedTask,
+                            OnForbidden = context => Task.CompletedTask,
+                            OnAuthenticationFailed = context => Task.CompletedTask,
+                        };
+                    });
             }
 
             services.AddSingleton<IAuthorizationHandler, RbacAuthorizationHandler>();

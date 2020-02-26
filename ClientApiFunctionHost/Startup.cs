@@ -5,8 +5,6 @@ using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using Microsoft.Extensions.ObjectPool;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
@@ -21,13 +19,9 @@ namespace ClientApiFunctionHost
         {
             Environment.SetEnvironmentVariable("BASEDIR", AppContext.BaseDirectory);
             Environment.SetEnvironmentVariable("ConnectionStrings:ClientsDbConnectionString", "Server=(local);Database=Clients;Trusted_Connection=True;");
-            Environment.SetEnvironmentVariable("DisableAuthenticationAndAuthorization", "true");
+            Environment.SetEnvironmentVariable("DisableAuthenticationAndAuthorization", "false");
             Environment.SetEnvironmentVariable("TokenProviderOptions:Issuer", "https://dev-318215.okta.com/oauth2/aus15ubkj0WHGsqEV4x6");
             Environment.SetEnvironmentVariable("TokenProviderOptions:Audience", "UserManagement");
-
-            var configuration = new ConfigurationBuilder()
-                .AddEnvironmentVariables()
-                .Build();
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
@@ -36,8 +30,14 @@ namespace ClientApiFunctionHost
                 .WriteTo.Console()
                 .CreateLogger();
 
-            var services = new ServiceCollection();
             var loggerFactory = new SerilogLoggerFactory(Log.Logger, false);
+            builder.Services.AddSingleton<ILoggerFactory>(loggerFactory);
+
+            var configuration = new ConfigurationBuilder()
+                .AddEnvironmentVariables()
+                .Build();
+
+            var services = new ServiceCollection();
             var diagnosticListener = new DiagnosticListener("Microsoft.AspNetCore");
 
             services.AddSingleton<DiagnosticSource>(diagnosticListener);
@@ -50,14 +50,14 @@ namespace ClientApiFunctionHost
             var startup = new ClientApi.Startup(configuration);
             startup.ConfigureServices(services);
 
-            var serviceProvider = services.BuildServiceProvider();
+            var webHostingEnvironment = new WebHostEnvironment { EnvironmentName = configuration["Environment"] };
 
-            var applicationBuilder = new ApplicationBuilder(serviceProvider, new FeatureCollection());
-            startup.Configure(applicationBuilder, new WebHostEnvironment { EnvironmentName = configuration["Environment"] });
-
-            builder.Services.AddSingleton<ILoggerFactory>(loggerFactory);
-            builder.Services.AddSingleton(serviceProvider);
-            builder.Services.AddSingleton(applicationBuilder);
+            builder.Services.AddSingleton(new ServiceCollectionContainer
+            {
+                ServiceCollection = services,
+                HostingEnvironment = webHostingEnvironment,
+                Initializer = startup
+            });
         }
     }
 }
