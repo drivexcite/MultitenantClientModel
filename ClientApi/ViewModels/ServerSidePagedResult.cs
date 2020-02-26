@@ -5,12 +5,12 @@ namespace ClientApi.ViewModels
 {
     public static class ServerSidePagedResultExtensions
     {        
-        public static object CreateServerSidePagedResult<T>(this IEnumerable<T> items, string baseUrl, int total, int skip, int top, Dictionary<string, string> queryParams = null)
+        public static object CreateServerSidePagedResult<T>(this List<T> items, string baseUrl, int total, int skip, int top, Dictionary<string, string> queryParams = null)
         {
             queryParams ??= new Dictionary<string, string>();
             var urlParameters = string.Join("&", (from kvp in queryParams where kvp.Value != null select $"{kvp.Key}={kvp.Value}"));
 
-            var count = items.Count();
+            var count = items.Count;
             var prefUrl = $"{baseUrl}?{urlParameters}";
 
             var selfUrl = $"{prefUrl}&skip={skip}&top={top}";
