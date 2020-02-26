@@ -1,16 +1,10 @@
-using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using ClientApiFunctionHost.Support;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Logging;
 
 namespace ClientApiFunctionHost
 {

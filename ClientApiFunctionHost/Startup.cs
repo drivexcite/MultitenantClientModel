@@ -56,24 +56,15 @@ namespace ClientApiFunctionHost
 
             builder.Services.AddSingleton<IApplicationBuilder>(provider =>
             {
-                var serviceProvider = services.BuildServiceProvider();
+                var serviceProvider = provider.GetService<ServiceProvider>();
                 var applicationBuilder = new ApplicationBuilder(serviceProvider, new FeatureCollection());
 
                 startup.Configure(applicationBuilder, environment);
-
                 return applicationBuilder;
             });
 
-            builder.Services.AddScoped<ServiceProvider>(provider =>
-            {
-                var serviceProvider = services.BuildServiceProvider();
-                var applicationBuilder = new ApplicationBuilder(serviceProvider, new FeatureCollection());
-
-                startup.Configure(applicationBuilder, environment);
-                return serviceProvider;
-            });
-
-            builder.Services.AddScoped(provider => provider.GetService<IApplicationBuilder>().Build());
+            builder.Services.AddScoped(provider => services.BuildServiceProvider());
+            builder.Services.AddSingleton(provider => provider.GetService<IApplicationBuilder>().Build());
         }
     }
 }
