@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
 using ClientApiFunctionHost.Support;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Features;
 
 [assembly: FunctionsStartup(typeof(ClientApiFunctionHost.Startup))]
 namespace ClientApiFunctionHost
@@ -50,14 +52,28 @@ namespace ClientApiFunctionHost
             var startup = new ClientApi.Startup(configuration);
             startup.ConfigureServices(services);
 
-            var webHostingEnvironment = new WebHostEnvironment { EnvironmentName = configuration["Environment"] };
+            var environment = new WebHostEnvironment { EnvironmentName = configuration["Environment"] };
 
-            builder.Services.AddSingleton(new ServiceCollectionContainer
+            builder.Services.AddSingleton<IApplicationBuilder>(provider =>
             {
-                ServiceCollection = services,
-                HostingEnvironment = webHostingEnvironment,
-                Initializer = startup
+                var serviceProvider = services.BuildServiceProvider();
+                var applicationBuilder = new ApplicationBuilder(serviceProvider, new FeatureCollection());
+
+                startup.Configure(applicationBuilder, environment);
+
+                return applicationBuilder;
             });
+
+            builder.Services.AddScoped<ServiceProvider>(provider =>
+            {
+                var serviceProvider = services.BuildServiceProvider();
+                var applicationBuilder = new ApplicationBuilder(serviceProvider, new FeatureCollection());
+
+                startup.Configure(applicationBuilder, environment);
+                return serviceProvider;
+            });
+
+            builder.Services.AddScoped(provider => provider.GetService<IApplicationBuilder>().Build());
         }
     }
 }

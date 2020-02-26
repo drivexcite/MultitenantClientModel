@@ -108,7 +108,7 @@ namespace ClientApi
                             ClockSkew = TimeSpan.Zero
                         };
 
-                        options.SaveToken = false;
+                        options.SaveToken = true;
                         options.Events = new JwtBearerEvents
                         {
                             OnTokenValidated = context =>
