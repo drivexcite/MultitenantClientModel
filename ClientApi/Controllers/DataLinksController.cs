@@ -12,10 +12,10 @@ namespace ClientApi.Controllers
     [TypeFilter(typeof(ClientModelExceptionFilter))]
     public class DataLinksController : ControllerBase
     {
-        private readonly GetDataLinkDelegte _getDataLink;
+        private readonly GetDataLinkDelegate _getDataLink;
         private readonly CreateDataLinkDelegate _createDataLink;
 
-        public DataLinksController(GetDataLinkDelegte getDataLink, CreateDataLinkDelegate createDataLink)
+        public DataLinksController(GetDataLinkDelegate getDataLink, CreateDataLinkDelegate createDataLink)
         {
             _getDataLink = getDataLink;
             _createDataLink = createDataLink;

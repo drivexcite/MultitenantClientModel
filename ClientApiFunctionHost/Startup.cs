@@ -64,7 +64,7 @@ namespace ClientApiFunctionHost
             });
 
             builder.Services.AddScoped(provider => services.BuildServiceProvider());
-            builder.Services.AddSingleton(provider => provider.GetService<IApplicationBuilder>().Build());
+            builder.Services.AddScoped(provider => provider.GetService<IApplicationBuilder>().Build());
         }
     }
 }

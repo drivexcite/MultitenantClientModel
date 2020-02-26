@@ -1,6 +1,8 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using ClientModel.Entities;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using ClientModel.Dtos;
@@ -22,37 +24,51 @@ namespace ClientModel.DataAccess.Get.GetIdentityProviders
 
         public async Task<(List<IdentityProviderDto>, int)> GetIdentityProvidersForSubscriptionAsync(int accountId, int subscriptionId, int skip, int top)
         {
-            var account = await (
-                from a in _db.Accounts
-                    .Include(a => a.Subscriptions)
-                    .ThenInclude(s => s.IdentityProviders)
-                    .ThenInclude(m => m.IdentityProvider)
-                where a.AccountId == accountId
-                select a
-            ).FirstOrDefaultAsync();
-
-            if (account == null)
+            try
             {
-                throw new AccountNotFoundException($"An account with AccountId {accountId} does not exist.");
+                var account = await (
+                    from a in _db.Accounts
+                        .Include(a => a.Subscriptions)
+                        .ThenInclude(s => s.IdentityProviders)
+                        .ThenInclude(m => m.IdentityProvider)
+                    where a.AccountId == accountId
+                    select a
+                ).FirstOrDefaultAsync();
+
+                if (account == null)
+                {
+                    throw new AccountNotFoundException($"An account with AccountId {accountId} does not exist.");
+                }
+
+                var subscription = (from s in account.Subscriptions where s.SubscriptionId == subscriptionId select s).FirstOrDefault();
+
+                if (subscription == null)
+                {
+                    throw new SubscriptionNotFoundException($"A subscription with SubscriptionId = {subscriptionId} does not exist within Account with AccountId = {accountId}.");
+                }
+
+                var identityProviders = (from m in subscription.IdentityProviders select m.IdentityProvider).ToList();
+                var dtos = (from i in identityProviders select _mapper.Map<IdentityProviderDto>(i)).Skip(skip).Take(top).ToList();
+
+                return (dtos, identityProviders.Count);
             }
-
-            var subscription = (from s in account.Subscriptions where s.SubscriptionId == subscriptionId select s).FirstOrDefault();
-
-            if (subscription == null)
+            catch (DbException e)
             {
-                throw new SubscriptionNotFoundException($"A subscription with SubscriptionId = {subscriptionId} does not exist within Account with AccountId = {accountId}.");
+                throw new PersistenceException($"An error occurred while reading a DataLink ({nameof(accountId)} = {accountId}, {nameof(subscriptionId)} = {subscriptionId}, {nameof(skip)} = {skip}, {nameof(top)} = {top})", e);
             }
-
-            var identityProviders = (from m in subscription.IdentityProviders select m.IdentityProvider).ToList();
-            var dtos = (from i in identityProviders select _mapper.Map<IdentityProviderDto>(i)).Skip(skip).Take(top).ToList();
-
-            return (dtos, identityProviders.Count);
         }
 
         public virtual async Task<(List<IdentityProviderDto>, int)> GetIdentityProvidersAsync(int accountId, int skip, int top)
         {
-            var (identityProviders, total) = await GetIdentityProvidersAndCountAsync(accountId, skip, top);
-            return (await _mapper.ProjectTo<IdentityProviderDto>(identityProviders).ToListAsync(), total);
+            try
+            {
+                var (identityProviders, total) = await GetIdentityProvidersAndCountAsync(accountId, skip, top);
+                return (await _mapper.ProjectTo<IdentityProviderDto>(identityProviders).ToListAsync(), total);
+            }
+            catch (DbException e)
+            {
+                throw new PersistenceException($"An error occurred while reading a DataLink ({nameof(accountId)} = {accountId}, {nameof(skip)} = {skip}, {nameof(top)} = {top})", e);
+            }
         }
 
         private async Task<(IQueryable<IdentityProvider>, int)> GetIdentityProvidersAndCountAsync(int accountId, int skip, int top)

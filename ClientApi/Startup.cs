@@ -61,7 +61,7 @@ namespace ClientApi
             services.AddScoped<GetAccountDelegate>();
             services.AddScoped<GetSubscriptionDelegate>();
             services.AddScoped<GetIdentityProvidersDelegate>();
-            services.AddScoped<GetDataLinkDelegte>();
+            services.AddScoped<GetDataLinkDelegate>();
             
             var signingKey = Configuration["TokenProviderOptions:SecretKey"] is string secretKey
                 ? new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey))

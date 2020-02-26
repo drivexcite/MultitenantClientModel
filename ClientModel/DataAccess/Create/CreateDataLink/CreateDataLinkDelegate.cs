@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Data.Common;
+using System.Threading.Tasks;
 using AutoMapper;
 using ClientModel.Dtos;
 using ClientModel.Entities;
 using System.Linq;
 using ClientModel.Exceptions;
+using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
 
 namespace ClientModel.DataAccess.Create.CreateDataLink
@@ -20,6 +22,33 @@ namespace ClientModel.DataAccess.Create.CreateDataLink
         }
 
         public virtual async Task<DataLinkDto> CreateDataLinkAsync(int accountId, DataLinkDto dataLinkDto)
+        {
+            try
+            {
+                var prefetch = await PrefetchAndValidate(accountId, dataLinkDto);
+
+                var dataLink = new DataLink
+                {
+                    FromSubscriptionId = dataLinkDto.FromSubscriptionId,
+                    From = prefetch.From,
+                    ToSubscriptionId = dataLinkDto.ToSubscriptionId,
+                    To = prefetch.To,
+                    DataLinkTypeId = dataLinkDto.DataLinkTypeId,
+                    Type = prefetch.Type
+                };
+
+                _db.DataLinks.Add(dataLink);
+                await _db.SaveChangesAsync();
+
+                return _mapper.Map<DataLinkDto>(dataLink);
+            }
+            catch (DbException e)
+            {
+                throw new PersistenceException($"An error occurred while creating the DataLink ({nameof(accountId)} = {accountId}, {nameof(dataLinkDto)} = {JsonConvert.SerializeObject(dataLinkDto)})", e);
+            }
+        }
+
+        private async Task<PrefetchDataLinkResult> PrefetchAndValidate(int accountId, DataLinkDto dataLinkDto)
         {
             var doesAccountExistFuture = (from a in _db.Accounts where a.AccountId == accountId select 1).DeferredAny().FutureValue();
             var dataLinkTypeFuture = (from t in _db.DataLinkTypes where t.DataLinkTypeId == dataLinkDto.DataLinkTypeId select t).DeferredFirstOrDefault().FutureValue();
@@ -68,20 +97,14 @@ namespace ClientModel.DataAccess.Create.CreateDataLink
                 throw new MalformedSubscriptionException($"A subscription with SubscriptionId = {dataLinkDto.ToSubscriptionId} does not exists inside Account with AccountId {accountId}");
             }
 
-            var dataLink = new DataLink
-            {
-                FromSubscriptionId = dataLinkDto.FromSubscriptionId,
-                From = fromSubscription,
-                ToSubscriptionId = dataLinkDto.ToSubscriptionId,
-                To = toSubscription,
-                DataLinkTypeId = dataLinkDto.DataLinkTypeId,
-                Type = dataLinkType
-            };
-
-            _db.DataLinks.Add(dataLink);
-            await _db.SaveChangesAsync();
-
-            return _mapper.Map<DataLinkDto>(dataLink);
+            return new PrefetchDataLinkResult { From = fromSubscription, To = toSubscription, Type = dataLinkType };
         }
+    }
+
+    internal class PrefetchDataLinkResult
+    {
+        public Subscription From { get; set; }
+        public Subscription To { get; set; }
+        public DataLinkType Type { get; set; }
     }
 }

@@ -36,46 +36,46 @@ namespace ClientModel.DataAccess.Create.CreateSubscription
                 throw new ClientModelAggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
             }
 
-            var (account, subscriptionType) = await PrefetchAndValidateAsync(accountId, subscriptionDto);
-            var subscription = await PersistSubscriptionAsync(account, subscriptionType, subscriptionDto);
+            try
+            {
+                var (account, subscriptionType) = await PrefetchAndValidateAsync(accountId, subscriptionDto);
+                var subscription = await PersistSubscriptionAsync(account, subscriptionType, subscriptionDto);
 
-            return _mapper.Map<SubscriptionDto>(subscription);
+                return _mapper.Map<SubscriptionDto>(subscription);
+            }
+            catch (DbException e)
+            {
+                throw new PersistenceException($"An error occurred while creating the Subscription ({nameof(accountId)} = {accountId}, {nameof(subscriptionDto)} = {JsonConvert.SerializeObject(subscriptionDto)})", e);
+            }
         }
 
         private async Task<(Account, SubscriptionType)> PrefetchAndValidateAsync(int accountId, SubscriptionDto subscription)
         {
-            try
+            var existingAccountFuture = (from a in _db.Accounts where a.AccountId == accountId select a).DeferredFirstOrDefault().FutureValue();
+            var subscriptionTypeFuture = (from t in _db.SubscriptionTypes where t.SubscriptionTypeId == subscription.SubscriptionTypeId select t).DeferredFirstOrDefault().FutureValue();
+            var existingSubscriptionsFuture = (from s in _db.Subscriptions where s.SubscriptionId == subscription.SubscriptionId select 1).DeferredCount().FutureValue();
+
+            var account = await existingAccountFuture.ValueAsync();
+            var subscriptionType = await subscriptionTypeFuture.ValueAsync();
+
+            if (account == null)
             {
-                var existingAccountFuture = (from a in _db.Accounts where a.AccountId == accountId select a).DeferredFirstOrDefault().FutureValue();
-                var subscriptionTypeFuture = (from t in _db.SubscriptionTypes where t.SubscriptionTypeId == subscription.SubscriptionTypeId select t).DeferredFirstOrDefault().FutureValue();
-                var existingSubscriptionsFuture = (from s in _db.Subscriptions where s.SubscriptionId == subscription.SubscriptionId select 1).DeferredCount().FutureValue();
-
-                var account = await existingAccountFuture.ValueAsync();
-                var subscriptionType = await subscriptionTypeFuture.ValueAsync();
-                
-                if(account == null)
-                {
-                    throw new AccountNotFoundException($"An account with {nameof(AccountDto.AccountId)} = {accountId} could not be found.");
-                }
-
-                var existingSubscriptions = await existingSubscriptionsFuture.ValueAsync();
-
-                if (existingSubscriptions > 0)
-                {
-                    throw new MalformedSubscriptionException($"An existing subscription with {nameof(SubscriptionDto.SubscriptionId)} = {subscription.SubscriptionId} already exists.");
-                }
-
-                if (subscriptionType == null)
-                {
-                    throw new MalformedSubscriptionException($"A subscription type with {nameof(SubscriptionDto.SubscriptionTypeId)} = {subscription.SubscriptionTypeId} doesn't exist.");
-                }
-
-                return (account, subscriptionType);
+                throw new AccountNotFoundException($"An account with {nameof(AccountDto.AccountId)} = {accountId} could not be found.");
             }
-            catch (DbException e)
+
+            var existingSubscriptions = await existingSubscriptionsFuture.ValueAsync();
+
+            if (existingSubscriptions > 0)
             {
-                throw new PersistenceException("An unexpected error occurred while validating the Create Account request.", e);
+                throw new MalformedSubscriptionException($"An existing subscription with {nameof(SubscriptionDto.SubscriptionId)} = {subscription.SubscriptionId} already exists.");
             }
+
+            if (subscriptionType == null)
+            {
+                throw new MalformedSubscriptionException($"A subscription type with {nameof(SubscriptionDto.SubscriptionTypeId)} = {subscription.SubscriptionTypeId} doesn't exist.");
+            }
+
+            return (account, subscriptionType);
         }
 
         private async Task<Subscription> PersistSubscriptionAsync(Account account, SubscriptionType subscriptionType, SubscriptionDto subscriptionDto)
