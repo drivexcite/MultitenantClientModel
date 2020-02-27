@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using ClientApi.Filters;
 using ClientModel.DataAccess.Create.CreateSubscription;
 using ClientModel.DataAccess.Get.GetSubscriptions;
+using ClientModel.DataAccess.Update.UpdateSubscription;
 using ClientModel.Dtos;
+using ClientModel.Dtos.Update;
 
 namespace ClientApi.Controllers
 {
@@ -14,11 +16,13 @@ namespace ClientApi.Controllers
     {
         private readonly GetSubscriptionDelegate _getSubscription;
         private readonly CreateSubscriptionDelegate _createSubscriptionDelegate;
+        private readonly UpdateSubscriptionDelegate _updateSubscription;
 
-        public SubscriptionsController(GetSubscriptionDelegate getSubscription, CreateSubscriptionDelegate createSubscriptionDelegate)
+        public SubscriptionsController(GetSubscriptionDelegate getSubscription, CreateSubscriptionDelegate createSubscriptionDelegate, UpdateSubscriptionDelegate updateSubscription)
         {
             _getSubscription = getSubscription;
             _createSubscriptionDelegate = createSubscriptionDelegate;
+            _updateSubscription = updateSubscription;
         }
 
         [HttpGet]
@@ -46,6 +50,14 @@ namespace ClientApi.Controllers
         public async Task<IActionResult> GetSubscription(int accountId, int subscriptionId)
         {
             return Ok(await _getSubscription.GetSubscriptionAsync(accountId, subscriptionId));
+        }
+
+        [HttpPatch]
+        [Route("accounts/{accountId}/subscriptions/{subscriptionId}")]
+        //[AuthorizeRbac("accounts:read")]
+        public async Task<IActionResult> GetSubscription(int accountId, int subscriptionId, [FromBody] UpdateSubscriptionDto subscriptionDto)
+        {
+            return Ok(await _updateSubscription.UpdateSubscriptionAsync(accountId, subscriptionId, subscriptionDto));
         }
     }
 }

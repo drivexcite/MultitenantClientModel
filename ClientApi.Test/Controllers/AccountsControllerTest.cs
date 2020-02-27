@@ -186,7 +186,7 @@ namespace ClientApi.Test.Controllers
             var response = await httpClient.PostAsync("/accounts", new StringContent(body, Encoding.UTF8, "application/json"));
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
             
             var content = await response.Content.ReadAsStringAsync();
             content.Should().NotBeNullOrEmpty();

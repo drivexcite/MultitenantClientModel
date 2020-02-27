@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using ClientModel.DataAccess.Common;
 using ClientModel.Dtos;
 using ClientModel.Entities;
 using ClientModel.Exceptions;
@@ -27,14 +28,10 @@ namespace ClientModel.DataAccess.Create.CreateSubscription
 
         public virtual async Task<SubscriptionDto> CreateSubscriptionAsync(int accountId, SubscriptionDto subscriptionDto)
         {
-            var validationErrors = new List<ValidationResult>();
+            var errors = new List<ValidationResult>();
 
-            Validator.TryValidateObject(subscriptionDto, new ValidationContext(subscriptionDto, null, null), validationErrors, true);
-
-            if (validationErrors.Count > 0)
-            {
-                throw new ClientModelAggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
-            }
+            Utils.ValidateDto(subscriptionDto, errors);
+            Utils.ThrowAggregateExceptionOnValidationErrors(errors);
 
             try
             {

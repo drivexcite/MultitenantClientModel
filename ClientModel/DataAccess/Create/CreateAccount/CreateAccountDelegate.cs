@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using ClientModel.DataAccess.Common;
 using ClientModel.Dtos;
 using ClientModel.Entities;
 using ClientModel.Exceptions;
@@ -27,20 +28,17 @@ namespace ClientModel.DataAccess.Create.CreateAccount
 
         public virtual async Task<AccountDto> CreateAccountAsync(AccountDto accountDto)
         {
-            var validationErrors = new List<ValidationResult>();
+            var errors = new List<ValidationResult>();
 
-            Validator.TryValidateObject(accountDto, new ValidationContext(accountDto, null, null), validationErrors, true);
-
+            Utils.ValidateDto(accountDto, errors);
+            
             var subscriptions = accountDto.Subscriptions ?? new List<SubscriptionDto>();
             var identityProviders = accountDto.IdentityProviders ?? new List<IdentityProviderDto>();
 
-            subscriptions.ForEach(s => Validator.TryValidateObject(s, new ValidationContext(s, null, null), validationErrors, true));
-            identityProviders.ForEach(i => Validator.TryValidateObject(i, new ValidationContext(i, null, null), validationErrors, true));
+            subscriptions.ForEach(s => Utils.ValidateDto(s, errors));
+            identityProviders.ForEach(i => Utils.ValidateDto(i, errors));
 
-            if (validationErrors.Count > 0)
-            {
-                throw new ClientModelAggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
-            }
+            Utils.ThrowAggregateExceptionOnValidationErrors(errors);
 
             try
             {

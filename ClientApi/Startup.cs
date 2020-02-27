@@ -14,7 +14,6 @@ using Microsoft.Extensions.Hosting;
 using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.DataAccess.Create.CreateIdentityProvider;
 using ClientModel.DataAccess.Get.GetAccount;
-using ClientModel.DataAccess.Get.GetIdentityProviders;
 using ClientModel.DataAccess.Get.GetSubscriptions;
 using ClientModel.Dtos.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,6 +22,10 @@ using System.Text;
 using ClientModel.DataAccess.Create.CreateDataLink;
 using ClientModel.DataAccess.Create.CreateSubscription;
 using ClientModel.DataAccess.Get.GetDataLink;
+using ClientModel.DataAccess.Get.GetIdentityProvider;
+using ClientModel.DataAccess.Update.UpdateAccount;
+using ClientModel.DataAccess.Update.UpdateIdentityProvider;
+using ClientModel.DataAccess.Update.UpdateSubscription;
 
 namespace ClientApi
 {
@@ -62,7 +65,11 @@ namespace ClientApi
             services.AddScoped<GetSubscriptionDelegate>();
             services.AddScoped<GetIdentityProvidersDelegate>();
             services.AddScoped<GetDataLinkDelegate>();
-            
+
+            services.AddScoped<UpdateAccountDelegate>();
+            services.AddScoped<UpdateSubscriptionDelegate>();
+            services.AddScoped<UpdateIdentityProviderDelegate>();
+
             var signingKey = Configuration["TokenProviderOptions:SecretKey"] is string secretKey
                 ? new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey))
                 : null;

@@ -1,9 +1,12 @@
-﻿using System.Data.Common;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Common;
 using System.Threading.Tasks;
 using AutoMapper;
 using ClientModel.Dtos;
 using ClientModel.Entities;
 using System.Linq;
+using ClientModel.DataAccess.Common;
 using ClientModel.Exceptions;
 using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
@@ -50,6 +53,11 @@ namespace ClientModel.DataAccess.Create.CreateDataLink
 
         private async Task<PrefetchDataLinkResult> PrefetchAndValidate(int accountId, DataLinkDto dataLinkDto)
         {
+            var errors = new List<ValidationResult>();
+
+            Utils.ValidateDto(dataLinkDto, errors);
+            Utils.ThrowAggregateExceptionOnValidationErrors(errors);
+
             var doesAccountExistFuture = (from a in _db.Accounts where a.AccountId == accountId select 1).DeferredAny().FutureValue();
             var dataLinkTypeFuture = (from t in _db.DataLinkTypes where t.DataLinkTypeId == dataLinkDto.DataLinkTypeId select t).DeferredFirstOrDefault().FutureValue();
             var existingDataLink = (

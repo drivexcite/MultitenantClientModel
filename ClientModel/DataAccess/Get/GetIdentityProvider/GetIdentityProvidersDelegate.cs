@@ -1,15 +1,15 @@
-﻿using System;
-using AutoMapper;
-using ClientModel.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using ClientModel.DataAccess.Common;
 using ClientModel.Dtos;
+using ClientModel.Entities;
 using ClientModel.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
-namespace ClientModel.DataAccess.Get.GetIdentityProviders
+namespace ClientModel.DataAccess.Get.GetIdentityProvider
 {
     public class GetIdentityProvidersDelegate
     {
@@ -80,6 +80,19 @@ namespace ClientModel.DataAccess.Get.GetIdentityProviders
                 throw new AccountNotFoundException($"An account with AccountId {accountId} could not be found");
 
             return (identityProviders.Skip(skip).Take(top), identityProviders.Count());
+        }
+
+        public async Task<IdentityProviderDto> GetIdentityProviderAsync(int accountId, int identityProviderId)
+        {
+            try
+            {
+                var identityProvider = await Utils.GetIdentityProviderAsync(_db, accountId, identityProviderId);
+                return _mapper.Map<IdentityProviderDto>(identityProvider);
+            }
+            catch (DbException e)
+            {
+                throw new PersistenceException($"An error occurred while reading IdentityProvider ({nameof(identityProviderId)}={identityProviderId})", e);
+            }
         }
     }
 }

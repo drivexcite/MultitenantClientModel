@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using ClientModel.DataAccess.Common;
 using ClientModel.Dtos;
 using ClientModel.Entities;
 using ClientModel.Exceptions;
@@ -25,19 +26,7 @@ namespace ClientModel.DataAccess.Get.GetAccount
         {
             try
             {
-                var account = await (
-                    from a in _db.Accounts
-                        .Include(a => a.IdentityProviders)
-                        .Include(a => a.Subscriptions)
-                            .ThenInclude(s => s.IdentityProviders)
-                                .ThenInclude(m => m.IdentityProvider)
-                    where a.AccountId == accountId
-                    select a
-                ).FirstOrDefaultAsync();
-
-                if (account == null)
-                    throw new AccountNotFoundException($"An account with AccountId = {accountId} could not be found.");
-
+                var account = await Utils.GetAccountAsync(_db, accountId);
                 return _mapper.Map<AccountDto>(account);
             }
             catch (DbException e)

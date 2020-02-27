@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using ClientModel.DataAccess.Common;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
@@ -25,15 +26,12 @@ namespace ClientModel.DataAccess.Create.CreateIdentityProvider
             _mapper = mapper;
         }
 
-        public async Task<IdentityProviderDto> CreateIdentityProvider(int accountId, IdentityProviderDto identityProvider)
+        public async Task<IdentityProviderDto> CreateIdentityProvider(int accountId, IdentityProviderDto identityProviderDto)
         {
-            var validationErrors = new List<ValidationResult>();
-            Validator.TryValidateObject(identityProvider, new ValidationContext(identityProvider, null, null), validationErrors, true);
+            var errors = new List<ValidationResult>();
 
-            if (validationErrors.Count > 0)
-            {
-                throw new ClientModelAggregateException(validationErrors.Select((e) => new ValidationException(e.ErrorMessage)));
-            }
+            Utils.ValidateDto(identityProviderDto, errors);
+            Utils.ThrowAggregateExceptionOnValidationErrors(errors);
 
             try
             {
@@ -43,14 +41,14 @@ namespace ClientModel.DataAccess.Create.CreateIdentityProvider
                     throw new AccountNotFoundException($"An account with {nameof(AccountDto.AccountId)} = {accountId} could not be found");
                 }
 
-                if (account.IdentityProviders.Any(p => string.Equals(p.Name, identityProvider.Name, StringComparison.OrdinalIgnoreCase)))
+                if (account.IdentityProviders.Any(p => string.Equals(p.Name, identityProviderDto.Name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    throw new MalformedAccountException($"An identity provider with the same name [{identityProvider.Name}] already exists.");
+                    throw new MalformedAccountException($"An identity provider with the same name [{identityProviderDto.Name}] already exists.");
                 }
 
                 var newIdentityProvider = new IdentityProvider
                 {
-                    Name = identityProvider.Name,
+                    Name = identityProviderDto.Name,
                     Account = account,
                     AccountId = accountId
                 };
@@ -62,7 +60,7 @@ namespace ClientModel.DataAccess.Create.CreateIdentityProvider
             }
             catch (DbException e)
             {
-                throw new PersistenceException($"An error occurred while creating the IdentityProvider ({nameof(accountId)} = {accountId}, {nameof(identityProvider)} = {JsonConvert.SerializeObject(identityProvider)})", e);
+                throw new PersistenceException($"An error occurred while creating the IdentityProvider ({nameof(accountId)} = {accountId}, {nameof(identityProviderDto)} = {JsonConvert.SerializeObject(identityProviderDto)})", e);
             }
         }
 

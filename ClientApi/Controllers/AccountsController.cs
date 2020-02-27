@@ -6,6 +6,8 @@ using ClientModel.DataAccess.Create.CreateAccount;
 using ClientModel.DataAccess.Get.GetAccount;
 using ClientModel.Dtos;
 using ClientApi.Authorization;
+using ClientModel.DataAccess.Update.UpdateAccount;
+using ClientModel.Dtos.Update;
 
 namespace ClientApi.Controllers
 {
@@ -15,11 +17,13 @@ namespace ClientApi.Controllers
     {
         private readonly CreateAccountDelegate _createAccount;
         private readonly GetAccountDelegate _getAccount;
+        private readonly UpdateAccountDelegate _updateAccount;
 
-        public AccountsController(CreateAccountDelegate createAccount, GetAccountDelegate getAccount)
+        public AccountsController(CreateAccountDelegate createAccount, GetAccountDelegate getAccount, UpdateAccountDelegate updateAccount)
         {
             _createAccount = createAccount;
             _getAccount = getAccount;
+            _updateAccount = updateAccount;
         }
 
         [HttpGet]
@@ -44,9 +48,20 @@ namespace ClientApi.Controllers
         [HttpPost]
         [Route("accounts")]
         //[AuthorizeRbac("accounts:write")]
-        public async Task<IActionResult> CreateAccount(AccountDto accountViewModel)
+        public async Task<IActionResult> CreateAccount(AccountDto accountDto)
         {
-            return Ok(await _createAccount.CreateAccountAsync(accountViewModel));
+            accountDto = await _createAccount.CreateAccountAsync(accountDto);
+            var accountUrl = $"{Request?.Scheme}://{Request?.Host}{Request?.PathBase}{Request?.Path}/{accountDto.AccountId}";
+
+            return Created(accountUrl, accountDto);
+        }
+
+        [HttpPatch]
+        [Route("accounts/{accountId}")]
+        //[AuthorizeRbac("accounts:write")]
+        public async Task<IActionResult> UpdateAccount(int accountId, UpdateAccountDto accountDto)
+        {
+            return Ok(await _updateAccount.UpdateAccountAsync(accountId, accountDto));
         }
     }
 }

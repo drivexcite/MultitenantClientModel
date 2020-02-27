@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ClientApi.Filters;
 using ClientApi.ViewModels;
-using ClientModel.DataAccess.Get.GetIdentityProviders;
 using ClientModel.Dtos;
 using ClientModel.DataAccess.Create.CreateIdentityProvider;
+using ClientModel.DataAccess.Get.GetIdentityProvider;
+using ClientModel.DataAccess.Update.UpdateIdentityProvider;
+using ClientModel.Dtos.Update;
 
 namespace ClientApi.Controllers
 {
@@ -16,11 +18,13 @@ namespace ClientApi.Controllers
     {
         private readonly GetIdentityProvidersDelegate _getIdentityProviders;
         private readonly CreateIdentityProviderDelegate _createIdentityProvider;
+        private readonly UpdateIdentityProviderDelegate _updateIdentityProvider;
 
-        public IdentityProvidersController(GetIdentityProvidersDelegate getIdentityProviders, CreateIdentityProviderDelegate createIdentityProvider)
+        public IdentityProvidersController(GetIdentityProvidersDelegate getIdentityProviders, CreateIdentityProviderDelegate createIdentityProvider, UpdateIdentityProviderDelegate updateIdentityProvider)
         {
             _getIdentityProviders = getIdentityProviders;
             _createIdentityProvider = createIdentityProvider;
+            _updateIdentityProvider = updateIdentityProvider;
         }
 
         [HttpGet]
@@ -37,9 +41,28 @@ namespace ClientApi.Controllers
         [HttpPost]
         [Route("accounts/{accountId}/identityProviders")]
         //[AuthorizeRbac("accounts:write")]
-        public async Task<IActionResult> GetIdentityProviders(int accountId, IdentityProviderDto identityProvider)
+        public async Task<IActionResult> AddIdentityProvider(int accountId, IdentityProviderDto identityProviderDto)
         {
-            return Ok(await _createIdentityProvider.CreateIdentityProvider(accountId, identityProvider));
+            identityProviderDto = await _createIdentityProvider.CreateIdentityProvider(accountId, identityProviderDto);
+            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}{Request.Path}/{identityProviderDto.IdentityProviderId}";
+
+            return Created(baseUrl, identityProviderDto);
+        }
+
+        [HttpGet]
+        [Route("accounts/{accountId}/identityProviders/{identityProviderId}")]
+        //[AuthorizeRbac("accounts:read")]
+        public async Task<IActionResult> GetIdentityProvidersForAccountAndSubscription(int accountId, int identityProviderId)
+        {
+            return Ok(await _getIdentityProviders.GetIdentityProviderAsync(accountId, identityProviderId));
+        }
+
+        [HttpPatch]
+        [Route("accounts/{accountId}/identityProviders/{identityProviderId}")]
+        //[AuthorizeRbac("accounts:read")]
+        public async Task<IActionResult> UpdateIdentityProvider(int accountId, int identityProviderId, [FromBody]UpdateIdentityProviderDto identityProviderDto)
+        {
+            return Ok(await _updateIdentityProvider.UpdateIdentityProvider(accountId, identityProviderId, identityProviderDto));
         }
 
         [HttpGet]
