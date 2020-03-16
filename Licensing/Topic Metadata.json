@@ -1,0 +1,143 @@
+{
+    "id": "866A063B-CC43-46FC-8F11-ABD86E9DA42A",
+    "hwid": "acc4672",
+    "localization": "en-us",
+    "version": "2",
+    "contentType": "hwInfoConcept",
+    "consumerTitle": "What is kernicterus? ",
+    "clinicalTitle": "",
+    "englishConsumerTitle": "What is kernicterus? ",
+    "changeReason": null,
+    "changeTypes": [
+        "Other_Migrated"
+    ],
+    "met": "<?xml version='1.0' encoding='UTF-16' standalone='no'?><ishobject ishlngref='558651' ishversionref='558650' ishlogicalref='444231' ishref='GUID-866A063B-CC43-46FC-8F11-ABD86E9DA42A' ishtype='ISHModule'>
+  <ishfields>
+    <ishfield name='FTITLE' level='logical'>What is kernicterus? SU C</ishfield>
+    <ishfield name='FDESCRIPTION' level='logical'></ishfield>
+    <ishfield name='FHWFILENAME' level='logical'></ishfield>
+    <ishfield name='FHWLEGACYFILENAME' level='logical'></ishfield>
+    <ishfield name='FHWCONCEPTID' level='logical' ishvaluetype='value'>20381</ishfield>
+    <ishfield name='FHWASPECTID' level='logical' ishvaluetype='value'>whatIs</ishfield>
+    <ishfield name='FHWVISIBILITY' level='logical' ishvaluetype='value'>Standalone</ishfield>
+    <ishfield name='FHWPRODUCTNAME' level='logical'></ishfield>
+    <ishfield name='FHWDOCUMENTTYPE' level='logical'></ishfield>
+    <ishfield name='FHWAUDIENCE' level='logical'>Parent</ishfield>
+    <ishfield name='FHWBCT' level='logical'></ishfield>
+    <ishfield name='FMODULETYPE' level='logical'>hwInfoConceptSummary</ishfield>
+    <ishfield name='FMASTERTYPE' level='logical'></ishfield>
+    <ishfield name='FLIBRARYTYPE' level='logical'></ishfield>
+    <ishfield name='FHWIMGHEIGHT' level='logical'></ishfield>
+    <ishfield name='FHWIMGWIDTH' level='logical'></ishfield>
+    <ishfield name='FHWIMGALTTXT' level='logical'></ishfield>
+    <ishfield name='FCHANGES' level='version'></ishfield>
+    <ishfield name='FHWCHANGETYPETOPIC' level='version' ishvaluetype='value'></ishfield>
+    <ishfield name='FHWCHANGETYPEMAP' level='version'></ishfield>
+    <ishfield name='FHWCHANGETYPEPUB' level='version'></ishfield>
+    <ishfield name='FHWREADINGLEVELN' level='lng'>7.9</ishfield>
+    <ishfield name='FHWHWID' level='logical'>acc4672</ishfield>
+    <ishfield name='FAUTHOR' level='lng'>rwhitaker</ishfield>
+    <ishfield name='FSTATUS' level='lng'>Released</ishfield>
+    <ishfield name='FHWPRIMARYMEDICALREVIEWER' level='lng'>John Pope MD - Pediatrics, Kathleen Romito MD - Family Medicine</ishfield>
+    <ishfield name='FHWSECONDARYMEDICALREVIEWER' level='lng'>Chuck Norlin MD - Pediatrics</ishfield>
+    <ishfield name='FHWLASTMEDICALREVIEWDATE' level='lng'>05/07/2017 00: 00: 00</ishfield>
+    <ishfield name='FHWNEXTMEDICALREVIEWDATE' level='lng'>05/07/2019 00: 00: 00</ishfield>
+    <ishfield name='FHWLASTREVIEWEDDATE' level='lng'>05/07/2017 00: 00: 00</ishfield>
+    <ishfield name='FHWCERTIFICATIONDATE' level='version'>12/05/2017 00: 00: 00</ishfield>
+    <ishfield name='VERSION' level='version'>2</ishfield>
+    <ishfield name='FRESOLUTION' level='lng'></ishfield>
+    <ishfield name='DOC-LANGUAGE' level='lng'>en-US</ishfield>
+    <ishfield name='FISHREVCOUNTER' level='lng'>2</ishfield>
+    <ishfield name='ED' level='lng'>GUID-F9028A48-F717-48E2-81A6-A5EC1CBDDE43</ishfield>
+    <ishfield name='FUSERGROUP' level='logical' ishvaluetype='element'></ishfield>
+    <ishfield name='READ-ACCESS' level='logical' ishvaluetype='element'></ishfield>
+  </ishfields>
+</ishobject>",
+    "references": {
+        "DBE7BB86-0116-5713-81C5-FE94F34394CD": {
+            "hwid": "stj151004"
+        }
+    },
+    "aspects": [
+        {
+            "aspect_id": "whatIs",
+            "concept_id": "HWCV_20381"
+        }
+    ],
+    "data": "<hwInfoConcept xml:lang='en-US' id='866A063B-CC43-46FC-8F11-ABD86E9DA42A' class='- topic/topic concept/concept hwInfoConcept/hwInfoConcept '> <title class='- topic/title '>What is kernicterus? </title> <prolog class='- topic/prolog '><metadata class='- topic/metadata '><othermeta class='- topic/othermeta ' content='7.9' name='readingLevel' /></metadata> </prolog><hwInfoConceptBody class='- topic/body concept/conbody hwInfoConceptBody/hwInfoConceptBody '>  <section id='7CCA7DD8-1AF3-4918-9700-40C002D26E9A' class='- topic/section '> <p class='- topic/p '>Kernicterus is a very rare type of brain damage that occurs in a newborn with severe <xref href='GUID-DBE7BB86-0116-5713-81C5-FE94F34394CD.xml' class='- topic/xref ' type='hwDefinition'>jaundice</xref>. It happens when a substance in the blood, called bilirubin, builds up to very high levels and spreads into the brain tissues. This causes permanent brain damage. </p> <p class='- topic/p '>Kernicterus may be prevented by treating jaundice early before it gets severe. </p> </section> </hwInfoConceptBody> </hwInfoConcept>",
+    "relationships": [
+        {
+            "relationshipType": "linksTo",
+            "id": "dbe7bb86-0116-5713-81c5-fe94f34394cd"
+        }
+    ]
+}
+
+{
+    "id": "en-us.866A063B-CC43-46FC-8F11-ABD86E9DA42A",
+    "contentId_s": "866A063B-CC43-46FC-8F11-ABD86E9DA42A",
+    "taxon_s": "DITAdoc",
+    "contentType_s": "hwInfoConcept",
+    "weak_en": [
+        "hwInfoConcept"
+    ],
+    "data_t": "<hwInfoConcept xml:lang='en-US' id='866A063B-CC43-46FC-8F11-ABD86E9DA42A' class='- topic/topic concept/concept hwInfoConcept/hwInfoConcept '> <title class='- topic/title '>What is kernicterus? </title> <prolog class='- topic/prolog '><metadata class='- topic/metadata '><othermeta class='- topic/othermeta ' content='7.9' name='readingLevel' /></metadata> </prolog><hwInfoConceptBody class='- topic/body concept/conbody hwInfoConceptBody/hwInfoConceptBody '>  <section id='7CCA7DD8-1AF3-4918-9700-40C002D26E9A' class='- topic/section '> <p class='- topic/p '>Kernicterus is a very rare type of brain damage that occurs in a newborn with severe <xref href='GUID-DBE7BB86-0116-5713-81C5-FE94F34394CD.xml' class='- topic/xref ' type='hwDefinition'>jaundice</xref>. It happens when a substance in the blood, called bilirubin, builds up to very high levels and spreads into the brain tissues. This causes permanent brain damage. </p> <p class='- topic/p '>Kernicterus may be prevented by treating jaundice early before it gets severe. </p> </section> </hwInfoConceptBody> </hwInfoConcept>",
+    "titleConsumer_t": "What is kernicterus? ",
+    "suggestables_t": "What is kernicterus? ",
+    "language_s": "en-us",
+    "datetime_dt": "2018-06-13T16:40:20.369Z",
+    "FTITLE_s": "What is kernicterus? SU C",
+    "FHWCONCEPTID_s": "20381",
+    "FHWASPECTID_s": "whatIs",
+    "FHWVISIBILITY_s": "Standalone",
+    "FHWAUDIENCE_s": "Parent",
+    "FMODULETYPE_s": "hwInfoConceptSummary",
+    "FHWREADINGLEVELN_s": "7.9",
+    "FHWHWID_s": "acc4672",
+    "FAUTHOR_s": "rwhitaker",
+    "FSTATUS_s": "Released",
+    "FHWPRIMARYMEDICALREVIEWER_s": "John Pope MD - Pediatrics, Kathleen Romito MD - Family Medicine",
+    "FHWSECONDARYMEDICALREVIEWER_s": "Chuck Norlin MD - Pediatrics",
+    "FHWLASTMEDICALREVIEWDATE_s": "05/07/2017 00:00:00",
+    "FHWNEXTMEDICALREVIEWDATE_s": "05/07/2019 00:00:00",
+    "FHWLASTREVIEWEDDATE_s": "05/07/2017 00:00:00",
+    "FHWCERTIFICATIONDATE_s": "12/05/2017 00:00:00",
+    "VERSION_s": "2",
+    "DOC-LANGUAGE_s": "en-US",
+    "FISHREVCOUNTER_s": "2",
+    "ED_s": "GUID-F9028A48-F717-48E2-81A6-A5EC1CBDDE43",
+    "taxonomy_t": [
+        {
+            "aspect": {
+                "id": "whatIs",
+                "label": "what it is"
+            },
+            "concept": {
+                "id": "HWCV_20381",
+                "label": "Kernicterus"
+            }
+        }
+    ],
+    "aspectId_ss": [
+        "whatIs"
+    ],
+    "aspectLabel_txt": [
+        "what it is"
+    ],
+    "conceptId_ss": [
+        "HWCV_20381"
+    ],
+    "conceptLabel_txt": [
+        "Kernicterus"
+    ],
+    "Specialities_ss": [
+        "HWCV_04755",
+        "HWCV_04029",
+        "HWCV_05233",
+        "HWCV_05230",
+        "HWCV_04020"
+    ],
+    "length_i": 1119,
+    "setId_s": "hwcv_20381_whatis_whatiskernicterus",
+    "_version_": 1660301320152678400
+}

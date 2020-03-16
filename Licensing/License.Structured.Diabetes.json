@@ -1,0 +1,59 @@
+{
+    "license": {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "signature": "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJVadQssw5c==",
+        "apiVersion": "v1",
+        "validFrom": "2020-01-01",
+        "validTo": "2024-12-31",
+        "organizationId": "00000000-0000-0000-0000-000000000001",
+        "subscriptions": [
+            "00000000-0000-0000-0000-000000000001",
+            "00000000-0000-0000-0000-000000000002",
+            "00000000-0000-0000-0000-000000000003"
+        ],
+        "assets": {
+            "topics": {
+                "localizations": [
+                    "en-us"
+                ],
+                "concepts": [
+                    {
+                        "hwcv": "20446"
+                    }
+                ],
+                "audiences": [
+                    "patient",
+                    "caregiver"
+                ],
+                "ageRange": {
+                    "min": 18
+                },
+                "topicTypes": [
+                    "hwDefinition",
+                    "hwDetailSet",
+                    "hwAction"
+                ]
+            },
+            "images": {
+                "localizations": [
+                    "en-us"
+                ],
+                "concepts": [
+                    {
+                        "hwcv": "20446"
+                    }
+                ]
+            },
+            "videos": {
+                "localizations": [
+                    "en-us"
+                ],
+                "concepts": [
+                    {
+                        "hwcv": "20446"
+                    }
+                ]
+            }
+        }
+    }
+}

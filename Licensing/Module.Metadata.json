@@ -1,0 +1,92 @@
+{
+    "id": "e87f7fd01a334001983d24b7d44b7a03",
+    "clientId": "0a563a788abc4f858ed9b9c0085aa87d",
+    "type": "Content",
+    "standalone": false,
+    "summary": {
+        "en-us": null,
+        "es-us": null
+    },
+    "name": "(Colonoscopy) Overview",
+    "title": {
+        "en-us": "Overview",
+        "es-us": null
+    },
+    "engagement": {
+        "id": "e74b373cb1c64dbfbdff5f63cccb86b6",
+        "message": {
+            "id": "3047e562a11a4406ad63a3bb94239a00",
+            "email": {
+                "id": "37b93585dfe54b22a63dd56a8ecf409c",
+                "body": {
+                    "en-us": "<p>Hello {{firstName}},&nbsp;</p>\n<p>What happens during a colonoscopy might be hard for you to get behind. That’s why this program is for you. It will guide you with timely tips, facts, and reminders that can help you relax and be comfortable during your test.&nbsp;</p>\n<p>Did you know:&nbsp;</p>\n<ul>\n<li>If you don’t properly prep, then your test may be canceled.&nbsp;</li>\n<li>The scope in “colonoscopy” is a small video camera. It lets the doctor see the colon and take pictures.</li>\n<li>Some people find that they do not remember having the test.&nbsp;</li>\n</ul>\n<p>Watch this video to learn more about a colonoscopy from prep to finish.&nbsp;</p>",
+                    "es-us": null
+                },
+                "subject": {
+                    "en-us": "What's behind a colonoscopy? ",
+                    "es-us": null
+                }
+            },
+            "sms": {
+                "id": "47de4a0114fa4252a3701b97c323a212",
+                "body": {
+                    "en-us": "{{firstName}}, what happens during a colonoscopy might be hard for you to get behind. This program will guide you with through the ins and outs. Timely tips and facts can help you relax and be comfortable. {{url}} \n\nTo end these messages, type STOP at any time.  ",
+                    "es-us": null
+                }
+            }
+        }
+    },
+    "objectives": [
+        {
+            "id": "a343dec7b8e04e228699826874877dac",
+            "type": "Structured Content",
+            "data": {
+                "concept": "HWCV_22234",
+                "conceptName": "Colonoscopy",
+                "aspect": "overview",
+                "hwid": "abn2415",
+                "title": "Colonoscopy: Overview",
+                "imageUrl": ""
+            }
+        },
+        {
+            "id": "da553fee9d8440b58c4b9d5e98e446db",
+            "type": "Structured Content",
+            "data": {
+                "concept": "HWCV_22234",
+                "conceptName": "Colonoscopy",
+                "aspect": "howDone",
+                "hwid": "abt5867",
+                "title": "How is colonoscopy done?",
+                "imageUrl": ""
+            }
+        },
+        {
+            "id": "3b5edfd5f7964db0befc65b489ca3838",
+            "type": "Structured Content",
+            "data": {
+                "concept": "HWCV_22234",
+                "conceptName": "Colonoscopy",
+                "aspect": "whyDone",
+                "hwid": "acf0105",
+                "title": "Why is a colonoscopy done?",
+                "imageUrl": ""
+            }
+        }
+    ],
+    "facets": [],
+    "editable": true,
+    "programs": {},
+    "createdDate": "0001-01-01T00:00:00",
+    "lastUpdatedDate": "2019-10-25T22:06:54.3120837",
+    "updatedBy": "SYSTEM",
+    "status": "Published",
+    "hasPublished": true,
+    "version": 1.002,
+    "isInEdit": false,
+    "note": "Programmatically removing facets from document that is saved in the Database.",
+    "medical": false,
+    "major": false,
+    "cardLayoutHeaderImage": null,
+    "parent": null
+}

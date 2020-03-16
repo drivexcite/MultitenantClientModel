@@ -1,0 +1,443 @@
+{
+  "id": "611F9A44-A6EE-57B9-AABA-2BF1245DB8CE",
+  "hash": "b7ad2a0c",
+  "hwid": "abu6867",
+  "localization": "en-us",
+  "version": "1",
+  "quarterlyRelease": "11.6",
+  "type": "AfterVisit",
+  "changeTypes": [
+    "Unspecified"
+  ],
+  "changeReason": "From: map hwid [abu6867] ver [3] - Unspecified
+
+From: topic hwid [abu6868
+  ] ver [
+    1
+  ] - Unspecified
+
+From: topic hwid [abu6865
+  ] ver [
+    1
+  ] - Unspecified
+
+From: topic hwid [abu6862
+  ] ver [
+    1
+  ] - Unspecified
+
+From: topic hwid [abu6870
+  ] ver [
+    1
+  ] - Unspecified
+
+From: topic hwid [abu6866
+  ] ver [
+    1
+  ] - Unspecified
+
+From: topic hwid [abu6861
+  ] ver [
+    1
+  ] - Unspecified
+
+From: topic hwid [abu6860
+  ] ver [
+    1
+  ] - Unspecified
+
+From: topic hwid [abu6863
+  ] ver [
+    1
+  ] - Unspecified
+
+From: topic hwid [abu6869
+  ] ver [
+    1
+  ] - Unspecified
+",
+    "assetReferences": [
+    {
+      "hwid": "abu6867",
+      "localization": "en-us",
+      "version": "3",
+      "type": "map",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6868",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6865",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6862",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6870",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6866",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6861",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6860",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6863",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    },
+    {
+      "hwid": "abu6869",
+      "localization": "en-us",
+      "version": "1",
+      "type": "topic",
+      "source": "SDL"
+    }
+  ],
+  "product": "PatientInstructions",
+  "rank": "1",
+  "title": "How to do the exercises",
+  "changesReportable": true,
+  "data": {
+    "Id": "611F9A44-A6EE-57B9-AABA-2BF1245DB8CE",
+    "Localization": "en-us",
+    "ContentType": "AfterVisit",
+    "ConsumerTitle": "How to do the exercises",
+    "Data": "<?xml version ='1.0' encoding='UTF-8'?><hw.doc hwContent='true' hwid-content='abu6867' product='PatientInstructions' type='AfterVisit' rank='1' xml:lang='en-us'>
+  <doc.meta-data>
+    <meta-data.titles>
+      <meta-data.title audience='Consumer'>How to do the exercises</meta-data.title>
+      <meta-data.title audience='Clinical' />
+    </meta-data.titles>
+    <meta-data.simple-collection>
+      <meta-data.simple name='ReleaseDate'>March 21,
+    2017</meta-data.simple>
+      <meta-data.simple name='ReleaseDate.ISO8601'>2017-03-21</meta-data.simple>
+      <meta-data.simple name='ContentHash'>b7ad2a0c</meta-data.simple>
+      <meta-data.simple name='authoringId'>611F9A44-A6EE-57B9-AABA-2BF1245DB8CE</meta-data.simple>
+    </meta-data.simple-collection>
+    <meta-data.credits>
+      <credits.person document-href='ua13981' role='primary-medical-reviewer'>
+        <person.first>Adam</person.first>
+        <person.middle></person.middle>
+        <person.last>Husney</person.last>
+        <person.credentials>
+          <person.credential>MD</person.credential>
+        </person.credentials>
+        <person.specialties>
+          <person.specialty>Family Medicine</person.specialty>
+        </person.specialties>
+      </credits.person>
+      <credits.person document-href='ts1221' role='primary-medical-reviewer'>
+        <person.first>Kathleen</person.first>
+        <person.middle></person.middle>
+        <person.last>Romito</person.last>
+        <person.credentials>
+          <person.credential>MD</person.credential>
+        </person.credentials>
+        <person.specialties>
+          <person.specialty>Family Medicine</person.specialty>
+        </person.specialties>
+      </credits.person>
+      <credits.person document-href='abl2438' role='secondary-medical-reviewer'>
+        <person.first>A.</person.first>
+        <person.middle>Evan</person.middle>
+        <person.last>Eyler</person.last>
+        <person.credentials>
+          <person.credential>MD</person.credential>
+          <person.credential>MPH</person.credential>
+        </person.credentials>
+        <person.specialties>
+          <person.specialty>Family Medicine</person.specialty>
+          <person.specialty>Psychiatry</person.specialty>
+        </person.specialties>
+      </credits.person>
+    </meta-data.credits>
+  </doc.meta-data>
+  <doc.sections>
+    <doc.section hwid-content='abu6868'>
+      <section.meta-data>
+        <meta-data.title>Calf stretch (knees straight)</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+    <doc.section hwid-content='abu6865'>
+      <section.meta-data>
+        <meta-data.title>Calf stretch (knees bent)</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+    <doc.section hwid-content='abu6862'>
+      <section.meta-data>
+        <meta-data.title>Great toe extension stretch</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+    <doc.section hwid-content='abu6870'>
+      <section.meta-data>
+        <meta-data.title>Great toe flexion stretch</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+    <doc.section hwid-content='abu6866'>
+      <section.meta-data>
+        <meta-data.title>Ankle alphabet</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+    <doc.section hwid-content='abu6861'>
+      <section.meta-data>
+        <meta-data.title>Resisted ankle dorsiflexion</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+    <doc.section hwid-content='abu6860'>
+      <section.meta-data>
+        <meta-data.title>Towel curl</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+    <doc.section hwid-content='abu6863'>
+      <section.meta-data>
+        <meta-data.title>Resisted ankle eversion</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+    <doc.section hwid-content='abu6869'>
+      <section.meta-data>
+        <meta-data.title>Resisted ankle inversion</meta-data.title>
+      </section.meta-data>
+      <section.std type='SpecialSection' />
+    </doc.section>
+  </doc.sections>
+</hw.doc>"
+  },
+  "References": null
+}
+
+
+{
+  "Hwid": "uf10350",
+  "Taxon": "document",
+  "Title_en_us_s": "Learning About Chronic Bronchitis",
+  "Title_es_us_s": "Aprenda sobre la bronquitis crónica",
+  "Title_en_ca_s": "Learning About Chronic Bronchitis",
+  "Path": "\\uf10\\350\\uf10350.xml",
+  "Abstract_en_ca_s": "Chronic bronchitis is long-term swelling and the buildup of mucus in the airways of your lungs. The airways (bronchial tubes) get inflamed and make a lot of mucus. This can narrow or block the airways, making it hard for you to breathe. It is a form of COPD (chronic obstructive pulmonary disease). Chronic bronchitis is...",
+  "Abstract_en_us_s": "Chronic bronchitis is long-term swelling and the buildup of mucus in the airways of your lungs. The airways (bronchial tubes) get inflamed and make a lot of mucus. This can narrow or block the airways, making it hard for you to breathe. It is a form of COPD (chronic obstructive pulmonary disease). Chronic bronchitis is...",
+  "Abstract_es_us_s": "La bronquitis crónica es la inflamación y la acumulación de mucosidad crónicas en las vías respiratorias de los pulmones. Las vías respiratorias (bronquios) se inflaman y producen mucha mucosidad. Esto puede estrechar o bloquear las vías respiratorias, dificultándole la respiración. Es una forma de EPOC (enfermedad...",
+  "AbstractIsAuthored": false,
+  "IsSearchable": true,
+  "Rank": "1",
+  "Type": "aftervisit",
+  "Version": "12.4",
+  "AuthoringVersion_s": "37",
+  "ReleaseDate": "2019-06-09",
+  "MinAge_s": "18",
+  "MaxAge_s": "110",
+  "EmrMinAge_s": "18",
+  "EmrMaxAge_s": "110",
+  "Family": "pi",
+  "ContentConfigurations": [
+    "pi"
+  ],
+  "facetid_contentconfigurations": [
+    "pi"
+  ],
+  "KeywordsR1EnUs": [
+    "Acute exacerbation of chronic obstructive bronchitis",
+    "Acute exacerbation of chronic obstructive bronchitis (disorder)",
+    "Bronchitis, Chronic",
+    "Catarrhal bronchitis",
+    "Catarrhal bronchitis (disorder)",
+    "chronic bronchitis",
+    "Chronic bronchitis (disorder)",
+    "Chronic catarrhal bronchitis",
+    "Obstructive Chronic Bronchitis",
+    "Simple chronic bronchitis",
+    "Simple chronic bronchitis (disorder)"
+  ],
+  "KeywordsR1EsUs": [
+    "Acute exacerbation of chronic obstructive bronchitis",
+    "Acute exacerbation of chronic obstructive bronchitis (disorder)",
+    "Bronchitis, Chronic",
+    "Catarrhal bronchitis",
+    "Catarrhal bronchitis (disorder)",
+    "chronic bronchitis",
+    "Chronic bronchitis (disorder)",
+    "Chronic catarrhal bronchitis",
+    "Obstructive Chronic Bronchitis",
+    "Simple chronic bronchitis",
+    "Simple chronic bronchitis (disorder)",
+    "bronquitis catarral",
+    "bronquitis catarral (trastorno)",
+    "bronquitis catarral crónica",
+    "bronquitis crónica",
+    "bronquitis crónica (trastorno)",
+    "bronquitis crónica simple",
+    "bronquitis crónica simple (trastorno)",
+    "exacerbación aguda de bronquitis obstructiva crónica",
+    "exacerbación aguda de bronquitis obstructiva crónica (trastorno)"
+  ],
+  "Localizations": [
+    "en-ca",
+    "en-us",
+    "es-us"
+  ],
+  "Languages_ss": [
+    "en-us",
+    "en-ca",
+    "es-us"
+  ],
+  "categories": [
+    "Pulmonology",
+    "Emergency and Urgent Care"
+  ],
+  "category_ids": [
+    "cat1526",
+    "cat1533"
+  ],
+  "facetid_category": [
+    "cat1526",
+    "cat1533"
+  ],
+  "Codewords": [
+    "U629",
+    "U629"
+  ],
+  "Age": [
+    "D055815",
+    "D000328",
+    "D008875",
+    "D000368",
+    "D000369"
+  ],
+  "Sections_en_us_ss": [
+    "<section id=\"abt6010\">What is chronic bronchitis?</section>",
+    "<section id=\"abt6013\">What can you expect when you have chronic bronchitis?</section>",
+    "<section id=\"abt6011\">What are the symptoms?</section>",
+    "<section id=\"abt6009\">How can you keep chronic bronchitis from getting worse?</section>",
+    "<section id=\"abt6008\">How is chronic bronchitis treated?</section>",
+    "<section id=\"uf10350-LearnMore\">Where can you learn more?</section>"
+  ],
+  "Sections_en_ca_ss": [
+    "<section id=\"abt6010\">What is chronic bronchitis?</section>",
+    "<section id=\"abt6013\">What can you expect when you have chronic bronchitis?</section>",
+    "<section id=\"abt6011\">What are the symptoms?</section>",
+    "<section id=\"abt6009\">How can you keep chronic bronchitis from getting worse?</section>",
+    "<section id=\"abt6008\">How is chronic bronchitis treated?</section>",
+    "<section id=\"uf10350-LearnMore\">Where can you learn more?</section>"
+  ],
+  "Sections_es_us_ss": [
+    "<section id=\"abt6010\">¿Qué es la bronquitis crónica?</section>",
+    "<section id=\"abt6013\">¿Qué puede esperar cuando tiene bronquitis crónica?</section>",
+    "<section id=\"abt6011\">¿Cuáles son los síntomas?</section>",
+    "<section id=\"abt6009\">¿Cómo puede evitar que empeore la bronquitis crónica?</section>",
+    "<section id=\"abt6008\">¿Cómo se trata la bronquitis crónica?</section>",
+    "<section id=\"uf10350-LearnMore\">¿Dónde puede encontrar más información en inglés?</section>"
+  ],
+  "Gender": [
+    "female",
+    "male"
+  ],
+  "Icd9R1": [
+    "491",
+    "491.0",
+    "491.20",
+    "491.21",
+    "491.9"
+  ],
+  "Icd10R1": [
+    "J41",
+    "J41.0",
+    "J41.1",
+    "J41.8"
+  ],
+  "Icd10R2": [
+    "J40",
+    "J42",
+    "J44.1",
+    "J44.9"
+  ],
+  "SnomedCtR1": [
+    "13645005",
+    "185086009",
+    "195949008",
+    "22482002",
+    "275503004",
+    "293241000119100",
+    "40100001",
+    "425748003",
+    "442025000",
+    "47938003",
+    "52571006",
+    "61937009",
+    "63480004",
+    "7457009",
+    "84409004",
+    "89549007"
+  ],
+  "Curated_en_ca_ss": [
+    "CA-KB-PIs",
+    "CA-PIs"
+  ],
+  "Concept_ss": [
+    "HWCV_20454"
+  ],
+  "ConceptsR1_ss": [
+    "HWCV_20454"
+  ],
+  "Specialities_ss": [
+    "HWCV_04756",
+    "HWCV_04755",
+    "HWCV_04033"
+  ],
+  "Audiences_ss": [
+    "Patient"
+  ],
+  "DeliverySetting_ss": [
+    "Outpatient",
+    "Inpatient"
+  ],
+  "facet_Conditions": [
+    "Chronic Bronchitis"
+  ],
+  "facetid_condition": [
+    "fidp9258"
+  ],
+  "_version_": 1660314633428271119
+}

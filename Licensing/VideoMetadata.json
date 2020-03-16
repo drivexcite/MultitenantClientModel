@@ -1,0 +1,90 @@
+{
+    "id": "F2B59B59-4E78-5EE0-AD50-76C77CB12CB4",
+    "hwid": "abo2278",
+    "localization": "en-us",
+    "version": "2",
+    "contentType": "hwVideo",
+    "consumerTitle": "Quitting Smoking: It May Take Many Tries",
+    "englishConsumerTitle": "Quitting Smoking: It May Take Many Tries",
+    "changes": [
+        {
+            "changeType": "Editorial_Major",
+            "changeText": "Revised visuals and content."
+        }
+    ],
+    "met": "<ishobject ishref='GUID-F2B59B59-4E78-5EE0-AD50-76C77CB12CB4' ishtype='ISHModule' ishlogicalref='1292537' ishversionref='1805744' ishlngref='1805745'>
+        <ishfields>
+            <ishfield name='FHWCONTENTAREA' level='logical' xml:space='preserve'>SMKG</ishfield>
+            <ishfield name='FHWCONCEPTS' level='logical' xml:space='preserve' ishvaluetype='element'>04700</ishfield>
+            <ishfield name='FHWASPECTS' level='logical' xml:space='preserve' ishvaluetype='element'>socialAndEmotional</ishfield>
+            <ishfield name='FHWCONCEPTID' level='logical' xml:space='preserve' ishvaluetype='element'>04700</ishfield>
+            <ishfield name='FHWVISIBILITY' level='logical' xml:space='preserve' ishvaluetype='value'>Standalone</ishfield>
+            <ishfield name='FHWAUDIENCE' level='logical' xml:space='preserve'>Patient</ishfield>
+            <ishfield name='FHWBCT' level='logical' xml:space='preserve' />
+            <ishfield name='FMODULETYPE' level='logical' xml:space='preserve'>hwVideo</ishfield>
+            <ishfield name='FHWCHANGETYPETOPIC' level='lng' xml:space='preserve' ishvaluetype='element'>Editorial_Major</ishfield>
+            <ishfield name='FCHANGES' level='lng' xml:space='preserve'>Revised visuals and content. </ishfield>
+            <ishfield name='FHWCHANGETYPETOPIC2' level='lng' xml:space='preserve' ishvaluetype='element' />
+            <ishfield name='FCHANGES2' level='lng' xml:space='preserve' />
+            <ishfield name='FHWHWID' level='logical' xml:space='preserve'>abo2278</ishfield>
+            <ishfield name='FHWALIASHWID' level='logical' xml:space='preserve' />
+            <ishfield name='FHWPRIMARYMEDICALREVIEWER' level='lng' xml:space='preserve'>Adam Husney MD - Family Medicine, Kathleen Romito MD - Family Medicine, Christine R. Maldonado PhD - Behavioral Health, Heather Quinn MD - Family Medicine</ishfield>
+            <ishfield name='FHWLASTMEDICALREVIEWDATE' level='lng' xml:space='preserve'>06/09/2019 00: 00: 00</ishfield>
+            <ishfield name='FHWNEXTMEDICALREVIEWDATE' level='lng' xml:space='preserve'>17/03/2019 00: 00: 00</ishfield>
+            <ishfield name='FHWLASTREVIEWEDDATE' level='lng' xml:space='preserve'>29/11/2017 00: 00: 00</ishfield>
+            <ishfield name='FTITLE' level='logical' xml:space='preserve'>Quitting Smoking: It May Take Many Tries</ishfield>
+            <ishfield name='FDESCRIPTION' level='logical' xml:space='preserve' />
+            <ishfield name='VERSION' level='version' xml:space='preserve'>2</ishfield>
+            <ishfield name='CREATED-ON' level='lng' xml:space='preserve'>11/04/2019 13: 38: 25</ishfield>
+            <ishfield name='FAUTHOR' level='lng' xml:space='preserve'>fvalentine</ishfield>
+            <ishfield name='FSTATUS' level='lng' xml:space='preserve'>Released</ishfield>
+            <ishfield name='MODIFIED-ON' level='lng' xml:space='preserve'>09/01/2020 14: 26: 20</ishfield>
+            <ishfield name='DOC-LANGUAGE' level='lng' xml:space='preserve'>en-US</ishfield>
+            <ishfield name='FISHREVCOUNTER' level='lng' xml:space='preserve'>12</ishfield>
+            <ishfield name='ED' level='lng' xml:space='preserve'>GUID-D6C88FB5-42A8-47E3-9C8F-750450167B5E</ishfield>
+            <ishfield name='FUSERGROUP' level='logical' xml:space='preserve' ishvaluetype='element' />
+            <ishfield name='READ-ACCESS' level='logical' xml:space='preserve' ishvaluetype='element' />
+        </ishfields>
+    </ishobject>",
+    "references": {},
+    "aspects": [
+        {
+            "aspect_id": "socialAndEmotional",
+            "concept_id": "HWCV_04700"
+        }
+    ],
+    "data": "<?xml version='1.0' encoding='utf-8'?>       
+        <hwInfoConcept id='F2B59B59-4E78-5EE0-AD50-76C77CB12CB4' xml:lang='en-US' class='- topic/topic concept/concept hwInfoConcept/hwInfoConcept '> 
+        <title class='- topic/title '>Quitting Smoking: It May Take Many Tries</title> 
+        <prolog class='- topic/prolog '> 
+            <metadata class='- topic/metadata '> 
+                <othermeta name='readingLevel' content='1;1;0;1' class='- topic/othermeta ' /> 
+                <data name='hwid' value='abo2278' class='- topic/data ' /> 
+                <data name='topConcept' value='FHWWELLNESSFACETVALUE' class='- topic/data ' /> 
+                <data name='conceptId' value='4700' class='- topic/data ' /> 
+                <data name='conceptName' value='Quitting Smoking' class='- topic/data ' /> 
+                <data name='aspect' value='barriers' class='- topic/data ' /> 
+                <data name='duration' value='00: 01: 54' />
+            </metadata> 
+        </prolog> 
+        <hwInfoConceptBody class='- topic/body concept/conbody hwInfoConcept/hwInfoConceptBody '> 
+            <hwVideoScript id='HWVIDEOSCRIPT_GK1_YPD_KDB' class='+ topic/section hwVideo-d/hwVideoScript '> 
+                <image placement='break' scope='external' height='107px' width='190px' id='IMAGE_NWT_PCX_JDB' href='http: //pcde-assets/dam/CURRENT/Images/abo2278.jpg' class='- topic/image '> 
+                    <alt class='- topic/alt '>Quitting Smoking: It May Take Many Tries</alt> 
+                </image> 
+                <hwConsumerAbstract class='+ topic/p hwVideo-d/hwConsumerAbstract '>Learn how it may take a few attempts before you quit smoking for good. </hwConsumerAbstract> 
+                <hwClinicalAbstract class='+ topic/p hwVideo-d/hwClinicalAbstract '>Provides encouragement for people who have quit smoking but started again.</hwClinicalAbstract> 
+                <hwLearningObjective class='+ topic/p hwVideo-d/hwLearningObjective '>The user will understand that people often make many attempts before they quit for good.</hwLearningObjective> 
+                <p class='- topic/p '> 
+                    <xref href='https: //web.microsoftstream.com/video/f6f322cd-c6cb-48e2-a477-3199b56b428e' format='html' scope='external' class='- topic/xref '> https://web.microsoftstream.com/video/f6f322cd-c6cb-48e2-a477-3199b56b428e</xref> 
+                </p>  </hwVideoScript> 
+            </hwInfoConceptBody> 
+        </hwInfoConcept>", 
+    "changesReportable": true,
+    "relationships": [
+        {
+            "relationshipType": "linksTo",
+            "id": "f6f322cd-c6cb-48e2-a477-3199b56b428e"
+        }
+    ]
+}
